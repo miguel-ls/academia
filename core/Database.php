@@ -17,7 +17,7 @@ class Database {
 
     public function __construct() {
         // Configurar DSN (Data Source Name)
-        $dsn = 'mysql:host=' . $this.->host . ';dbname=' . $this->dbname . ';charset=utf8';
+        $dsn = 'mysql:host=' . $this->host . ';dbname=' . $this->dbname . ';charset=utf8';
         $options = [
             PDO::ATTR_PERSISTENT => true,
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
