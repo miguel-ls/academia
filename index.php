@@ -36,7 +36,7 @@ $allowed_views = [
 ];
 
 // Construir la ruta al archivo del controlador
-$controller_file = 'controllers/' . $view . '_controller.php';
+$controller_file = __DIR__ . '/controllers/' . $view . '_controller.php';
 
 // Verificar si la vista está permitida y si el archivo del controlador existe
 if (in_array($view, $allowed_views) && file_exists($controller_file)) {

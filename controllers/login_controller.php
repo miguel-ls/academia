@@ -81,10 +81,6 @@ switch ($action) {
         }
         break;
 
-    case 'logout':
-        Session::destroy();
-        break;
-
     default:
         // Por defecto, mostrar la vista de login
         require_once 'views/login_view.php';
