@@ -17,34 +17,62 @@ class ListaPreciosModel {
         return $this->db->single();
     }
 
+    public function buscar($term) {
+        $this->db->callStoredProcedure('sp_lista_precios_buscar', [$term]);
+        return $this->db->resultSet();
+    }
+
     public function crear($datos) {
-        $params = [
-            $datos['id_curso'],
-            $datos['id_tipo_precio'],
-            $datos['precio'],
-            $datos['vigencia_inicio'],
-            $datos['vigencia_fin']
-        ];
-        $this->db->callStoredProcedure('sp_lista_precios_crear', $params);
-        return $this->db->rowCount() > 0;
+        try {
+            $params = [
+                $datos['id_curso'],
+                $datos['id_tipo_precio'],
+                $datos['precio'],
+                $datos['vigencia_inicio'],
+                $datos['vigencia_fin']
+            ];
+            $this->db->callStoredProcedure('sp_lista_precios_crear', $params);
+            return ['success' => true];
+        } catch (Exception $e) {
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
     }
 
     public function actualizar($datos) {
-        $params = [
-            $datos['id'],
-            $datos['id_curso'],
-            $datos['id_tipo_precio'],
-            $datos['precio'],
-            $datos['vigencia_inicio'],
-            $datos['vigencia_fin']
-        ];
-        $this->db->callStoredProcedure('sp_lista_precios_actualizar', $params);
-        return $this->db->rowCount() > 0;
+        try {
+            $params = [
+                $datos['id_lista_precio'],
+                $datos['id_curso'],
+                $datos['id_tipo_precio'],
+                $datos['precio'],
+                $datos['vigencia_inicio'],
+                $datos['vigencia_fin']
+            ];
+            $this->db->callStoredProcedure('sp_lista_precios_actualizar', $params);
+
+            if ($this->db->rowCount() > 0) {
+                return ['success' => true];
+            } else {
+                return ['success' => false, 'error' => 'No se realizaron cambios.'];
+            }
+        } catch (Exception $e) {
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
     }
 
     public function eliminar($id) {
-        $this->db->callStoredProcedure('sp_lista_precios_eliminar', [$id]);
-        return $this->db->rowCount() > 0;
+        try {
+            $this->db->callStoredProcedure('sp_lista_precios_eliminar', [$id]);
+            return ['success' => true];
+        } catch (Exception $e) {
+            // No se esperan dependencias directas, pero se captura por si acaso
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
+
+    // No hay dependencias directas que verificar para eliminar un precio de lista
+    public function verificarDependencias($id) {
+        return 0;
     }
 
     // Métodos para los dropdowns
