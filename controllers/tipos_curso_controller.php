@@ -14,13 +14,15 @@ try {
     switch ($action) {
         case 'create':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $model->crear($_POST['nombre']);
+                $datos = ['nombre' => $_POST['nombre'], 'descripcion' => $_POST['descripcion']];
+                $model->crear($datos);
                 $feedback_message = "Tipo de Curso creado exitosamente.";
             }
             break;
         case 'update':
             if ($_SERVER['REQUEST_METHOD'] === 'POST' && $id > 0) {
-                $model->actualizar($id, $_POST['nombre']);
+                $datos = ['nombre' => $_POST['nombre'], 'descripcion' => $_POST['descripcion']];
+                $model->actualizar($id, $datos);
                 $feedback_message = "Tipo de Curso actualizado exitosamente.";
             }
             break;

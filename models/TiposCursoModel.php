@@ -17,13 +17,13 @@ class TiposCursoModel {
         return $this->db->single();
     }
 
-    public function crear($nombre) {
-        $this->db->callStoredProcedure('sp_tipos_curso_crear', [$nombre]);
+    public function crear($datos) {
+        $this->db->callStoredProcedure('sp_tipos_curso_crear', [$datos['nombre'], $datos['descripcion']]);
         return $this->db->rowCount() > 0;
     }
 
-    public function actualizar($id, $nombre) {
-        $this->db->callStoredProcedure('sp_tipos_curso_actualizar', [$id, $nombre]);
+    public function actualizar($id, $datos) {
+        $this->db->callStoredProcedure('sp_tipos_curso_actualizar', [$id, $datos['nombre'], $datos['descripcion']]);
         return $this->db->rowCount() > 0;
     }
 

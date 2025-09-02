@@ -28,16 +28,16 @@ CREATE PROCEDURE `sp_tipos_area_eliminar`(IN p_id INT) BEGIN DELETE FROM tipos_a
 -- `tipos_curso`
 -- -----------------------------------------------------
 DROP PROCEDURE IF EXISTS `sp_tipos_curso_listar`$$
-CREATE PROCEDURE `sp_tipos_curso_listar`() BEGIN SELECT id_tipo_curso, nombre FROM tipos_curso ORDER BY nombre; END$$
+CREATE PROCEDURE `sp_tipos_curso_listar`() BEGIN SELECT id_tipo_curso, nombre, descripcion FROM tipos_curso ORDER BY nombre; END$$
 
 DROP PROCEDURE IF EXISTS `sp_tipos_curso_obtener_por_id`$$
-CREATE PROCEDURE `sp_tipos_curso_obtener_por_id`(IN p_id INT) BEGIN SELECT id_tipo_curso, nombre FROM tipos_curso WHERE id_tipo_curso = p_id; END$$
+CREATE PROCEDURE `sp_tipos_curso_obtener_por_id`(IN p_id INT) BEGIN SELECT id_tipo_curso, nombre, descripcion FROM tipos_curso WHERE id_tipo_curso = p_id; END$$
 
 DROP PROCEDURE IF EXISTS `sp_tipos_curso_crear`$$
-CREATE PROCEDURE `sp_tipos_curso_crear`(IN p_nombre VARCHAR(50)) BEGIN INSERT INTO tipos_curso (nombre) VALUES (p_nombre); END$$
+CREATE PROCEDURE `sp_tipos_curso_crear`(IN p_nombre VARCHAR(50), IN p_descripcion VARCHAR(255)) BEGIN INSERT INTO tipos_curso (nombre, descripcion) VALUES (p_nombre, p_descripcion); END$$
 
 DROP PROCEDURE IF EXISTS `sp_tipos_curso_actualizar`$$
-CREATE PROCEDURE `sp_tipos_curso_actualizar`(IN p_id INT, IN p_nombre VARCHAR(50)) BEGIN UPDATE tipos_curso SET nombre = p_nombre WHERE id_tipo_curso = p_id; END$$
+CREATE PROCEDURE `sp_tipos_curso_actualizar`(IN p_id INT, IN p_nombre VARCHAR(50), IN p_descripcion VARCHAR(255)) BEGIN UPDATE tipos_curso SET nombre = p_nombre, descripcion = p_descripcion WHERE id_tipo_curso = p_id; END$$
 
 DROP PROCEDURE IF EXISTS `sp_tipos_curso_eliminar`$$
 CREATE PROCEDURE `sp_tipos_curso_eliminar`(IN p_id INT) BEGIN DELETE FROM tipos_curso WHERE id_tipo_curso = p_id; END$$

@@ -25,6 +25,10 @@
             <label for="nombre">Nombre:</label>
             <input type="text" id="nombre" name="nombre" value="<?php echo htmlspecialchars($item_a_editar['nombre'] ?? ''); ?>" required>
         </div>
+        <div class="form-group">
+            <label for="descripcion">Descripción:</label>
+            <textarea id="descripcion" name="descripcion" rows="3"><?php echo htmlspecialchars($item_a_editar['descripcion'] ?? ''); ?></textarea>
+        </div>
 
         <div class="form-actions">
             <?php if (isset($item_a_editar)): ?>
@@ -41,6 +45,7 @@
         <tr>
             <th>ID</th>
             <th>Nombre</th>
+            <th>Descripción</th>
             <th>Acciones</th>
         </tr>
     </thead>
@@ -49,6 +54,7 @@
             <tr>
                 <td><?php echo $item['id_tipo_curso']; ?></td>
                 <td><?php echo htmlspecialchars($item['nombre']); ?></td>
+                <td><?php echo htmlspecialchars($item['descripcion']); ?></td>
                 <td>
                     <a href="index.php?view=tipos_curso&action=edit&id=<?php echo $item['id_tipo_curso']; ?>" class="btn btn-warning">Editar</a>
                     <form action="index.php?view=tipos_curso" method="POST" style="display:inline;" onsubmit="return confirm('¿Está seguro?');">

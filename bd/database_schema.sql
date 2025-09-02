@@ -158,6 +158,7 @@ CREATE TABLE IF NOT EXISTS `profesores` (
 CREATE TABLE IF NOT EXISTS `tipos_curso` (
   `id_tipo_curso` INT NOT NULL AUTO_INCREMENT,
   `nombre` VARCHAR(50) NOT NULL,
+  `descripcion` VARCHAR(255) NULL,
   PRIMARY KEY (`id_tipo_curso`)
 ) ENGINE = InnoDB;
 
