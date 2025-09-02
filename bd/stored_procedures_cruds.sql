@@ -66,4 +66,60 @@ CREATE PROCEDURE `sp_areas_actualizar`(IN p_id_area INT, IN p_id_tipo_area INT, 
 DROP PROCEDURE IF EXISTS `sp_areas_eliminar`$$
 CREATE PROCEDURE `sp_areas_eliminar`(IN p_id INT) BEGIN DELETE FROM areas WHERE id_area = p_id; END$$
 
+-- -----------------------------------------------------
+-- `sub_areas`
+-- -----------------------------------------------------
+DROP PROCEDURE IF EXISTS `sp_sub_areas_listar`$$
+CREATE PROCEDURE `sp_sub_areas_listar`()
+BEGIN
+    SELECT sa.id_sub_area, sa.descripcion, sa.numero_sub_area, sa.capacidad_maxima, a.nombre AS area_nombre
+    FROM sub_areas sa
+    JOIN areas a ON sa.id_area = a.id_area
+    ORDER BY a.nombre, sa.descripcion;
+END$$
+
+DROP PROCEDURE IF EXISTS `sp_sub_areas_obtener_por_id`$$
+CREATE PROCEDURE `sp_sub_areas_obtener_por_id`(IN p_id INT)
+BEGIN
+    SELECT id_sub_area, id_area, descripcion, numero_sub_area, capacidad_maxima
+    FROM sub_areas
+    WHERE id_sub_area = p_id;
+END$$
+
+DROP PROCEDURE IF EXISTS `sp_sub_areas_crear`$$
+CREATE PROCEDURE `sp_sub_areas_crear`(
+    IN p_id_area INT,
+    IN p_descripcion VARCHAR(100),
+    IN p_numero_sub_area VARCHAR(20),
+    IN p_capacidad_maxima INT
+)
+BEGIN
+    INSERT INTO sub_areas (id_area, descripcion, numero_sub_area, capacidad_maxima)
+    VALUES (p_id_area, p_descripcion, p_numero_sub_area, p_capacidad_maxima);
+END$$
+
+DROP PROCEDURE IF EXISTS `sp_sub_areas_actualizar`$$
+CREATE PROCEDURE `sp_sub_areas_actualizar`(
+    IN p_id_sub_area INT,
+    IN p_id_area INT,
+    IN p_descripcion VARCHAR(100),
+    IN p_numero_sub_area VARCHAR(20),
+    IN p_capacidad_maxima INT
+)
+BEGIN
+    UPDATE sub_areas
+    SET
+        id_area = p_id_area,
+        descripcion = p_descripcion,
+        numero_sub_area = p_numero_sub_area,
+        capacidad_maxima = p_capacidad_maxima
+    WHERE id_sub_area = p_id_sub_area;
+END$$
+
+DROP PROCEDURE IF EXISTS `sp_sub_areas_eliminar`$$
+CREATE PROCEDURE `sp_sub_areas_eliminar`(IN p_id INT)
+BEGIN
+    DELETE FROM sub_areas WHERE id_sub_area = p_id;
+END$$
+
 DELIMITER ;
