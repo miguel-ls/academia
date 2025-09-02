@@ -101,4 +101,15 @@ class Database {
     public function rollBack() {
         return $this->dbh->rollBack();
     }
+
+    /**
+     * Cierra la conexión y destruye la instancia Singleton.
+     * Usado para forzar una reconexión.
+     */
+    public static function close() {
+        if (self::$instance !== null) {
+            self::$instance->dbh = null;
+            self::$instance = null;
+        }
+    }
 }

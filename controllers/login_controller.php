@@ -17,6 +17,9 @@ switch ($action) {
 
             $user = $usuarioModel->obtenerPorNombreUsuario($username);
 
+            // Forzar la reconexión para la prueba de depuración
+            Database::close();
+
             if ($user && password_verify($password, $user['password_hash'])) {
                 // Contraseña correcta, iniciar proceso 2FA
                 $code = rand(100000, 999999);
