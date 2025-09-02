@@ -1,7 +1,5 @@
 <?php
 
-ob_start(); // Iniciar el buffer de salida
-
 // =================================================================
 // Front Controller Principal
 // =================================================================
@@ -12,7 +10,6 @@ require_once 'config/config.php';
 // Cargar las clases del núcleo
 require_once 'core/Database.php';
 require_once 'core/Session.php';
-require_once 'core/helpers.php'; // Cargar la nueva función de redirección
 
 // Autoloader para las demás clases (opcional pero recomendado para el futuro)
 // spl_autoload_register(function($className){

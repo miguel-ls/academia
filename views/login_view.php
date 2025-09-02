@@ -28,11 +28,12 @@
     <div class="login-container">
         <h1>Iniciar Sesión</h1>
 
-        <?php if (!empty($feedback_message)): ?>
-            <div class="feedback error">
-                <?php echo htmlspecialchars($feedback_message); ?>
-            </div>
-        <?php endif; ?>
+        <?php
+        if (isset($_SESSION['error_message'])) {
+            echo '<div class="feedback error">' . htmlspecialchars($_SESSION['error_message']) . '</div>';
+            unset($_SESSION['error_message']); // Limpiar el mensaje para que no se muestre de nuevo
+        }
+        ?>
 
         <form action="index.php?view=login" method="POST">
             <input type="hidden" name="action" value="login">
