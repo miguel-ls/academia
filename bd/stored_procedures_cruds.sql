@@ -200,5 +200,107 @@ CREATE PROCEDURE `sp_formas_pago_actualizar`(IN p_id INT, IN p_nombre VARCHAR(50
 DROP PROCEDURE IF EXISTS `sp_formas_pago_eliminar`$$
 CREATE PROCEDURE `sp_formas_pago_eliminar`(IN p_id INT) BEGIN DELETE FROM formas_pago WHERE id_forma_pago = p_id; END$$
 
+-- -----------------------------------------------------
+-- `tipos_precio`
+-- -----------------------------------------------------
+DROP PROCEDURE IF EXISTS `sp_tipos_precio_listar`$$
+CREATE PROCEDURE `sp_tipos_precio_listar`() BEGIN SELECT id_tipo_precio, nombre FROM tipos_precio ORDER BY nombre; END$$
+
+DROP PROCEDURE IF EXISTS `sp_tipos_precio_obtener_por_id`$$
+CREATE PROCEDURE `sp_tipos_precio_obtener_por_id`(IN p_id INT) BEGIN SELECT id_tipo_precio, nombre FROM tipos_precio WHERE id_tipo_precio = p_id; END$$
+
+DROP PROCEDURE IF EXISTS `sp_tipos_precio_crear`$$
+CREATE PROCEDURE `sp_tipos_precio_crear`(IN p_nombre VARCHAR(50)) BEGIN INSERT INTO tipos_precio (nombre) VALUES (p_nombre); END$$
+
+DROP PROCEDURE IF EXISTS `sp_tipos_precio_actualizar`$$
+CREATE PROCEDURE `sp_tipos_precio_actualizar`(IN p_id INT, IN p_nombre VARCHAR(50)) BEGIN UPDATE tipos_precio SET nombre = p_nombre WHERE id_tipo_precio = p_id; END$$
+
+DROP PROCEDURE IF EXISTS `sp_tipos_precio_eliminar`$$
+CREATE PROCEDURE `sp_tipos_precio_eliminar`(IN p_id INT) BEGIN DELETE FROM tipos_precio WHERE id_tipo_precio = p_id; END$$
+
+-- -----------------------------------------------------
+-- `tipos_horario`
+-- -----------------------------------------------------
+DROP PROCEDURE IF EXISTS `sp_tipos_horario_listar`$$
+CREATE PROCEDURE `sp_tipos_horario_listar`() BEGIN SELECT id_tipo_horario, descripcion, dias_semana FROM tipos_horario ORDER BY descripcion; END$$
+
+DROP PROCEDURE IF EXISTS `sp_tipos_horario_obtener_por_id`$$
+CREATE PROCEDURE `sp_tipos_horario_obtener_por_id`(IN p_id INT) BEGIN SELECT id_tipo_horario, descripcion, dias_semana FROM tipos_horario WHERE id_tipo_horario = p_id; END$$
+
+DROP PROCEDURE IF EXISTS `sp_tipos_horario_crear`$$
+CREATE PROCEDURE `sp_tipos_horario_crear`(IN p_descripcion VARCHAR(100), IN p_dias_semana VARCHAR(20)) BEGIN INSERT INTO tipos_horario (descripcion, dias_semana) VALUES (p_descripcion, p_dias_semana); END$$
+
+DROP PROCEDURE IF EXISTS `sp_tipos_horario_actualizar`$$
+CREATE PROCEDURE `sp_tipos_horario_actualizar`(IN p_id INT, IN p_descripcion VARCHAR(100), IN p_dias_semana VARCHAR(20)) BEGIN UPDATE tipos_horario SET descripcion = p_descripcion, dias_semana = p_dias_semana WHERE id_tipo_horario = p_id; END$$
+
+DROP PROCEDURE IF EXISTS `sp_tipos_horario_eliminar`$$
+CREATE PROCEDURE `sp_tipos_horario_eliminar`(IN p_id INT) BEGIN DELETE FROM tipos_horario WHERE id_tipo_horario = p_id; END$$
+
+-- -----------------------------------------------------
+-- `lista_precios`
+-- -----------------------------------------------------
+DROP PROCEDURE IF EXISTS `sp_lista_precios_listar`$$
+CREATE PROCEDURE `sp_lista_precios_listar`()
+BEGIN
+    SELECT
+        lp.id_lista_precio,
+        c.nombre AS curso_nombre,
+        tp.nombre AS tipo_precio_nombre,
+        lp.precio,
+        lp.vigencia_inicio,
+        lp.vigencia_fin
+    FROM lista_precios lp
+    JOIN cursos c ON lp.id_curso = c.id_curso
+    JOIN tipos_precio tp ON lp.id_tipo_precio = tp.id_tipo_precio
+    ORDER BY c.nombre, lp.vigencia_inicio;
+END$$
+
+DROP PROCEDURE IF EXISTS `sp_lista_precios_obtener_por_id`$$
+CREATE PROCEDURE `sp_lista_precios_obtener_por_id`(IN p_id INT)
+BEGIN
+    SELECT id_lista_precio, id_curso, id_tipo_precio, precio, vigencia_inicio, vigencia_fin
+    FROM lista_precios
+    WHERE id_lista_precio = p_id;
+END$$
+
+DROP PROCEDURE IF EXISTS `sp_lista_precios_crear`$$
+CREATE PROCEDURE `sp_lista_precios_crear`(
+    IN p_id_curso INT,
+    IN p_id_tipo_precio INT,
+    IN p_precio DECIMAL(10,2),
+    IN p_vigencia_inicio DATE,
+    IN p_vigencia_fin DATE
+)
+BEGIN
+    INSERT INTO lista_precios (id_curso, id_tipo_precio, precio, vigencia_inicio, vigencia_fin)
+    VALUES (p_id_curso, p_id_tipo_precio, p_precio, p_vigencia_inicio, p_vigencia_fin);
+END$$
+
+DROP PROCEDURE IF EXISTS `sp_lista_precios_actualizar`$$
+CREATE PROCEDURE `sp_lista_precios_actualizar`(
+    IN p_id_lista_precio INT,
+    IN p_id_curso INT,
+    IN p_id_tipo_precio INT,
+    IN p_precio DECIMAL(10,2),
+    IN p_vigencia_inicio DATE,
+    IN p_vigencia_fin DATE
+)
+BEGIN
+    UPDATE lista_precios
+    SET
+        id_curso = p_id_curso,
+        id_tipo_precio = p_id_tipo_precio,
+        precio = p_precio,
+        vigencia_inicio = p_vigencia_inicio,
+        vigencia_fin = p_vigencia_fin
+    WHERE id_lista_precio = p_id_lista_precio;
+END$$
+
+DROP PROCEDURE IF EXISTS `sp_lista_precios_eliminar`$$
+CREATE PROCEDURE `sp_lista_precios_eliminar`(IN p_id INT)
+BEGIN
+    DELETE FROM lista_precios WHERE id_lista_precio = p_id;
+END$$
+
 
 DELIMITER ;
