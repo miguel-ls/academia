@@ -89,13 +89,11 @@ switch ($action) {
 
                 // Redirigir a la lista con un mensaje de éxito
                 // Podríamos usar sesiones flash para los mensajes
-                header('Location: index.php?view=matriculas&success=1');
-                exit;
+                redirect(SITE_URL . '/index.php?view=matriculas&success=1');
 
             } catch (Exception $e) {
                 // Redirigir de vuelta al formulario con un mensaje de error
-                header('Location: index.php?view=matriculas&action=nueva&error=' . urlencode($e->getMessage()));
-                exit;
+                redirect(SITE_URL . '/index.php?view=matriculas&action=nueva&error=' . urlencode($e->getMessage()));
             }
         }
         break;
