@@ -5,14 +5,9 @@
 // =================================================================
 
 require_once 'models/UsuarioModel.php';
-// La clase Session ya se carga desde el index.php
 
 $usuarioModel = new UsuarioModel();
-
-$action = $_POST['action'] ?? $_GET['view'] ?? 'login';
-$feedback_message = '';
-
-// --- Lógica del Controlador ---
+$action = $_GET['action'] ?? 'login';
 
 switch ($action) {
     case 'login':
@@ -88,8 +83,7 @@ switch ($action) {
 
     case 'logout':
         Session::destroy();
-        // La función destroy ya redirige a login.php, pero por si acaso.
-        redirect(SITE_URL . '/index.php?view=login');
+        break;
 
     default:
         // Por defecto, mostrar la vista de login

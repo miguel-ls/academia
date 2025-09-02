@@ -17,7 +17,8 @@ class Session {
         if (!isset($_SESSION['user_id'])) {
             // Si no hay sesión, destruir cualquier dato de sesión y redirigir
             session_destroy();
-            redirect(SITE_URL . '/index.php?view=login');
+            header('Location: index.php?view=login');
+            exit();
         }
     }
 
@@ -53,7 +54,8 @@ class Session {
         }
 
         session_destroy();
-        redirect(SITE_URL . '/index.php?view=login');
+        header('Location: index.php?view=login');
+        exit();
     }
 
     /**

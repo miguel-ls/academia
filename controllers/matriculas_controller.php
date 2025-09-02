@@ -62,11 +62,11 @@ switch ($action) {
                      throw new Exception("Debe seleccionar al menos un curso.");
                 }
 
-                foreach ($_POST['cursos'] as $curso) {
+                foreach ($_POST['cursos'] as $id_curso_programado => $curso) {
                     $monto_total += (float)$curso['precio_pactado'];
                     $descuento_total += (float)$curso['descuento'];
                     $cursos_detalle[] = [
-                        'id_curso_programado' => (int)$curso['id_curso_programado'],
+                        'id_curso_programado' => (int)$id_curso_programado,
                         'precio_pactado' => (float)$curso['precio_pactado'],
                         'descuento' => (float)$curso['descuento']
                     ];
@@ -88,12 +88,13 @@ switch ($action) {
                 $matriculaModel->registrarMatricula($datos_matricula);
 
                 // Redirigir a la lista con un mensaje de éxito
-                // Podríamos usar sesiones flash para los mensajes
-                redirect(SITE_URL . '/index.php?view=matriculas&success=1');
+                header('Location: index.php?view=matriculas&success=1');
+                exit;
 
             } catch (Exception $e) {
                 // Redirigir de vuelta al formulario con un mensaje de error
-                redirect(SITE_URL . '/index.php?view=matriculas&action=nueva&error=' . urlencode($e->getMessage()));
+                header('Location: index.php?view=matriculas&action=nueva&error=' . urlencode($e->getMessage()));
+                exit;
             }
         }
         break;
