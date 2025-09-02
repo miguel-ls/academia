@@ -56,15 +56,28 @@
         <tr>
             <th>ID</th>
             <th>Descripción</th>
-            <th>Días (1=Lunes, 7=Domingo)</th>
+            <th>Días</th>
+            <th>Códigos</th>
             <th>Acciones</th>
         </tr>
     </thead>
     <tbody>
+        <?php
+        $dias_map = [1 => 'Lunes', 2 => 'Martes', 3 => 'Miércoles', 4 => 'Jueves', 5 => 'Viernes', 6 => 'Sábado', 7 => 'Domingo'];
+        ?>
         <?php foreach ($items as $item): ?>
             <tr>
                 <td><?php echo $item['id_tipo_horario']; ?></td>
                 <td><?php echo htmlspecialchars($item['descripcion']); ?></td>
+                <td>
+                    <?php
+                    $dias_numeros = explode(',', $item['dias_semana']);
+                    $dias_texto = array_map(function($num) use ($dias_map) {
+                        return $dias_map[(int)$num] ?? '';
+                    }, $dias_numeros);
+                    echo htmlspecialchars(implode(', ', array_filter($dias_texto)));
+                    ?>
+                </td>
                 <td><?php echo htmlspecialchars($item['dias_semana']); ?></td>
                 <td>
                     <a href="index.php?view=tipos_horario&action=edit&id=<?php echo $item['id_tipo_horario']; ?>" class="btn btn-warning">Editar</a>
