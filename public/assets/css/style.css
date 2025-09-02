@@ -96,7 +96,7 @@ body {
 }
 
 .sidebar-nav .nav-dropdown > a::after {
-    content: '\\25B8'; /* Right-pointing triangle */
+    content: '\25B8'; /* Right-pointing triangle */
     position: absolute;
     right: 1.5rem;
     transition: transform 0.2s;
