@@ -97,5 +97,51 @@ BEGIN
     DELETE FROM cursos WHERE id_curso = p_id;
 END$$
 
+-- -----------------------------------------------------
+-- Procedimientos para la tabla `areas`
+-- -----------------------------------------------------
+
+CREATE PROCEDURE `sp_areas_listar`()
+BEGIN
+    SELECT a.id_area, a.nombre, ta.nombre AS tipo_area
+    FROM areas a
+    JOIN tipos_area ta ON a.id_tipo_area = ta.id_tipo_area
+    ORDER BY a.nombre;
+END$$
+
+CREATE PROCEDURE `sp_areas_obtener_por_id`(IN p_id INT)
+BEGIN
+    SELECT id_area, id_tipo_area, nombre
+    FROM areas
+    WHERE id_area = p_id;
+END$$
+
+CREATE PROCEDURE `sp_areas_crear`(
+    IN p_id_tipo_area INT,
+    IN p_nombre VARCHAR(100)
+)
+BEGIN
+    INSERT INTO areas (id_tipo_area, nombre)
+    VALUES (p_id_tipo_area, p_nombre);
+END$$
+
+CREATE PROCEDURE `sp_areas_actualizar`(
+    IN p_id_area INT,
+    IN p_id_tipo_area INT,
+    IN p_nombre VARCHAR(100)
+)
+BEGIN
+    UPDATE areas
+    SET
+        id_tipo_area = p_id_tipo_area,
+        nombre = p_nombre
+    WHERE id_area = p_id_area;
+END$$
+
+CREATE PROCEDURE `sp_areas_eliminar`(IN p_id INT)
+BEGIN
+    DELETE FROM areas WHERE id_area = p_id;
+END$$
+
 
 DELIMITER ;
