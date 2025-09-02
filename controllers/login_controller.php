@@ -46,7 +46,7 @@ switch ($action) {
                 $_SESSION['2fa_simulated_code'] = $code; // Solo para simulación
 
                 // 5. Redirigir a la vista de verificación 2FA
-                header('Location: index.php?view=login&action=verify_2fa');
+                header('Location: ' . SITE_URL . '/index.php?view=login&action=verify_2fa');
                 exit;
 
             } else {
@@ -63,7 +63,7 @@ switch ($action) {
     case 'verify_2fa':
         // Si no hay un ID de usuario en la sesión de 2FA, redirigir al login
         if (!isset($_SESSION['2fa_user_id'])) {
-            header('Location: index.php?view=login');
+            header('Location: ' . SITE_URL . '/index.php?view=login');
             exit;
         }
 
@@ -88,7 +88,7 @@ switch ($action) {
                 Session::createUserSession($user_data);
 
                 // Redirigir al panel principal
-                header('Location: index.php?view=dashboard');
+                header('Location: ' . SITE_URL . '/index.php?view=dashboard');
                 exit;
             } else {
                 // Código incorrecto o expirado
@@ -104,7 +104,7 @@ switch ($action) {
     case 'logout':
         Session::destroy();
         // La función destroy ya redirige a login.php, pero por si acaso.
-        header('Location: index.php?view=login');
+        header('Location: ' . SITE_URL . '/index.php?view=login');
         exit;
 
     default:
