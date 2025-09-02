@@ -12,6 +12,7 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+<script src="<?php echo $base_url; ?>public/assets/js/main.js"></script>
 <script>
     // Script para manejar los dropdowns del menú lateral
     document.addEventListener('DOMContentLoaded', function() {
