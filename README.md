@@ -35,8 +35,8 @@ Siga estos pasos para instalar y configurar el sistema en su entorno local.
     ```sql
     CREATE DATABASE academia_cursos CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
     ```
-2.  **Importar las Tablas:** Importe la estructura de las tablas ejecutando el contenido del archivo `database_schema.sql`. Esto creará todas las tablas, relaciones y cargará algunos datos iniciales (roles, tipos de documento, etc.).
-3.  **Importar los Procedimientos Almacenados:** Importe la lógica de negocio ejecutando el contenido del archivo `stored_procedures.sql`. Esto creará todos los procedimientos almacenados que la aplicación necesita para funcionar.
+2.  **Importar las Tablas:** Importe la estructura de las tablas ejecutando el contenido del archivo `bd/database_schema.sql`. Esto creará todas las tablas, relaciones y cargará algunos datos iniciales (roles, tipos de documento, etc.).
+3.  **Importar los Procedimientos Almacenados:** Importe la lógica de negocio ejecutando el contenido del archivo `bd/stored_procedures.sql`. Esto creará todos los procedimientos almacenados que la aplicación necesita para funcionar.
 
 ### 2. Configuración del Proyecto
 
