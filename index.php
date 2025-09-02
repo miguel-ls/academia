@@ -28,7 +28,7 @@ $allowed_views = [
     'dashboard',
     'logout',
     // Vistas de Mantenimientos (Configuración)
-    'usuarios', 'clientes', 'cursos', 'areas', 'sub_areas', 'profesores', 'tipos_area', 'areas',
+    'usuarios', 'clientes', 'cursos', 'areas', 'sub_areas', 'profesores', 'tipos_area', 'areas', 'tipos_documento', 'formas_pago', 'tipos_curso',
     // Vistas de Operaciones
     'monitor', 'programar_horarios', 'asistencia_profesor', 'asistencia_cliente', 'calendario',
     // Vistas de Matrícula

@@ -30,6 +30,18 @@ CREATE PROCEDURE `sp_tipos_area_eliminar`(IN p_id INT) BEGIN DELETE FROM tipos_a
 DROP PROCEDURE IF EXISTS `sp_tipos_curso_listar`$$
 CREATE PROCEDURE `sp_tipos_curso_listar`() BEGIN SELECT id_tipo_curso, nombre FROM tipos_curso ORDER BY nombre; END$$
 
+DROP PROCEDURE IF EXISTS `sp_tipos_curso_obtener_por_id`$$
+CREATE PROCEDURE `sp_tipos_curso_obtener_por_id`(IN p_id INT) BEGIN SELECT id_tipo_curso, nombre FROM tipos_curso WHERE id_tipo_curso = p_id; END$$
+
+DROP PROCEDURE IF EXISTS `sp_tipos_curso_crear`$$
+CREATE PROCEDURE `sp_tipos_curso_crear`(IN p_nombre VARCHAR(50)) BEGIN INSERT INTO tipos_curso (nombre) VALUES (p_nombre); END$$
+
+DROP PROCEDURE IF EXISTS `sp_tipos_curso_actualizar`$$
+CREATE PROCEDURE `sp_tipos_curso_actualizar`(IN p_id INT, IN p_nombre VARCHAR(50)) BEGIN UPDATE tipos_curso SET nombre = p_nombre WHERE id_tipo_curso = p_id; END$$
+
+DROP PROCEDURE IF EXISTS `sp_tipos_curso_eliminar`$$
+CREATE PROCEDURE `sp_tipos_curso_eliminar`(IN p_id INT) BEGIN DELETE FROM tipos_curso WHERE id_tipo_curso = p_id; END$$
+
 -- -----------------------------------------------------
 -- `cursos`
 -- -----------------------------------------------------
@@ -121,5 +133,72 @@ CREATE PROCEDURE `sp_sub_areas_eliminar`(IN p_id INT)
 BEGIN
     DELETE FROM sub_areas WHERE id_sub_area = p_id;
 END$$
+
+-- -----------------------------------------------------
+-- `tipos_documento`
+-- -----------------------------------------------------
+DROP PROCEDURE IF EXISTS `sp_tipos_documento_listar`$$
+CREATE PROCEDURE `sp_tipos_documento_listar`()
+BEGIN
+    SELECT id_tipo_documento, descripcion, longitud, codigo_sunat FROM tipos_documento ORDER BY descripcion;
+END$$
+
+DROP PROCEDURE IF EXISTS `sp_tipos_documento_obtener_por_id`$$
+CREATE PROCEDURE `sp_tipos_documento_obtener_por_id`(IN p_id INT)
+BEGIN
+    SELECT id_tipo_documento, descripcion, longitud, codigo_sunat FROM tipos_documento WHERE id_tipo_documento = p_id;
+END$$
+
+DROP PROCEDURE IF EXISTS `sp_tipos_documento_crear`$$
+CREATE PROCEDURE `sp_tipos_documento_crear`(
+    IN p_descripcion VARCHAR(50),
+    IN p_longitud INT,
+    IN p_codigo_sunat VARCHAR(2)
+)
+BEGIN
+    INSERT INTO tipos_documento (descripcion, longitud, codigo_sunat)
+    VALUES (p_descripcion, p_longitud, p_codigo_sunat);
+END$$
+
+DROP PROCEDURE IF EXISTS `sp_tipos_documento_actualizar`$$
+CREATE PROCEDURE `sp_tipos_documento_actualizar`(
+    IN p_id INT,
+    IN p_descripcion VARCHAR(50),
+    IN p_longitud INT,
+    IN p_codigo_sunat VARCHAR(2)
+)
+BEGIN
+    UPDATE tipos_documento
+    SET
+        descripcion = p_descripcion,
+        longitud = p_longitud,
+        codigo_sunat = p_codigo_sunat
+    WHERE id_tipo_documento = p_id;
+END$$
+
+DROP PROCEDURE IF EXISTS `sp_tipos_documento_eliminar`$$
+CREATE PROCEDURE `sp_tipos_documento_eliminar`(IN p_id INT)
+BEGIN
+    DELETE FROM tipos_documento WHERE id_tipo_documento = p_id;
+END$$
+
+-- -----------------------------------------------------
+-- `formas_pago`
+-- -----------------------------------------------------
+DROP PROCEDURE IF EXISTS `sp_formas_pago_listar`$$
+CREATE PROCEDURE `sp_formas_pago_listar`() BEGIN SELECT id_forma_pago, nombre FROM formas_pago ORDER BY nombre; END$$
+
+DROP PROCEDURE IF EXISTS `sp_formas_pago_obtener_por_id`$$
+CREATE PROCEDURE `sp_formas_pago_obtener_por_id`(IN p_id INT) BEGIN SELECT id_forma_pago, nombre FROM formas_pago WHERE id_forma_pago = p_id; END$$
+
+DROP PROCEDURE IF EXISTS `sp_formas_pago_crear`$$
+CREATE PROCEDURE `sp_formas_pago_crear`(IN p_nombre VARCHAR(50)) BEGIN INSERT INTO formas_pago (nombre) VALUES (p_nombre); END$$
+
+DROP PROCEDURE IF EXISTS `sp_formas_pago_actualizar`$$
+CREATE PROCEDURE `sp_formas_pago_actualizar`(IN p_id INT, IN p_nombre VARCHAR(50)) BEGIN UPDATE formas_pago SET nombre = p_nombre WHERE id_forma_pago = p_id; END$$
+
+DROP PROCEDURE IF EXISTS `sp_formas_pago_eliminar`$$
+CREATE PROCEDURE `sp_formas_pago_eliminar`(IN p_id INT) BEGIN DELETE FROM formas_pago WHERE id_forma_pago = p_id; END$$
+
 
 DELIMITER ;
