@@ -35,7 +35,12 @@ Siga estos pasos para instalar y configurar el sistema en su entorno local.
     ```sql
     CREATE DATABASE academia_cursos CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
     ```
-2.  **Ejecutar el Script de Base de Datos:** Importe y ejecute el contenido del archivo `bd/setup_database.sql`. Este único archivo se encargará de crear la estructura de tablas, los datos iniciales y todos los procedimientos almacenados necesarios. Al incluir `DROP PROCEDURE IF EXISTS`, este script se puede volver a ejecutar de forma segura para actualizar los procedimientos.
+2.  **Importar las Tablas:** Importe la estructura de las tablas ejecutando el contenido del archivo `bd/database_schema.sql`.
+3.  **Importar los Procedimientos Almacenados:** Ejecute los scripts en el siguiente orden:
+    - `bd/stored_procedures.sql` (para la lógica principal)
+    - `bd/stored_procedures_cruds.sql` (para los mantenimientos)
+
+    Estos archivos incluyen `DROP PROCEDURE IF EXISTS`, por lo que se pueden volver a ejecutar de forma segura para aplicar actualizaciones.
 
 ### 2. Configuración del Proyecto
 
