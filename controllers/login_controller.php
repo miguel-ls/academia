@@ -22,7 +22,7 @@ switch ($action) {
                 $code = rand(100000, 999999);
                 $expiry = date('Y-m-d H:i:s', time() + 300);
 
-                $db = new Database();
+                $db = Database::getInstance();
                 $db->callStoredProcedure('sp_usuarios_guardar_codigo_2fa', [$user['id_usuario'], $code, $expiry]);
 
                 // Guardar datos necesarios para el siguiente paso en la sesión
@@ -55,7 +55,7 @@ switch ($action) {
             $code = $_POST['code_2fa'] ?? '';
             $userId = $_SESSION['2fa_user_id'];
 
-            $db = new Database();
+            $db = Database::getInstance();
             $stmt = $db->callStoredProcedure('sp_usuarios_verificar_codigo_2fa', [$userId, $code]);
             $result = $db->single();
 

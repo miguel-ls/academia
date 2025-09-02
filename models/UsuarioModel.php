@@ -8,9 +8,7 @@ class UsuarioModel {
     private $db;
 
     public function __construct() {
-        // La clase Database se instancia una vez y se pasa o se instancia aquí.
-        // Por simplicidad, la instanciamos aquí.
-        $this->db = new Database();
+        $this->db = Database::getInstance();
     }
 
     /**

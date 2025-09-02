@@ -1,23 +1,19 @@
 <?php
 
 // =================================================================
-// Clase Database: Wrapper para la conexión PDO y ejecución
-// de Procedimientos Almacenados.
+// Clase Database: Implementa el patrón Singleton para asegurar
+// una única conexión a la base de datos.
 // =================================================================
 
 class Database {
-    private $host = DB_HOST;
-    private $user = DB_USER;
-    private $pass = DB_PASS;
-    private $dbname = DB_NAME;
-
-    private $dbh; // Database Handler
-    private $stmt; // Statement
+    private static $instance = null;
+    private $dbh;
+    private $stmt;
     private $error;
 
-    public function __construct() {
-        // Configurar DSN (Data Source Name)
-        $dsn = 'mysql:host=' . $this->host . ';dbname=' . $this->dbname . ';charset=utf8';
+    // El constructor es privado, no se puede instanciar con 'new' desde fuera.
+    private function __construct() {
+        $dsn = 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8';
         $options = [
             PDO::ATTR_PERSISTENT => false,
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
@@ -25,44 +21,45 @@ class Database {
             PDO::ATTR_EMULATE_PREPARES => false,
         ];
 
-        // Crear una instancia de PDO
         try {
-            $this->dbh = new PDO($dsn, $this->user, $this->pass, $options);
+            $this->dbh = new PDO($dsn, DB_USER, DB_PASS, $options);
         } catch (PDOException $e) {
             $this->error = $e->getMessage();
-            // En un entorno de producción, loguear el error en lugar de mostrarlo.
             die('Error de conexión: ' . $this->error);
         }
     }
 
     /**
+     * Obtiene la única instancia de la clase Database.
+     * @return Database
+     */
+    public static function getInstance() {
+        if (self::$instance == null) {
+            self::$instance = new Database();
+        }
+        return self::$instance;
+    }
+
+    /**
      * Llama a un procedimiento almacenado.
-     *
      * @param string $procedure El nombre del procedimiento almacenado.
      * @param array $params Un array de parámetros para el procedimiento.
-     * @return PDOStatement El objeto PDOStatement para su posterior procesamiento.
+     * @return PDOStatement
      */
     public function callStoredProcedure($procedure, $params = []) {
-        // Construir la cadena de llamada al procedimiento
         $param_placeholders = implode(',', array_fill(0, count($params), '?'));
         $sql = "CALL $procedure($param_placeholders)";
 
         try {
             $this->stmt = $this->dbh->prepare($sql);
-
-            // Vincular los parámetros
             $i = 1;
             foreach ($params as $param) {
                 $this->stmt->bindValue($i++, $param);
             }
-
             $this->stmt->execute();
             return $this->stmt;
-
         } catch (PDOException $e) {
             $this->error = $e->getMessage();
-            // Manejar el error (loguear, mostrar un mensaje genérico, etc.)
-            // Por ahora, lo mostraremos para depuración.
             die('Error al ejecutar procedimiento: ' . $this->error);
         }
     }
