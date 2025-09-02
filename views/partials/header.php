@@ -24,6 +24,7 @@ $base_url = defined('SITE_URL') ? SITE_URL : '';
     </style>
 </head>
 <body>
+    <?php if (isset($_SESSION['user_id'])): // Solo mostrar el header si hay sesión activa ?>
     <header>
         <nav>
             <h1><a href="<?php echo $base_url; ?>index.php?view=dashboard">AcademiaSys</a></h1>
@@ -82,5 +83,6 @@ $base_url = defined('SITE_URL') ? SITE_URL : '';
             </div>
         </nav>
     </header>
+    <?php endif; ?>
     <main>
     <div class="container"> <!-- Añadido container para envolver el contenido principal -->
