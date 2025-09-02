@@ -11,7 +11,7 @@ define('DB_PASS', 'password');  // Contraseña de la BD (cámbiala por una segur
 define('DB_NAME', 'academia_cursos'); // Nombre de la BD
 
 // Configuración del Sitio
-define('SITE_URL', 'http://localhost/academia'); // URL base de tu sitio
+define('SITE_URL', 'http://localhost/academia/'); // URL base de tu sitio (¡con barra al final!)
 define('SITE_NAME', 'Academia de Cursos');
 
 // Configuración para el envío de correos (para 2FA y notificaciones)
