@@ -57,12 +57,29 @@ document.addEventListener('DOMContentLoaded', function() {
         // Validar cuando el usuario deja el campo
         numeroDocumentoInput.addEventListener('blur', checkDocumento);
 
-        // Prevenir el envío del formulario si hay un error
-        clienteForm.addEventListener('submit', function(e) {
-            if (isDocumentoDuplicado) {
-                e.preventDefault();
-                alert('No se puede guardar. El número de documento ya existe.');
+        // --- Manejo del envío del formulario ---
+        let isSubmitting = false;
+        clienteForm.addEventListener('submit', async function(e) {
+            // Si ya estamos en proceso de envío programático, no hacer nada.
+            if (isSubmitting) {
+                return;
             }
+
+            // Prevenir el envío inmediato para poder re-validar.
+            e.preventDefault();
+
+            // Ejecutar la validación y esperar a que termine.
+            await checkDocumento();
+
+            // Si después de la validación, el documento es duplicado, mostrar alerta y detener.
+            if (isDocumentoDuplicado) {
+                alert('No se puede guardar. El número de documento ya está registrado y en uso por otro cliente.');
+                return;
+            }
+
+            // Si todo está correcto, marcar como en proceso y enviar el formulario.
+            isSubmitting = true;
+            clienteForm.submit();
         });
     }
 });
