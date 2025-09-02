@@ -117,16 +117,4 @@ class ClienteModel {
             return false;
         }
     }
-
-    /**
-     * Verifica si un número de documento ya existe, excluyendo un ID de cliente.
-     * @param string $numero_documento El número de documento a verificar.
-     * @param int|null $id_cliente_excluir El ID del cliente a excluir de la búsqueda.
-     * @return bool True si existe, false si no.
-     */
-    public function verificarDocumentoExistente($numero_documento, $id_cliente_excluir = null) {
-        $this->db->callStoredProcedure('sp_cliente_verificar_documento_existente', [$numero_documento, $id_cliente_excluir]);
-        $result = $this->db->single();
-        return (int)($result['exists'] ?? 0) > 0;
-    }
 }
