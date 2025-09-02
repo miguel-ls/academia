@@ -68,18 +68,26 @@ class Database {
      * Obtiene un conjunto de resultados (múltiples filas).
      */
     public function resultSet() {
-        $result = $this->stmt->fetchAll(PDO::FETCH_ASSOC);
-        $this->stmt->closeCursor();
-        return $result;
+        try {
+            return $this->stmt->fetchAll(PDO::FETCH_ASSOC);
+        } finally {
+            // Es crucial avanzar a través de todos los conjuntos de resultados devueltos por un SP.
+            while ($this->stmt->nextRowset());
+            $this->stmt->closeCursor();
+        }
     }
 
     /**
      * Obtiene un único resultado (una fila).
      */
     public function single() {
-        $result = $this->stmt->fetch(PDO::FETCH_ASSOC);
-        $this->stmt->closeCursor();
-        return $result;
+        try {
+            return $this->stmt->fetch(PDO::FETCH_ASSOC);
+        } finally {
+            // Es crucial avanzar a través de todos los conjuntos de resultados devueltos por un SP.
+            while ($this->stmt->nextRowset());
+            $this->stmt->closeCursor();
+        }
     }
 
     /**
@@ -100,16 +108,5 @@ class Database {
 
     public function rollBack() {
         return $this->dbh->rollBack();
-    }
-
-    /**
-     * Cierra la conexión y destruye la instancia Singleton.
-     * Usado para forzar una reconexión.
-     */
-    public static function close() {
-        if (self::$instance !== null) {
-            self::$instance->dbh = null;
-            self::$instance = null;
-        }
     }
 }
