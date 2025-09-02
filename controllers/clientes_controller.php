@@ -58,7 +58,7 @@ try {
             exit();
 
         case 'update':
-            // Procesa el formulario de edición
+            // Procesa el formulario de edición (v2 con manejo de errores en la vista)
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $datos = [
                     'id_cliente' => $_POST['id_cliente'],
