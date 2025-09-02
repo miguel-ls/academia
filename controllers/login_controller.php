@@ -46,7 +46,6 @@ switch ($action) {
                 $_SESSION['2fa_simulated_code'] = $code; // Solo para simulación
 
                 // 5. Redirigir a la vista de verificación 2FA
-                die("DEBUG: REDIRECT BLOCK REACHED. Si ves esto, el usuario y la clave son correctos.");
                 redirect(SITE_URL . '/index.php?view=login&action=verify_2fa');
 
             } else {

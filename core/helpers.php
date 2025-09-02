@@ -11,10 +11,11 @@
  * @param string $url La URL a la que redirigir.
  */
 function redirect($url) {
-    // Limpiar cualquier salida que pudiera estar en el buffer
-    if (ob_get_level() > 0) {
-        ob_end_clean();
+    // Forzar el envío de la salida y terminar los buffers
+    while (ob_get_level() > 0) {
+        ob_end_flush();
     }
+    flush();
 
     echo '<!DOCTYPE html><html><head><title>Redirigiendo...</title>';
     echo '<script>window.location.href = "' . htmlspecialchars($url, ENT_QUOTES) . '";</script>';
