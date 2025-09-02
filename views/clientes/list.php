@@ -32,7 +32,6 @@
             <th>Documento</th>
             <th>Email</th>
             <th>Teléfono</th>
-            <!-- Columna de Acciones: Editar y Eliminar -->
             <th>Acciones</th>
         </tr>
     </thead>
