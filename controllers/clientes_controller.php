@@ -71,17 +71,37 @@ try {
                     'codigo_erp' => $_POST['codigo_erp']
                 ];
                 $resultado = $clienteModel->actualizar($datos);
-                 if ($resultado['success']) {
+
+                if ($resultado['success']) {
                     $_SESSION['feedback_message'] = "Cliente actualizado exitosamente.";
+                    header('Location: index.php?view=clientes');
+                    exit();
                 } else {
-                    $_SESSION['feedback_message'] = "Error al actualizar: " . ($resultado['error'] ?? 'No se realizaron cambios.');
+                    // Verificar si el error es por documento duplicado
+                    if (isset($resultado['error']) && strpos($resultado['error'], 'El nuevo número de documento ya está en uso') !== false) {
+                        $error_message = "Error: El número de documento '" . htmlspecialchars($datos['numero_documento']) . "' ya está registrado.";
+
+                        // Recargar los datos del formulario con lo que el usuario envió
+                        $cliente_a_editar = $datos;
+
+                        // Cargar los tipos de documento para el select
+                        $tipos_documento = $tiposDocumentoModel->obtenerTodos();
+
+                        // Volver a mostrar el formulario de edición con el error
+                        require_once 'views/clientes/form.php';
+                    } else {
+                        // Otro tipo de error, redirigir con mensaje genérico
+                        $_SESSION['feedback_message'] = "Error al actualizar: " . ($resultado['error'] ?? 'No se realizaron cambios.');
+                        header('Location: index.php?view=clientes');
+                        exit();
+                    }
                 }
+            } else {
+                // Si no es POST, redirigir a la lista
                 header('Location: index.php?view=clientes');
                 exit();
             }
-            // Si no es POST, redirigir a la lista
-            header('Location: index.php?view=clientes');
-            exit();
+            break;
 
         case 'delete':
             if ($id > 0) {
