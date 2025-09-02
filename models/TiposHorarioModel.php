@@ -17,31 +17,58 @@ class TiposHorarioModel {
         return $this->db->single();
     }
 
+    public function buscar($term) {
+        $this->db->callStoredProcedure('sp_tipos_horario_buscar', [$term]);
+        return $this->db->resultSet();
+    }
+
     public function crear($datos) {
-        $params = [
-            $datos['descripcion'],
-            $datos['dias_semana']
-        ];
-        $this->db->callStoredProcedure('sp_tipos_horario_crear', $params);
-        return $this->db->rowCount() > 0;
+        try {
+            $params = [
+                $datos['descripcion'],
+                $datos['dias_semana']
+            ];
+            $this->db->callStoredProcedure('sp_tipos_horario_crear', $params);
+            return ['success' => true];
+        } catch (Exception $e) {
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
     }
 
     public function actualizar($datos) {
-        $params = [
-            $datos['id'],
-            $datos['descripcion'],
-            $datos['dias_semana']
-        ];
-        $this->db->callStoredProcedure('sp_tipos_horario_actualizar', $params);
-        return $this->db->rowCount() > 0;
+        try {
+            $params = [
+                $datos['id_tipo_horario'],
+                $datos['descripcion'],
+                $datos['dias_semana']
+            ];
+            $this->db->callStoredProcedure('sp_tipos_horario_actualizar', $params);
+
+            if ($this->db->rowCount() > 0) {
+                return ['success' => true];
+            } else {
+                return ['success' => false, 'error' => 'No se realizaron cambios.'];
+            }
+        } catch (Exception $e) {
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
     }
 
     public function eliminar($id) {
         try {
             $this->db->callStoredProcedure('sp_tipos_horario_eliminar', [$id]);
-            return true;
+            return ['success' => true];
         } catch (Exception $e) {
-            return false;
+            if (strpos($e->getMessage(), 'foreign key constraint') !== false) {
+                 return ['success' => false, 'error' => 'No se puede eliminar el tipo de horario porque tiene programaciones asociadas.'];
+            }
+            return ['success' => false, 'error' => $e->getMessage()];
         }
+    }
+
+    public function verificarDependencias($id) {
+        $this->db->callStoredProcedure('sp_tipos_horario_verificar_dependencias', [$id]);
+        $resultado = $this->db->single();
+        return $resultado['count'] ?? 0;
     }
 }
