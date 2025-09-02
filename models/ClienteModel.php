@@ -31,7 +31,7 @@ class ClienteModel {
     /**
      * Crea un nuevo cliente.
      * @param array $datos Los datos del cliente.
-     * @return int El ID del cliente creado.
+     * @return array Resultado con 'success' (bool) y 'id' o 'error' (string).
      */
     public function crear($datos) {
         $params = [
@@ -43,15 +43,22 @@ class ClienteModel {
             $datos['telefono'],
             $datos['codigo_erp']
         ];
-        $this->db->callStoredProcedure('sp_clientes_crear', $params);
-        $result = $this->db->single();
-        return $result['id_cliente'] ?? 0;
+        try {
+            $this->db->callStoredProcedure('sp_clientes_crear', $params);
+            $result = $this->db->single();
+            return ['success' => true, 'id' => $result['id_cliente'] ?? 0];
+        } catch (PDOException $e) {
+            if ($e->getCode() == '45000') {
+                return ['success' => false, 'error' => $e->errorInfo[2]];
+            }
+            throw $e;
+        }
     }
 
     /**
      * Actualiza un cliente existente.
      * @param array $datos Los datos del cliente a actualizar.
-     * @return bool True si fue exitoso, false si no.
+     * @return array Resultado con 'success' (bool) y 'error' (string) si falla.
      */
     public function actualizar($datos) {
         $params = [
@@ -64,8 +71,15 @@ class ClienteModel {
             $datos['telefono'],
             $datos['codigo_erp']
         ];
-        $this->db->callStoredProcedure('sp_clientes_actualizar', $params);
-        return $this->db->rowCount() > 0;
+        try {
+            $this->db->callStoredProcedure('sp_clientes_actualizar', $params);
+            return ['success' => $this->db->rowCount() > 0];
+        } catch (PDOException $e) {
+            if ($e->getCode() == '45000') {
+                return ['success' => false, 'error' => $e->errorInfo[2]];
+            }
+            throw $e;
+        }
     }
 
     /**
@@ -78,7 +92,29 @@ class ClienteModel {
         return $this->db->resultSet();
     }
 
-    // NOTA: No se implementa un método `eliminar` ya que generalmente los clientes
-    // no se eliminan de forma permanente por razones de historial. Se podrían
-    // desactivar si se añadiera un campo 'activo' en la tabla.
+    /**
+     * Verifica si un cliente tiene matrículas asociadas.
+     * @param int $id El ID del cliente.
+     * @return int El número de matrículas.
+     */
+    public function verificarMatriculas($id) {
+        $this->db->callStoredProcedure('sp_cliente_verificar_matriculas', [$id]);
+        $result = $this->db->single();
+        return (int)($result['numero_matriculas'] ?? 0);
+    }
+
+    /**
+     * Elimina un cliente por su ID.
+     * @param int $id El ID del cliente a eliminar.
+     * @return bool True si fue exitoso, false si no.
+     */
+    public function eliminar($id) {
+        try {
+            $this->db->callStoredProcedure('sp_clientes_eliminar', [$id]);
+            return $this->db->rowCount() > 0;
+        } catch (PDOException $e) {
+            // Podría fallar por la FK si la validación en el controlador se omite
+            return false;
+        }
+    }
 }

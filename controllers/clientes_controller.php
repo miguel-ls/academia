@@ -1,25 +1,39 @@
 <?php
 
 // =================================================================
-// Controlador para el Mantenimiento de Clientes
+// Controlador para el Mantenimiento de Clientes (Refactorizado)
 // =================================================================
 
 require_once 'models/ClienteModel.php';
+require_once 'models/TiposDocumentoModel.php';
 
 // --- Verificación de Seguridad ---
-// Cualquier usuario logueado puede gestionar clientes.
 Session::check();
 // ---------------------------------
 
 $clienteModel = new ClienteModel();
+$tiposDocumentoModel = new TiposDocumentoModel();
 
-$action = $_POST['action'] ?? $_GET['action'] ?? 'list';
-$id = (int)($_POST['id_cliente'] ?? $_GET['id_cliente'] ?? 0);
-$feedback_message = '';
+// --- Gestión de la Acción ---
+// Si no se especifica, la acción por defecto es 'list'
+$action = $_GET['action'] ?? 'list';
+$id = (int)($_GET['id'] ?? 0);
+
+// --- Variables para la Vistas ---
+$feedback_message = $_SESSION['feedback_message'] ?? null;
+unset($_SESSION['feedback_message']); // Limpiar mensaje para no mostrarlo de nuevo
+
+$error_message = '';
+$clientes = [];
+$cliente_a_editar = null;
+$tipos_documento = [];
+$search_term = '';
+
 
 try {
     switch ($action) {
         case 'create':
+            // Procesa el formulario de creación
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $datos = [
                     'id_tipo_documento' => $_POST['id_tipo_documento'],
@@ -30,15 +44,24 @@ try {
                     'telefono' => $_POST['telefono'],
                     'codigo_erp' => $_POST['codigo_erp']
                 ];
-                $clienteModel->crear($datos);
-                $feedback_message = "Cliente creado exitosamente.";
+                $resultado = $clienteModel->crear($datos);
+                if ($resultado['success']) {
+                    $_SESSION['feedback_message'] = "Cliente creado exitosamente.";
+                } else {
+                    $_SESSION['feedback_message'] = "Error al crear el cliente: " . $resultado['error'];
+                }
+                header('Location: index.php?view=clientes');
+                exit();
             }
-            break;
+            // 'new' es el caso que muestra el formulario, no 'create'
+            header('Location: index.php?view=clientes&action=new');
+            exit();
 
         case 'update':
-            if ($_SERVER['REQUEST_METHOD'] === 'POST' && $id > 0) {
+            // Procesa el formulario de edición
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $datos = [
-                    'id_cliente' => $id,
+                    'id_cliente' => $_POST['id_cliente'],
                     'id_tipo_documento' => $_POST['id_tipo_documento'],
                     'numero_documento' => $_POST['numero_documento'],
                     'nombres' => $_POST['nombres'],
@@ -47,29 +70,81 @@ try {
                     'telefono' => $_POST['telefono'],
                     'codigo_erp' => $_POST['codigo_erp']
                 ];
-                $clienteModel->actualizar($datos);
-                $feedback_message = "Cliente actualizado exitosamente.";
+                $resultado = $clienteModel->actualizar($datos);
+                 if ($resultado['success']) {
+                    $_SESSION['feedback_message'] = "Cliente actualizado exitosamente.";
+                } else {
+                    $_SESSION['feedback_message'] = "Error al actualizar: " . ($resultado['error'] ?? 'No se realizaron cambios.');
+                }
+                header('Location: index.php?view=clientes');
+                exit();
+            }
+            // Si no es POST, redirigir a la lista
+            header('Location: index.php?view=clientes');
+            exit();
+
+        case 'delete':
+            if ($id > 0) {
+                // 1. Verificar si el cliente tiene matrículas
+                $num_matriculas = $clienteModel->verificarMatriculas($id);
+
+                if ($num_matriculas > 0) {
+                    // 2. Si tiene, mostrar error y no eliminar
+                    $_SESSION['feedback_message'] = "Error: No se puede eliminar el cliente porque tiene {$num_matriculas} matrícula(s) asociada(s).";
+                } else {
+                    // 3. Si no tiene, proceder a eliminar
+                    if ($clienteModel->eliminar($id)) {
+                        $_SESSION['feedback_message'] = "Cliente eliminado exitosamente.";
+                    } else {
+                        $_SESSION['feedback_message'] = "Error: No se pudo eliminar el cliente.";
+                    }
+                }
+            } else {
+                $_SESSION['feedback_message'] = "Error: ID de cliente no válido.";
+            }
+            header('Location: index.php?view=clientes');
+            exit();
+
+        case 'new':
+            // Muestra el formulario de creación
+            $tipos_documento = $tiposDocumentoModel->obtenerTodos();
+            require_once 'views/clientes/form.php';
+            break;
+
+        case 'edit':
+            // Muestra el formulario de edición
+            if ($id > 0) {
+                $cliente_a_editar = $clienteModel->obtenerPorId($id);
+                $tipos_documento = $tiposDocumentoModel->obtenerTodos();
+                if (!$cliente_a_editar) {
+                    $_SESSION['feedback_message'] = "Error: Cliente no encontrado.";
+                    header('Location: index.php?view=clientes');
+                    exit();
+                }
+                require_once 'views/clientes/form.php';
+            } else {
+                 $_SESSION['feedback_message'] = "Error: ID de cliente no válido.";
+                 header('Location: index.php?view=clientes');
+                 exit();
             }
             break;
 
-        // No hay caso 'delete' por diseño.
+        case 'list':
+        default:
+            // Muestra la lista de clientes (con o sin búsqueda)
+            $search_term = $_GET['search'] ?? '';
+            if (!empty($search_term)) {
+                $clientes = $clienteModel->buscar($search_term);
+            } else {
+                $clientes = $clienteModel->obtenerTodos();
+            }
+            require_once 'views/clientes/list.php';
+            break;
     }
+
 } catch (Exception $e) {
-    $feedback_message = "Error: " . $e->getMessage();
+    // Captura de errores inesperados
+    $error_message = "Error inesperado en el sistema: " . $e->getMessage();
+    // En un caso real, esto se loguearía y se mostraría una vista de error genérica
+    require_once 'views/clientes/list.php'; // Volver a la lista con un mensaje de error
 }
-
-// --- Obtención de datos para la vista ---
-
-$clientes = $clienteModel->obtenerTodos();
-
-$cliente_a_editar = null;
-if ($action === 'edit' && $id > 0) {
-    $cliente_a_editar = $clienteModel->obtenerPorId($id);
-}
-
-// Para el formulario, necesitamos la lista de tipos de documento
-// En un modelo más grande, habría un TiposDocumentoModel.
-// Por ahora, lo obtenemos con una consulta directa (a través de un SP genérico si existiera)
-// o lo hardcodeamos temporalmente en la vista.
-
-require_once 'views/clientes_view.php';
