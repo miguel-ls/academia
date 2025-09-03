@@ -162,8 +162,8 @@ document.addEventListener('DOMContentLoaded', function() {
         newRow.innerHTML = `
             <td>${nombre}<input type="hidden" name="cursos[${id}][id_curso]" value="${id}"></td>
             <td>${precioOrig.toFixed(2)}</td>
-            <td><input type="number" name="cursos[${id}][precio_pactado]" value="${precioPactado.toFixed(2)}" readonly></td>
-            <td><input type="number" name="cursos[${id}][descuento]" value="${descuento.toFixed(2)}" readonly></td>
+            <td><input type="number" class="recalc-trigger" name="cursos[${id}][precio_pactado]" value="${precioPactado.toFixed(2)}" step="0.01"></td>
+            <td><input type="number" class="recalc-trigger" name="cursos[${id}][descuento]" value="${descuento.toFixed(2)}" step="0.01"></td>
             <td class="precio-final">${precioFinal.toFixed(2)}</td>
             <td><button type="button" class="btn btn-danger btn-eliminar-curso">Eliminar</button></td>
         `;
@@ -171,10 +171,26 @@ document.addEventListener('DOMContentLoaded', function() {
         actualizarTotal();
     }
 
-    // Delegación de eventos para eliminar curso de la grilla
+    // Delegación de eventos para eliminar curso y recalcular
     cursosSeleccionadosBody.addEventListener('click', function(e){
         if(e.target.classList.contains('btn-eliminar-curso')){
             e.target.closest('tr').remove();
+            actualizarTotal();
+        }
+    });
+
+    cursosSeleccionadosBody.addEventListener('input', function(e) {
+        if (e.target.classList.contains('recalc-trigger')) {
+            const row = e.target.closest('tr');
+            const precioPactadoInput = row.querySelector('input[name*="[precio_pactado]"]');
+            const descuentoInput = row.querySelector('input[name*="[descuento]"]');
+            const precioFinalCell = row.querySelector('.precio-final');
+
+            const precioPactado = parseFloat(precioPactadoInput.value) || 0;
+            const descuento = parseFloat(descuentoInput.value) || 0;
+            const precioFinal = precioPactado - descuento;
+
+            precioFinalCell.textContent = precioFinal.toFixed(2);
             actualizarTotal();
         }
     });
