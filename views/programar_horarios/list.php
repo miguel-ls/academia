@@ -2,7 +2,7 @@
 
 <div class="page-header">
     <div class="page-header-left">
-        <h1>Programación de Cursos</h1>
+        <h1>Programación de Horarios</h1>
     </div>
     <div class="page-header-right">
         <a href="index.php?view=programar_horarios&action=new" class="btn btn-primary">Nueva Programación</a>
