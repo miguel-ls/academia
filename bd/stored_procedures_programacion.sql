@@ -138,16 +138,19 @@ CREATE PROCEDURE `sp_cursos_programados_buscar_disponibles`(
 BEGIN
     SELECT
         cp.id_curso_programado,
-        c.nombre AS curso_nombre,
+        c.nombre AS nombre_curso,
         c.descripcion AS curso_descripcion,
-        CONCAT(p.nombres, ' ', p.apellidos) AS profesor_nombre,
-        CONCAT(a.nombre, ' - ', sa.descripcion, ' ', sa.numero_sub_area) AS ubicacion,
+        CONCAT(p.nombres, ' ', p.apellidos) AS nombre_profesor,
+        a.nombre as area,
+        sa.descripcion as sub_area,
+        sa.numero_sub_area,
         cp.fecha_inicio,
         cp.fecha_fin,
         cp.hora_inicio,
         cp.hora_fin,
-        th.descripcion as tipo_horario_nombre,
-        cp.vacantes_disponibles
+        th.descripcion as horario_dias,
+        cp.vacantes_disponibles,
+        (SELECT lp.precio FROM lista_precios lp WHERE lp.id_curso = c.id_curso AND cp.fecha_inicio BETWEEN lp.vigencia_inicio AND lp.vigencia_fin ORDER BY lp.id_tipo_precio LIMIT 1) AS precio_actual
     FROM cursos_programados cp
     JOIN cursos c ON cp.id_curso = c.id_curso
     JOIN profesores p ON cp.id_profesor = p.id_profesor
