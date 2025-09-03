@@ -25,6 +25,7 @@ $base_url = defined('SITE_URL') ? SITE_URL : '';
                 <a href="#">Configuración</a>
                 <ul class="dropdown-content">
                     <li><a href="<?php echo $base_url; ?>index.php?view=clientes">Clientes</a></li>
+                    <li><a href="<?php echo $base_url; ?>index.php?view=profesores">Profesores</a></li>
                     <li><a href="<?php echo $base_url; ?>index.php?view=cursos">Cursos</a></li>
                     <li><a href="<?php echo $base_url; ?>index.php?view=areas">Areas</a></li>
                     <li><a href="<?php echo $base_url; ?>index.php?view=sub_areas">Sub Areas</a></li>
@@ -44,7 +45,6 @@ $base_url = defined('SITE_URL') ? SITE_URL : '';
                     <li><a href="<?php echo $base_url; ?>index.php?view=monitor">Monitor</a></li>
                     <li><a href="<?php echo $base_url; ?>index.php?view=matriculas">Matriculas</a></li>
                     <li><a href="<?php echo $base_url; ?>index.php?view=programar_horarios">Programar Horarios</a></li>
-                    <li><a href="<?php echo $base_url; ?>index.php?view=profesores">Profesores</a></li>
                     <li><a href="<?php echo $base_url; ?>index.php?view=asistencia_profesores">Asistencia Profesores</a></li>
                     <li><a href="<?php echo $base_url; ?>index.php?view=asistencia_clientes">Asistencia Clientes</a></li>
                     <li><a href="<?php echo $base_url; ?>index.php?view=calendario">Calendario</a></li>
