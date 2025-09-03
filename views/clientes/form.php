@@ -17,10 +17,10 @@ $action_url = $is_edit ? 'index.php?view=clientes&action=update' : 'index.php?vi
 <?php endif; ?>
 
 <div class="form-container">
-    <form action="<?php echo $action_url; ?>" method="POST">
+    <form id="cliente-form" action="<?php echo $action_url; ?>" method="POST">
 
         <?php if ($is_edit): ?>
-            <input type="hidden" name="id_cliente" value="<?php echo $cliente_a_editar['id_cliente']; ?>">
+            <input type="hidden" id="id_cliente" name="id_cliente" value="<?php echo $cliente_a_editar['id_cliente']; ?>">
         <?php endif; ?>
 
         <div class="form-row">
@@ -50,6 +50,7 @@ $action_url = $is_edit ? 'index.php?view=clientes&action=update' : 'index.php?vi
             <div class="form-group">
                 <label for="numero_documento">Número de Documento:</label>
                 <input type="text" id="numero_documento" name="numero_documento" value="<?php echo htmlspecialchars($cliente_a_editar['numero_documento'] ?? ''); ?>" required>
+                <div id="documento-error" class="validation-error" style="display: none; color: red; font-size: 0.9em;"></div>
             </div>
         </div>
 
@@ -70,7 +71,7 @@ $action_url = $is_edit ? 'index.php?view=clientes&action=update' : 'index.php?vi
 
         <div class="form-actions">
             <a href="index.php?view=clientes" class="btn btn-secondary">Cancelar</a>
-            <button type="submit" class="btn btn-primary"><?php echo $is_edit ? 'Actualizar Cliente' : 'Crear Cliente'; ?></button>
+            <button type="submit" id="submit-btn" class="btn btn-primary"><?php echo $is_edit ? 'Actualizar Cliente' : 'Crear Cliente'; ?></button>
         </div>
     </form>
 </div>
