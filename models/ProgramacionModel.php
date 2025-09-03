@@ -66,5 +66,35 @@ class ProgramacionModel {
         return $listas;
     }
 
-    // Aquí podrían ir otros métodos, como listar cursos ya programados, etc.
+    public function obtenerTodos() {
+        $this->db->callStoredProcedure('sp_cursos_programados_listar');
+        return $this->db->resultSet();
+    }
+
+    public function obtenerPorId($id) {
+        $this->db->callStoredProcedure('sp_cursos_programados_obtener_por_id', [$id]);
+        return $this->db->single();
+    }
+
+    public function actualizar($datos) {
+        $params = [
+            $datos['id_curso_programado'],
+            $datos['id_curso'],
+            $datos['id_profesor'],
+            $datos['id_sub_area'],
+            $datos['id_tipo_horario'],
+            $datos['fecha_inicio'],
+            $datos['fecha_fin'],
+            $datos['hora_inicio'],
+            $datos['hora_fin'],
+            $datos['vacantes']
+        ];
+        $this->db->callStoredProcedure('sp_cursos_programados_actualizar', $params);
+        return $this->db->rowCount() > 0;
+    }
+
+    public function eliminar($id) {
+        $this->db->callStoredProcedure('sp_cursos_programados_eliminar', [$id]);
+        return $this->db->rowCount() > 0;
+    }
 }
