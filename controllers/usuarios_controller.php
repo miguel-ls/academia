@@ -9,7 +9,11 @@ require_once 'models/UsuarioModel.php';
 // --- Verificación de Seguridad ---
 Session::check();
 if (!Session::isAdmin()) {
-    echo "<h1>Acceso Denegado</h1><p>No tienes permiso para acceder a esta página.</p>";
+    require_once 'views/partials/header.php';
+    echo '<div class="page-header"><h1>Acceso Denegado</h1></div>';
+    echo '<div class="card" style="padding: 20px;"><p>No tienes permiso para acceder a esta sección.</p>';
+    echo '<a href="index.php?view=dashboard" class="btn">Volver al Panel</a></div>';
+    require_once 'views/partials/footer.php';
     exit();
 }
 // ---------------------------------
