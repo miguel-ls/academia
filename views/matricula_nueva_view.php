@@ -5,7 +5,7 @@
     <form id="form-matricula" action="index.php?view=matriculas" method="POST">
         <input type="hidden" name="action" value="registrar_matricula">
 
-        <!-- ======================= SECCIÓN 1: CLIENTE ======================= -->
+        <!-- SECCIÓN 1: CLIENTE -->
         <div class="section">
             <h2>1. Datos del Cliente</h2>
             <div class="form-group">
@@ -17,7 +17,7 @@
             </div>
         </div>
 
-        <!-- ======================= SECCIÓN 2: CURSOS ======================= -->
+        <!-- SECCIÓN 2: CURSOS -->
         <div class="section">
             <h2>2. Selección de Cursos</h2>
             <fieldset>
@@ -53,6 +53,10 @@
                     <thead>
                         <tr>
                             <th>Curso</th>
+                            <th>Ubicación</th>
+                            <th>Profesor</th>
+                            <th>Horario</th>
+                            <th>Horas</th>
                             <th>Precio Orig.</th>
                             <th>Precio Pactado</th>
                             <th>Descuento</th>
@@ -65,7 +69,7 @@
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colspan="4" class="total-row">TOTAL:</td>
+                            <td colspan="8" class="total-row">TOTAL:</td>
                             <td id="total-matricula" class="total-row">S/ 0.00</td>
                             <td></td>
                         </tr>
@@ -74,7 +78,7 @@
             </div>
         </div>
 
-        <!-- ======================= SECCIÓN 3: PAGO ======================= -->
+        <!-- SECCIÓN 3: PAGO -->
         <div class="section">
             <h2>3. Datos del Pago</h2>
             <div class="form-grid">

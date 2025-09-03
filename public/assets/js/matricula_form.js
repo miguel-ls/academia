@@ -114,14 +114,19 @@ document.addEventListener('DOMContentLoaded', function() {
                         card.dataset.id = curso.id_curso_programado;
                         card.dataset.nombre = curso.nombre_curso;
                         card.dataset.precio = curso.precio_actual || '0.00';
+                        card.dataset.ubicacion = `${curso.area} - ${curso.sub_area} ${curso.numero_sub_area}`;
+                        card.dataset.profesor = curso.nombre_profesor;
+                        card.dataset.horario = curso.horario_dias;
+                        card.dataset.horas = `${formatTime(curso.hora_inicio)} - ${formatTime(curso.hora_fin)}`;
+
 
                         card.innerHTML = `
                             <h4>${curso.nombre_curso}</h4>
-                            <p><small><strong>Ubicación:</strong> ${curso.area} - ${curso.sub_area} ${curso.numero_sub_area}</small></p>
-                            <p><strong>Profesor:</strong> ${curso.nombre_profesor}</p>
+                            <p><small><strong>Ubicación:</strong> ${card.dataset.ubicacion}</small></p>
+                            <p><strong>Profesor:</strong> ${card.dataset.profesor}</p>
                             <p><strong>Periodo:</strong> ${formatDate(curso.fecha_inicio)} - ${formatDate(curso.fecha_fin)}</p>
-                            <p><strong>Horario:</strong> ${curso.horario_dias}</p>
-                            <p><strong>Horas:</strong> ${formatTime(curso.hora_inicio)} - ${formatTime(curso.hora_fin)}</p>
+                            <p><strong>Horario:</strong> ${card.dataset.horario}</p>
+                            <p><strong>Horas:</strong> ${card.dataset.horas}</p>
                             <p><strong>Precio:</strong> S/ ${parseFloat(curso.precio_actual || 0).toFixed(2)}</p>
                             <p><strong>Vacantes:</strong> ${curso.vacantes_disponibles}</p>
                             <button type="button" class="btn btn-primary btn-seleccionar-curso">Seleccionar</button>
@@ -152,11 +157,21 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function agregarCursoAGrilla(id, nombre, precioOrig, precioPactado, descuento) {
+        const card = cursosContainer.querySelector(`.curso-card[data-id='${id}']`);
+        const ubicacion = card.dataset.ubicacion;
+        const profesor = card.dataset.profesor;
+        const horario = card.dataset.horario;
+        const horas = card.dataset.horas;
+
         const precioFinal = precioPactado - descuento;
         const newRow = document.createElement('tr');
         newRow.dataset.id = id;
         newRow.innerHTML = `
             <td>${nombre}<input type="hidden" name="cursos[${id}][id_curso]" value="${id}"></td>
+            <td>${ubicacion}</td>
+            <td>${profesor}</td>
+            <td>${horario}</td>
+            <td>${horas}</td>
             <td>${precioOrig.toFixed(2)}</td>
             <td><input type="number" class="recalc-trigger" name="cursos[${id}][precio_pactado]" value="${precioPactado.toFixed(2)}" step="0.01"></td>
             <td><input type="number" class="recalc-trigger" name="cursos[${id}][descuento]" value="${descuento.toFixed(2)}" step="0.01"></td>
