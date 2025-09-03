@@ -19,7 +19,7 @@
                 <p><strong>Profesor:</strong> <?php echo htmlspecialchars($curso['nombre_profesor']); ?></p>
                 <p><strong>Periodo:</strong> <?php echo date('d/m/Y', strtotime($curso['fecha_inicio'])); ?> - <?php echo date('d/m/Y', strtotime($curso['fecha_fin'])); ?></p>
                 <p><strong>Horario:</strong> <?php echo htmlspecialchars($curso['horario_dias']); ?> (<?php echo date('H:i', strtotime($curso['hora_inicio'])); ?> - <?php echo date('H:i', strtotime($curso['hora_fin'])); ?>)</p>
-                <p><strong>Ubicación:</strong> <?php echo htmlspecialchars($curso['area']); ?> - <?php echo htmlspecialchars($curso['sub_area']); ?></p>
+                <p><strong>Ubicación:</strong> <?php echo htmlspecialchars($curso['area'] . ' - ' . $curso['sub_area'] . ' ' . $curso['numero_sub_area']); ?></p>
                 <p><strong>Vacantes:</strong> <?php echo htmlspecialchars($curso['vacantes_disponibles']); ?></p>
                 <p><strong>Precio:</strong> S/ <?php echo number_format($curso['precio_actual'], 2); ?></p>
             </div>
