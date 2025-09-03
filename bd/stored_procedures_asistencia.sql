@@ -40,5 +40,80 @@ BEGIN
     END WHILE;
 END$$
 
+-- `sp_asistencia_profesor_listar_cursos`
+-- Lists all scheduled courses for the main attendance grid.
+DROP PROCEDURE IF EXISTS `sp_asistencia_profesor_listar_cursos`$$
+CREATE PROCEDURE `sp_asistencia_profesor_listar_cursos`()
+BEGIN
+    SELECT
+        cp.id_curso_programado,
+        c.nombre AS curso_nombre,
+        CONCAT(p.nombres, ' ', p.apellidos) AS profesor_nombre,
+        cp.fecha_inicio,
+        cp.fecha_fin,
+        cp.estado
+    FROM cursos_programados cp
+    JOIN cursos c ON cp.id_curso = c.id_curso
+    JOIN profesores p ON cp.id_profesor = p.id_profesor
+    ORDER BY cp.fecha_inicio DESC;
+END$$
+
+
+-- `sp_asistencia_profesor_obtener_detalle_curso`
+-- Gets the header details for the attendance marking page.
+DROP PROCEDURE IF EXISTS `sp_asistencia_profesor_obtener_detalle_curso`$$
+CREATE PROCEDURE `sp_asistencia_profesor_obtener_detalle_curso`(IN p_id_curso_programado INT)
+BEGIN
+    SELECT
+        c.nombre AS curso_nombre,
+        CONCAT(p.nombres, ' ', p.apellidos) AS profesor_nombre,
+        CONCAT(a.nombre, ' - ', sa.descripcion, ' ', sa.numero_sub_area) AS ubicacion,
+        th.descripcion AS tipo_horario_nombre,
+        cp.fecha_inicio,
+        cp.fecha_fin,
+        cp.hora_inicio,
+        cp.hora_fin
+    FROM cursos_programados cp
+    JOIN cursos c ON cp.id_curso = c.id_curso
+    JOIN profesores p ON cp.id_profesor = p.id_profesor
+    JOIN sub_areas sa ON cp.id_sub_area = sa.id_sub_area
+    JOIN areas a ON sa.id_area = a.id_area
+    JOIN tipos_horario th ON cp.id_tipo_horario = th.id_tipo_horario
+    WHERE cp.id_curso_programado = p_id_curso_programado;
+END$$
+
+
+-- `sp_asistencia_profesor_obtener_clases`
+-- Gets the list of individual class dates for a scheduled course.
+DROP PROCEDURE IF EXISTS `sp_asistencia_profesor_obtener_clases`$$
+CREATE PROCEDURE `sp_asistencia_profesor_obtener_clases`(IN p_id_curso_programado INT)
+BEGIN
+    SELECT
+        id_asistencia_profesor,
+        fecha_clase,
+        estado,
+        observaciones
+    FROM asistencia_profesor
+    WHERE id_curso_programado = p_id_curso_programado
+    ORDER BY fecha_clase ASC;
+END$$
+
+
+-- `sp_asistencia_profesor_actualizar_asistencia`
+-- Updates the status and observations for a single class date.
+DROP PROCEDURE IF EXISTS `sp_asistencia_profesor_actualizar_asistencia`$$
+CREATE PROCEDURE `sp_asistencia_profesor_actualizar_asistencia`(
+    IN p_id_asistencia_profesor INT,
+    IN p_estado ENUM('Programado', 'Asistió', 'Faltó', 'Reprogramado'),
+    IN p_observaciones VARCHAR(255)
+)
+BEGIN
+    UPDATE asistencia_profesor
+    SET
+        estado = p_estado,
+        observaciones = p_observaciones
+    WHERE id_asistencia_profesor = p_id_asistencia_profesor;
+END$$
+
 
 DELIMITER ;
