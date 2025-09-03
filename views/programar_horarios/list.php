@@ -15,6 +15,56 @@
     </div>
 <?php endif; ?>
 
+<!-- Search Filters -->
+<div class="card">
+    <form action="index.php" method="GET">
+        <input type="hidden" name="view" value="programar_horarios">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="filtro_profesor">Profesor:</label>
+                <select id="filtro_profesor" name="filtro_profesor">
+                    <option value="">Todos</option>
+                    <?php if (!empty($lista_profesores)): ?>
+                        <?php foreach ($lista_profesores as $profesor): ?>
+                            <option value="<?php echo $profesor['id_profesor']; ?>" <?php echo (($_GET['filtro_profesor'] ?? '') == $profesor['id_profesor']) ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($profesor['apellidos'] . ', ' . $profesor['nombres']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="filtro_curso">Curso:</label>
+                <select id="filtro_curso" name="filtro_curso">
+                    <option value="">Todos</option>
+                    <?php if (!empty($lista_cursos)): ?>
+                        <?php foreach ($lista_cursos as $curso): ?>
+                            <option value="<?php echo $curso['id_curso']; ?>" <?php echo (($_GET['filtro_curso'] ?? '') == $curso['id_curso']) ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($curso['nombre']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </select>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="filtro_fecha_inicio">Desde:</label>
+                <input type="date" id="filtro_fecha_inicio" name="filtro_fecha_inicio" value="<?php echo htmlspecialchars($_GET['filtro_fecha_inicio'] ?? ''); ?>">
+            </div>
+            <div class="form-group">
+                <label for="filtro_fecha_fin">Hasta:</label>
+                <input type="date" id="filtro_fecha_fin" name="filtro_fecha_fin" value="<?php echo htmlspecialchars($_GET['filtro_fecha_fin'] ?? ''); ?>">
+            </div>
+        </div>
+        <div class="form-actions">
+            <a href="index.php?view=programar_horarios" class="btn btn-secondary">Limpiar</a>
+            <button type="submit" class="btn btn-primary">Buscar</button>
+        </div>
+    </form>
+</div>
+
+
 <table class="table">
     <thead>
         <tr>
@@ -34,7 +84,7 @@
     <tbody>
         <?php if (empty($programaciones)): ?>
             <tr>
-                <td colspan="11">No hay cursos programados.</td>
+                <td colspan="11">No se encontraron programaciones.</td>
             </tr>
         <?php else: ?>
             <?php foreach ($programaciones as $prog): ?>

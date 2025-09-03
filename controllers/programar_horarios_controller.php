@@ -5,6 +5,8 @@
 // =================================================================
 
 require_once 'models/ProgramacionModel.php';
+require_once 'models/ProfesorModel.php';
+require_once 'models/CursosModel.php';
 
 // --- Verificación de Seguridad ---
 Session::check();
@@ -184,7 +186,21 @@ try {
 
         case 'list':
         default:
-            $programaciones = $programacionModel->obtenerTodos();
+            // --- Lógica de Filtros ---
+            $filtros = [
+                'id_profesor'   => !empty($_GET['filtro_profesor']) ? (int)$_GET['filtro_profesor'] : null,
+                'id_curso'      => !empty($_GET['filtro_curso']) ? (int)$_GET['filtro_curso'] : null,
+                'fecha_inicio'  => !empty($_GET['filtro_fecha_inicio']) ? $_GET['filtro_fecha_inicio'] : null,
+                'fecha_fin'     => !empty($_GET['filtro_fecha_fin']) ? $_GET['filtro_fecha_fin'] : null
+            ];
+
+            // Datos para los dropdowns de los filtros
+            $profesorModel = new ProfesorModel();
+            $cursosModel = new CursosModel();
+            $lista_profesores = $profesorModel->obtenerTodos();
+            $lista_cursos = $cursosModel->obtenerTodos();
+
+            $programaciones = $programacionModel->obtenerTodos($filtros);
             require_once 'views/programar_horarios/list.php';
             break;
     }

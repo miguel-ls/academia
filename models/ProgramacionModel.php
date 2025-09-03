@@ -66,8 +66,14 @@ class ProgramacionModel {
         return $listas;
     }
 
-    public function obtenerTodos() {
-        $this->db->callStoredProcedure('sp_cursos_programados_listar');
+    public function obtenerTodos($filtros = []) {
+        $params = [
+            $filtros['id_profesor'] ?? null,
+            $filtros['id_curso'] ?? null,
+            $filtros['fecha_inicio'] ?? null,
+            $filtros['fecha_fin'] ?? null
+        ];
+        $this->db->callStoredProcedure('sp_cursos_programados_listar', $params);
         return $this->db->resultSet();
     }
 
