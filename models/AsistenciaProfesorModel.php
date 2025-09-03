@@ -11,8 +11,14 @@ class AsistenciaProfesorModel {
         $this->db = Database::getInstance();
     }
 
-    public function listarCursosProgramados() {
-        $this->db->callStoredProcedure('sp_asistencia_profesor_listar_cursos');
+    public function listarCursosProgramados($filtros = []) {
+        $params = [
+            $filtros['id_profesor'] ?? null,
+            $filtros['id_curso'] ?? null,
+            $filtros['fecha_inicio'] ?? null,
+            $filtros['fecha_fin'] ?? null
+        ];
+        $this->db->callStoredProcedure('sp_asistencia_profesor_listar_cursos', $params);
         return $this->db->resultSet();
     }
 

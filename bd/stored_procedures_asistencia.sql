@@ -41,9 +41,14 @@ BEGIN
 END$$
 
 -- `sp_asistencia_profesor_listar_cursos`
--- Lists all scheduled courses for the main attendance grid.
+-- Lists all scheduled courses for the main attendance grid, with filtering.
 DROP PROCEDURE IF EXISTS `sp_asistencia_profesor_listar_cursos`$$
-CREATE PROCEDURE `sp_asistencia_profesor_listar_cursos`()
+CREATE PROCEDURE `sp_asistencia_profesor_listar_cursos`(
+    IN p_id_profesor INT,
+    IN p_id_curso INT,
+    IN p_fecha_inicio DATE,
+    IN p_fecha_fin DATE
+)
 BEGIN
     SELECT
         cp.id_curso_programado,
@@ -51,10 +56,21 @@ BEGIN
         CONCAT(p.nombres, ' ', p.apellidos) AS profesor_nombre,
         cp.fecha_inicio,
         cp.fecha_fin,
+        th.descripcion AS dias,
+        CONCAT(TIME_FORMAT(cp.hora_inicio, '%h:%i %p'), ' - ', TIME_FORMAT(cp.hora_fin, '%h:%i %p')) AS horas,
+        CONCAT(a.nombre, ' - ', sa.descripcion, ' ', sa.numero_sub_area) AS ubicacion,
         cp.estado
     FROM cursos_programados cp
     JOIN cursos c ON cp.id_curso = c.id_curso
     JOIN profesores p ON cp.id_profesor = p.id_profesor
+    JOIN tipos_horario th ON cp.id_tipo_horario = th.id_tipo_horario
+    JOIN sub_areas sa ON cp.id_sub_area = sa.id_sub_area
+    JOIN areas a ON sa.id_area = a.id_area
+    WHERE
+        (p_id_profesor IS NULL OR cp.id_profesor = p_id_profesor)
+        AND (p_id_curso IS NULL OR cp.id_curso = p_id_curso)
+        AND (p_fecha_inicio IS NULL OR cp.fecha_inicio >= p_fecha_inicio)
+        AND (p_fecha_fin IS NULL OR cp.fecha_fin <= p_fecha_fin)
     ORDER BY cp.fecha_inicio DESC;
 END$$
 
