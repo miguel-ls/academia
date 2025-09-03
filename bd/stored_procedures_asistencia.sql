@@ -29,10 +29,10 @@ BEGIN
 
     -- Bucle para generar registros de asistencia
     WHILE v_fecha_actual <= v_fecha_fin DO
-        -- DAYOFWEEK devuelve 1 para Domingo, 2 para Lunes, etc.
+        -- WEEKDAY() devuelve 0 para Lunes, 1 para Martes, etc. Se suma 1 para alinear con el formato guardado (Lunes=1, etc.)
         -- Se inserta si el día de la semana está en la cadena de días permitidos
         -- Se usa COLLATE para forzar la codificación correcta y evitar errores
-        IF FIND_IN_SET(DAYOFWEEK(v_fecha_actual), v_dias_semana COLLATE utf8mb4_unicode_ci) THEN
+        IF FIND_IN_SET(WEEKDAY(v_fecha_actual) + 1, v_dias_semana COLLATE utf8mb4_unicode_ci) THEN
             INSERT INTO asistencia_profesor (id_curso_programado, id_profesor, fecha_clase, estado)
             VALUES (p_id_curso_programado, v_id_profesor, v_fecha_actual, 'Programado');
         END IF;
