@@ -1,25 +1,20 @@
 <?php require_once 'views/partials/header.php'; ?>
 
 <div class="page-header">
-    <h1>Mantenimiento de Usuarios</h1>
+    <h1><?php echo isset($usuario_a_editar) ? 'Editar Usuario' : 'Crear Nuevo Usuario'; ?></h1>
 </div>
 
-<?php if (!empty($feedback_message)): ?>
-    <div class="info-message">
-        <?php echo htmlspecialchars($feedback_message); ?>
+<?php if (!empty($error_message)): ?>
+    <div class="error-message">
+        <?php echo htmlspecialchars($error_message); ?>
     </div>
 <?php endif; ?>
 
-<!-- Formulario para Crear o Editar Usuarios -->
 <div class="form-container">
-    <h2><?php echo isset($usuario_a_editar) ? 'Editar Usuario' : 'Crear Nuevo Usuario'; ?></h2>
-    <form action="index.php?view=usuarios" method="POST">
+    <form action="index.php?view=usuarios&action=<?php echo isset($usuario_a_editar) ? 'update' : 'create'; ?>" method="POST">
 
         <?php if (isset($usuario_a_editar)): ?>
-            <input type="hidden" name="action" value="update">
             <input type="hidden" name="id_usuario" value="<?php echo $usuario_a_editar['id_usuario']; ?>">
-        <?php else: ?>
-            <input type="hidden" name="action" value="create">
         <?php endif; ?>
 
         <div class="form-row">
@@ -63,52 +58,10 @@
         </div>
 
         <div class="form-actions">
-            <?php if (isset($usuario_a_editar)): ?>
-                <a href="index.php?view=usuarios" class="btn btn-secondary">Cancelar</a>
-            <?php endif; ?>
+            <a href="index.php?view=usuarios" class="btn btn-secondary">Cancelar</a>
             <button type="submit" class="btn btn-primary"><?php echo isset($usuario_a_editar) ? 'Actualizar Usuario' : 'Crear Usuario'; ?></button>
         </div>
     </form>
 </div>
-
-<!-- Tabla con la lista de usuarios -->
-<h2>Lista de Usuarios</h2>
-<table class="table">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Nombre Completo</th>
-            <th>Usuario</th>
-            <th>Email</th>
-            <th>Rol</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php foreach ($usuarios as $usuario): ?>
-            <tr>
-                <td><?php echo $usuario['id_usuario']; ?></td>
-                <td><?php echo htmlspecialchars($usuario['nombre_completo']); ?></td>
-                <td><?php echo htmlspecialchars($usuario['nombre_usuario']); ?></td>
-                <td><?php echo htmlspecialchars($usuario['email']); ?></td>
-                <td><?php echo htmlspecialchars($usuario['nombre_rol']); ?></td>
-                <td>
-                    <?php if ($usuario['activo']): ?>
-                        <span class="badge status-activo">Activo</span>
-                    <?php else: ?>
-                        <span class="badge status-inactivo">Inactivo</span>
-                    <?php endif; ?>
-                </td>
-                <td>
-                    <a href="index.php?view=usuarios&action=edit&id_usuario=<?php echo $usuario['id_usuario']; ?>" class="btn btn-warning">Editar</a>
-                    <form action="index.php?view=usuarios&action=delete&id_usuario=<?php echo $usuario['id_usuario']; ?>" method="POST" style="display:inline;" onsubmit="return confirm('¿Está seguro de que desea desactivar este usuario?');">
-                        <button type="submit" class="btn btn-danger">Desactivar</button>
-                    </form>
-                </td>
-            </tr>
-        <?php endforeach; ?>
-    </tbody>
-</table>
 
 <?php require_once 'views/partials/footer.php'; ?>
