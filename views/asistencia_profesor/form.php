@@ -74,7 +74,7 @@ $dias_es = [
     <?php if ($total_paginas > 1): ?>
         <div class="pagination-container">
             <?php if ($pagina_actual > 1): ?>
-                <a href="index.php?view=asistencia_profesores&action=marcar&id=<?php echo $id_curso_programado; ?>&page=<?php echo $pagina_actual - 1; ?>" class="btn">&laquo; Anterior</a>
+                <a href="index.php?view=asistencia_profesores&action=marcar&id=<?php echo $id_curso_programado; ?>&page=<?php echo $pagina_actual - 1; ?>" class="btn btn-primary">&laquo; Anterior</a>
             <?php endif; ?>
 
             <?php for ($i = 1; $i <= $total_paginas; $i++): ?>
@@ -82,7 +82,7 @@ $dias_es = [
             <?php endfor; ?>
 
             <?php if ($pagina_actual < $total_paginas): ?>
-                <a href="index.php?view=asistencia_profesores&action=marcar&id=<?php echo $id_curso_programado; ?>&page=<?php echo $pagina_actual + 1; ?>" class="btn">Siguiente &raquo;</a>
+                <a href="index.php?view=asistencia_profesores&action=marcar&id=<?php echo $id_curso_programado; ?>&page=<?php echo $pagina_actual + 1; ?>" class="btn btn-primary">Siguiente &raquo;</a>
             <?php endif; ?>
         </div>
     <?php endif; ?>
