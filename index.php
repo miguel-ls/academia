@@ -42,9 +42,9 @@ $allowed_views = [
     'dashboard',
     'logout',
     // Vistas de Mantenimientos (Configuración)
-    'usuarios', 'clientes', 'cursos', 'areas', 'sub_areas', 'profesores', 'tipos_area', 'areas', 'tipos_documento', 'formas_pago', 'tipos_curso', 'tipos_precio', 'tipos_horario', 'lista_precios',
+    'usuarios', 'clientes', 'cursos', 'areas', 'sub_areas', 'profesores', 'tipos_area', 'tipos_documento', 'formas_pago', 'tipos_curso', 'tipos_precio', 'tipos_horario', 'lista_precios',
     // Vistas de Operaciones
-    'monitor', 'programar_horarios', 'asistencia_profesor', 'asistencia_cliente', 'calendario',
+    'monitor', 'programar_horarios', 'asistencia_profesores', 'asistencia_clientes', 'calendario',
     // Vistas de Matrícula
     'matriculas', 'matricula_nueva'
 ];
