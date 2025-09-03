@@ -1,4 +1,15 @@
-<?php require_once 'views/partials/header.php'; ?>
+<?php
+require_once 'views/partials/header.php';
+$dias_es = [
+    'Monday'    => 'Lunes',
+    'Tuesday'   => 'Martes',
+    'Wednesday' => 'Miércoles',
+    'Thursday'  => 'Jueves',
+    'Friday'    => 'Viernes',
+    'Saturday'  => 'Sábado',
+    'Sunday'    => 'Domingo'
+];
+?>
 
 <div class="page-header">
     <h1>Marcar Asistencia de Profesor</h1>
@@ -34,7 +45,13 @@
             <?php else: ?>
                 <?php foreach ($clases as $clase): ?>
                     <tr>
-                        <td><?php echo date('d/m/Y (l)', strtotime($clase['fecha_clase'])); ?></td>
+                        <td>
+                            <?php
+                                $dia_ingles = date('l', strtotime($clase['fecha_clase']));
+                                $dia_espanol = $dias_es[$dia_ingles] ?? $dia_ingles;
+                                echo date('d/m/Y', strtotime($clase['fecha_clase'])) . ' (' . $dia_espanol . ')';
+                            ?>
+                        </td>
                         <td>
                             <input type="hidden" name="asistencia[<?php echo $clase['id_asistencia_profesor']; ?>][id]" value="<?php echo $clase['id_asistencia_profesor']; ?>">
                             <select name="asistencia[<?php echo $clase['id_asistencia_profesor']; ?>][estado]" required>
@@ -52,6 +69,23 @@
             <?php endif; ?>
         </tbody>
     </table>
+
+    <!-- Paginación -->
+    <?php if ($total_paginas > 1): ?>
+        <div class="pagination-container">
+            <?php if ($pagina_actual > 1): ?>
+                <a href="index.php?view=asistencia_profesores&action=marcar&id=<?php echo $id_curso_programado; ?>&page=<?php echo $pagina_actual - 1; ?>" class="btn">&laquo; Anterior</a>
+            <?php endif; ?>
+
+            <?php for ($i = 1; $i <= $total_paginas; $i++): ?>
+                <a href="index.php?view=asistencia_profesores&action=marcar&id=<?php echo $id_curso_programado; ?>&page=<?php echo $i; ?>" class="btn <?php echo ($i == $pagina_actual) ? 'btn-primary' : 'btn-secondary'; ?>"><?php echo $i; ?></a>
+            <?php endfor; ?>
+
+            <?php if ($pagina_actual < $total_paginas): ?>
+                <a href="index.php?view=asistencia_profesores&action=marcar&id=<?php echo $id_curso_programado; ?>&page=<?php echo $pagina_actual + 1; ?>" class="btn">Siguiente &raquo;</a>
+            <?php endif; ?>
+        </div>
+    <?php endif; ?>
 
     <div class="form-actions">
         <a href="index.php?view=asistencia_profesores" class="btn btn-secondary">Cancelar</a>

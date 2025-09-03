@@ -84,9 +84,13 @@ END$$
 
 
 -- `sp_asistencia_profesor_obtener_clases`
--- Gets the list of individual class dates for a scheduled course.
+-- Gets the list of individual class dates for a scheduled course (paginated).
 DROP PROCEDURE IF EXISTS `sp_asistencia_profesor_obtener_clases`$$
-CREATE PROCEDURE `sp_asistencia_profesor_obtener_clases`(IN p_id_curso_programado INT)
+CREATE PROCEDURE `sp_asistencia_profesor_obtener_clases`(
+    IN p_id_curso_programado INT,
+    IN p_limit INT,
+    IN p_offset INT
+)
 BEGIN
     SELECT
         id_asistencia_profesor,
@@ -95,7 +99,19 @@ BEGIN
         observaciones
     FROM asistencia_profesor
     WHERE id_curso_programado = p_id_curso_programado
-    ORDER BY fecha_clase ASC;
+    ORDER BY fecha_clase ASC
+    LIMIT p_limit OFFSET p_offset;
+END$$
+
+
+-- `sp_asistencia_profesor_contar_clases`
+-- Counts the total number of class dates for a scheduled course.
+DROP PROCEDURE IF EXISTS `sp_asistencia_profesor_contar_clases`$$
+CREATE PROCEDURE `sp_asistencia_profesor_contar_clases`(IN p_id_curso_programado INT)
+BEGIN
+    SELECT COUNT(id_asistencia_profesor) as total
+    FROM asistencia_profesor
+    WHERE id_curso_programado = p_id_curso_programado;
 END$$
 
 
