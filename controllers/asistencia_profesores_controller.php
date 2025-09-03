@@ -32,8 +32,16 @@ try {
     switch ($action) {
         case 'marcar':
             if ($id_curso_programado > 0) {
+                // Lógica de Paginación
+                $limit = 10;
+                $pagina_actual = (int)($_GET['page'] ?? 1);
+                $offset = ($pagina_actual - 1) * $limit;
+
+                $total_clases = $asistenciaModel->contarClases($id_curso_programado);
+                $total_paginas = ceil($total_clases / $limit);
+
                 $detalle_curso = $asistenciaModel->obtenerDetalleCurso($id_curso_programado);
-                $clases = $asistenciaModel->obtenerClases($id_curso_programado);
+                $clases = $asistenciaModel->obtenerClases($id_curso_programado, $limit, $offset);
 
                 if (!$detalle_curso) {
                     $_SESSION['feedback_message'] = "Error: El curso programado no fue encontrado.";
