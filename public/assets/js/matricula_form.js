@@ -122,6 +122,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <p><strong>Periodo:</strong> ${formatDate(curso.fecha_inicio)} - ${formatDate(curso.fecha_fin)}</p>
                             <p><strong>Horario:</strong> ${curso.horario_dias}</p>
                             <p><strong>Horas:</strong> ${formatTime(curso.hora_inicio)} - ${formatTime(curso.hora_fin)}</p>
+                            <p><strong>Precio:</strong> S/ ${parseFloat(curso.precio_actual || 0).toFixed(2)}</p>
                             <p><strong>Vacantes:</strong> ${curso.vacantes_disponibles}</p>
                             <button type="button" class="btn btn-primary btn-seleccionar-curso">Seleccionar</button>
                         `;
@@ -145,12 +146,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const nombre = card.dataset.nombre;
             const precio = parseFloat(card.dataset.precio);
 
-            // Permitir al usuario editar el precio y añadir descuento
-            const precioPactado = prompt(`Precio para "${nombre}":`, precio.toFixed(2));
-            const descuento = prompt(`Descuento para "${nombre}":`, "0.00");
+            // Ya no se pide el precio, solo el descuento
+            const descuento = prompt(`Descuento para "${nombre}" (Precio Base: S/ ${precio.toFixed(2)}):`, "0.00");
 
-            if (precioPactado !== null && descuento !== null) {
-                agregarCursoAGrilla(id, nombre, precio, parseFloat(precioPactado), parseFloat(descuento));
+            if (descuento !== null) {
+                agregarCursoAGrilla(id, nombre, precio, precio, parseFloat(descuento));
             }
         }
     });
