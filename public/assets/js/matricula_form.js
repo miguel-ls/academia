@@ -117,6 +117,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                         card.innerHTML = `
                             <h4>${curso.nombre_curso}</h4>
+                            <p><small><strong>Ubicación:</strong> ${curso.area} - ${curso.sub_area} ${curso.numero_sub_area}</small></p>
                             <p><strong>Profesor:</strong> ${curso.nombre_profesor}</p>
                             <p><strong>Periodo:</strong> ${formatDate(curso.fecha_inicio)} - ${formatDate(curso.fecha_fin)}</p>
                             <p><strong>Horario:</strong> ${curso.horario_dias}</p>
