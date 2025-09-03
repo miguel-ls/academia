@@ -11,7 +11,12 @@ DELIMITER $$
 -- -----------------------------------------------------
 
 DROP PROCEDURE IF EXISTS `sp_cursos_programados_listar`$$
-CREATE PROCEDURE `sp_cursos_programados_listar`()
+CREATE PROCEDURE `sp_cursos_programados_listar`(
+    IN p_id_profesor INT,
+    IN p_id_curso INT,
+    IN p_fecha_inicio DATE,
+    IN p_fecha_fin DATE
+)
 BEGIN
     SELECT
         cp.id_curso_programado,
@@ -27,9 +32,14 @@ BEGIN
     FROM cursos_programados cp
     JOIN cursos c ON cp.id_curso = c.id_curso
     JOIN profesores p ON cp.id_profesor = p.id_profesor
+    JOIN tipos_horario th ON cp.id_tipo_horario = th.id_tipo_horario
     JOIN sub_areas sa ON cp.id_sub_area = sa.id_sub_area
     JOIN areas a ON sa.id_area = a.id_area
-    JOIN tipos_horario th ON cp.id_tipo_horario = th.id_tipo_horario
+    WHERE
+        (p_id_profesor IS NULL OR cp.id_profesor = p_id_profesor)
+        AND (p_id_curso IS NULL OR cp.id_curso = p_id_curso)
+        AND (p_fecha_inicio IS NULL OR cp.fecha_inicio >= p_fecha_inicio)
+        AND (p_fecha_fin IS NULL OR cp.fecha_fin <= p_fecha_fin)
     ORDER BY cp.fecha_inicio DESC;
 END$$
 
