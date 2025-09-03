@@ -74,23 +74,47 @@ document.addEventListener('DOMContentLoaded', function() {
     const cursosSeleccionadosBody = document.querySelector('#cursos-seleccionados-grid tbody');
 
     btnBuscarCursos.addEventListener('click', function() {
-        // SIMULACIÓN DE BÚSQUEDA AJAX:
-        // fetch(`index.php?view=matriculas&action=buscar_cursos&...filtros`)
-        // Por ahora, mostramos datos de ejemplo.
-        cursosContainer.innerHTML = `
-            <div class="curso-card" data-id="1" data-nombre="Curso de PHP Avanzado" data-precio="500.00">
-                <h4>Curso de PHP Avanzado</h4>
-                <p>Profesor: Juan Tech</p>
-                <p>Precio: S/ 500.00</p>
-                <button type="button" class="btn btn-primary btn-seleccionar-curso">Seleccionar</button>
-            </div>
-            <div class="curso-card" data-id="2" data-nombre="Curso de MySQL" data-precio="450.00">
-                <h4>Curso de MySQL</h4>
-                <p>Profesor: Maria DB</p>
-                <p>Precio: S/ 450.00</p>
-                <button type="button" class="btn btn-primary btn-seleccionar-curso">Seleccionar</button>
-            </div>
-        `;
+        const profesorId = document.getElementById('filtro-profesor-id').value;
+        const fechaInicio = document.getElementById('filtro-fecha-inicio').value;
+        const fechaFin = document.getElementById('filtro-fecha-fin').value;
+
+        let url = `index.php?view=matriculas&action=buscar_cursos`;
+        if (profesorId) url += `&profesor_id=${profesorId}`;
+        if (fechaInicio) url += `&fecha_inicio=${fechaInicio}`;
+        if (fechaFin) url += `&fecha_fin=${fechaFin}`;
+
+        cursosContainer.innerHTML = '<p>Buscando cursos...</p>';
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                cursosContainer.innerHTML = '';
+                if (data.length > 0) {
+                    data.forEach(curso => {
+                        const card = document.createElement('div');
+                        card.className = 'curso-card';
+                        card.dataset.id = curso.id_curso_programado;
+                        card.dataset.nombre = curso.nombre_curso;
+                        card.dataset.precio = curso.precio_actual || '0.00';
+
+                        card.innerHTML = `
+                            <h4>${curso.nombre_curso}</h4>
+                            <p><strong>Profesor:</strong> ${curso.nombre_profesor}</p>
+                            <p><strong>Periodo:</strong> ${new Date(curso.fecha_inicio + 'T00:00:00').toLocaleDateString()} - ${new Date(curso.fecha_fin + 'T00:00:00').toLocaleDateString()}</p>
+                            <p><strong>Horario:</strong> ${curso.horario_dias}</p>
+                            <p><strong>Vacantes:</strong> ${curso.vacantes_disponibles}</p>
+                            <button type="button" class="btn btn-primary btn-seleccionar-curso">Seleccionar</button>
+                        `;
+                        cursosContainer.appendChild(card);
+                    });
+                } else {
+                    cursosContainer.innerHTML = '<p>No se encontraron cursos con los filtros seleccionados.</p>';
+                }
+            })
+            .catch(error => {
+                console.error('Error al buscar cursos:', error);
+                cursosContainer.innerHTML = '<p>Ocurrió un error al buscar los cursos.</p>';
+            });
     });
 
     // Usamos delegación de eventos para los botones "Seleccionar"
@@ -155,11 +179,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- Lógica para la Sección 2: Búsqueda de Profesor ---
     const inputBuscarProfesor = document.getElementById('filtro-profesor');
+    const hiddenProfesorId = document.getElementById('filtro-profesor-id');
     const profesorResultsContainer = document.getElementById('profesor-search-results');
     let profesorSearchTimeout;
 
     inputBuscarProfesor.addEventListener('keyup', function() {
         clearTimeout(profesorSearchTimeout);
+        hiddenProfesorId.value = ''; // Limpiar ID si el usuario escribe de nuevo
         const query = this.value;
 
         if (query.length < 2) {
@@ -179,9 +205,11 @@ document.addEventListener('DOMContentLoaded', function() {
                             const item = document.createElement('div');
                             item.className = 'search-results-item';
                             item.textContent = profesor.nombre_completo;
+                            item.dataset.id = profesor.id_profesor;
 
                             item.addEventListener('click', function() {
                                 inputBuscarProfesor.value = this.textContent;
+                                hiddenProfesorId.value = this.dataset.id; // Guardar el ID
                                 profesorResultsContainer.innerHTML = '';
                             });
                             list.appendChild(item);

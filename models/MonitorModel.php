@@ -15,14 +15,12 @@ class MonitorModel {
      * Obtiene todos los cursos programados que tienen vacantes disponibles.
      * @return array La lista de cursos disponibles.
      */
-    public function obtenerCursosDisponibles() {
+    public function obtenerCursosDisponibles($filtros = []) {
         // Llamamos al SP que ya habíamos diseñado para este propósito.
-        // Los parámetros son opcionales (NULL), así que los pasamos como tal
-        // para obtener todos los cursos disponibles sin filtrar.
         $params = [
-            null, // p_profesor_id
-            null, // p_fecha_inicio
-            null  // p_fecha_fin
+            $filtros['id_profesor'] ?? null,
+            $filtros['fecha_inicio'] ?? null,
+            $filtros['fecha_fin'] ?? null
         ];
         $this->db->callStoredProcedure('sp_cursos_programados_buscar_disponibles', $params);
         return $this->db->resultSet();
