@@ -85,6 +85,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
         cursosContainer.innerHTML = '<p>Buscando cursos...</p>';
 
+        const formatDate = (dateString) => {
+            if (!dateString) return '';
+            const date = new Date(dateString + 'T00:00:00');
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        };
+
+        const formatTime = (timeString) => {
+            if (!timeString) return '';
+            let [hours, minutes] = timeString.split(':');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' should be '12'
+            return `${String(hours).padStart(2, '0')}:${minutes} ${ampm}`;
+        };
+
         fetch(url)
             .then(response => response.json())
             .then(data => {
@@ -100,8 +118,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         card.innerHTML = `
                             <h4>${curso.nombre_curso}</h4>
                             <p><strong>Profesor:</strong> ${curso.nombre_profesor}</p>
-                            <p><strong>Periodo:</strong> ${new Date(curso.fecha_inicio + 'T00:00:00').toLocaleDateString()} - ${new Date(curso.fecha_fin + 'T00:00:00').toLocaleDateString()}</p>
+                            <p><strong>Periodo:</strong> ${formatDate(curso.fecha_inicio)} - ${formatDate(curso.fecha_fin)}</p>
                             <p><strong>Horario:</strong> ${curso.horario_dias}</p>
+                            <p><strong>Horas:</strong> ${formatTime(curso.hora_inicio)} - ${formatTime(curso.hora_fin)}</p>
                             <p><strong>Vacantes:</strong> ${curso.vacantes_disponibles}</p>
                             <button type="button" class="btn btn-primary btn-seleccionar-curso">Seleccionar</button>
                         `;
