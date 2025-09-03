@@ -146,12 +146,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const nombre = card.dataset.nombre;
             const precio = parseFloat(card.dataset.precio);
 
-            // Ya no se pide el precio, solo el descuento
-            const descuento = prompt(`Descuento para "${nombre}" (Precio Base: S/ ${precio.toFixed(2)}):`, "0.00");
-
-            if (descuento !== null) {
-                agregarCursoAGrilla(id, nombre, precio, precio, parseFloat(descuento));
-            }
+            // Se añade directamente a la grilla con descuento 0.
+            agregarCursoAGrilla(id, nombre, precio, precio, 0);
         }
     });
 

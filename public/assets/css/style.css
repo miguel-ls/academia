@@ -358,3 +358,7 @@ footer {
 .search-results-item:hover {
     background-color: var(--light-color);
 }
+
+#cursos-seleccionados-grid input.recalc-trigger {
+    text-align: right;
+}
