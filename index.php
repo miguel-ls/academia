@@ -19,22 +19,8 @@ require_once 'core/Session.php';
 
 // --- Enrutador Básico ---
 
-// Iniciar la sesión si no está activa para poder verificar el login
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
-
-// Determinar la vista a cargar
-if (isset($_GET['view'])) {
-    $view = $_GET['view'];
-} else {
-    // Si no se especifica una vista, decidir entre el dashboard y el login
-    if (isset($_SESSION['user_id'])) {
-        $view = 'dashboard'; // El usuario está logueado, ir al panel
-    } else {
-        $view = 'login'; // El usuario no está logueado, ir al login
-    }
-}
+// Obtener la vista solicitada de la URL, por defecto será 'login'
+$view = $_GET['view'] ?? 'login';
 
 // Lista blanca de vistas permitidas para evitar inclusiones de archivos maliciosas
 $allowed_views = [
