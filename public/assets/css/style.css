@@ -328,3 +328,25 @@ footer {
     font-weight: bold;
     text-align: right;
 }
+
+/* Autocomplete / Search Results */
+.search-results {
+    position: relative;
+}
+.search-results-list {
+    position: absolute;
+    background-color: white;
+    border: 1px solid var(--border-color);
+    border-top: none;
+    z-index: 1000;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+}
+.search-results-item {
+    padding: 0.75rem;
+    cursor: pointer;
+}
+.search-results-item:hover {
+    background-color: var(--light-color);
+}

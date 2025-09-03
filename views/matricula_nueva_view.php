@@ -5,12 +5,13 @@
     <form id="form-matricula" action="index.php?view=matriculas" method="POST">
         <input type="hidden" name="action" value="registrar_matricula">
 
-        <!-- ======================= SECCIÓN 1: ALUMNO ======================= -->
+        <!-- ======================= SECCIÓN 1: CLIENTE ======================= -->
         <div class="section">
-            <h2>1. Datos del Alumno</h2>
+            <h2>1. Datos del Cliente</h2>
             <div class="form-group">
-                <label for="buscar-cliente">Buscar Alumno (por nombre, apellidos o documento):</label>
-                <input type="text" id="buscar-cliente" placeholder="Escriba para buscar...">
+                <label for="buscar-cliente">Buscar Cliente (por nombre, apellidos o documento):</label>
+                <input type="text" id="buscar-cliente" placeholder="Escriba para buscar..." autocomplete="off">
+                <div id="cliente-search-results" class="search-results"></div>
                 <input type="hidden" id="id_cliente" name="id_cliente" required>
                 <div id="cliente-seleccionado-info" style="margin-top:10px; font-weight:bold;"></div>
             </div>
@@ -24,7 +25,8 @@
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="filtro-profesor">Profesor:</label>
-                        <input type="text" id="filtro-profesor">
+                        <input type="text" id="filtro-profesor" autocomplete="off">
+                        <div id="profesor-search-results" class="search-results"></div>
                     </div>
                     <div class="form-group">
                         <label for="filtro-fecha-inicio">Desde:</label>
@@ -35,7 +37,7 @@
                         <input type="date" id="filtro-fecha-fin">
                     </div>
                     <div class="form-group" style="align-self: flex-end;">
-                        <button type="button" id="btn-buscar-cursos" class="btn">Buscar Cursos</button>
+                        <button type="button" id="btn-buscar-cursos" class="btn btn-primary">Buscar Cursos</button>
                     </div>
                 </div>
             </fieldset>
@@ -98,124 +100,10 @@
             </div>
         </div>
 
-        <button type="submit" class="btn btn-success" style="width: 100%; padding: 15px; font-size: 1.2em;">Registrar Matrícula</button>
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 1.2em;">Registrar Matrícula</button>
     </form>
 </div>
 
-<script>
-// =================================================================
-// Lógica JavaScript para la página de Nueva Matrícula
-// =================================================================
-document.addEventListener('DOMContentLoaded', function() {
-
-    // --- Lógica para la Sección 1: Búsqueda de Alumno ---
-    const inputBuscarCliente = document.getElementById('buscar-cliente');
-    const infoCliente = document.getElementById('cliente-seleccionado-info');
-    const hiddenIdCliente = document.getElementById('id_cliente');
-
-    inputBuscarCliente.addEventListener('keyup', function() {
-        const query = this.value;
-        if (query.length < 3) {
-            // Podríamos mostrar una lista desplegable con resultados
-            return;
-        }
-        // SIMULACIÓN DE BÚSQUEDA AJAX:
-        // En la implementación real, aquí se haría un fetch a una URL como:
-        // fetch(`index.php?view=matriculas&action=buscar_cliente&q=${query}`)
-        // y se poblaría una lista de sugerencias.
-        // Por ahora, si el usuario escribe "Juan Perez", lo seleccionamos.
-        if (query.toLowerCase() === 'juan perez') {
-            infoCliente.textContent = `Cliente Seleccionado: Juan Perez (Doc: 12345678)`;
-            hiddenIdCliente.value = '1'; // Asumimos que Juan Perez tiene ID 1
-        }
-    });
-
-
-    // --- Lógica para la Sección 2: Búsqueda y Selección de Cursos ---
-    const btnBuscarCursos = document.getElementById('btn-buscar-cursos');
-    const cursosContainer = document.getElementById('cursos-disponibles-container');
-    const cursosSeleccionadosBody = document.querySelector('#cursos-seleccionados-grid tbody');
-
-    btnBuscarCursos.addEventListener('click', function() {
-        // SIMULACIÓN DE BÚSQUEDA AJAX:
-        // fetch(`index.php?view=matriculas&action=buscar_cursos&...filtros`)
-        // Por ahora, mostramos datos de ejemplo.
-        cursosContainer.innerHTML = `
-            <div class="curso-card" data-id="1" data-nombre="Curso de PHP Avanzado" data-precio="500.00">
-                <h4>Curso de PHP Avanzado</h4>
-                <p>Profesor: Juan Tech</p>
-                <p>Precio: S/ 500.00</p>
-                <button type="button" class="btn-seleccionar-curso">Seleccionar</button>
-            </div>
-            <div class="curso-card" data-id="2" data-nombre="Curso de MySQL" data-precio="450.00">
-                <h4>Curso de MySQL</h4>
-                <p>Profesor: Maria DB</p>
-                <p>Precio: S/ 450.00</p>
-                <button type="button" class="btn-seleccionar-curso">Seleccionar</button>
-            </div>
-        `;
-    });
-
-    // Usamos delegación de eventos para los botones "Seleccionar"
-    cursosContainer.addEventListener('click', function(e) {
-        if (e.target.classList.contains('btn-seleccionar-curso')) {
-            const card = e.target.closest('.curso-card');
-            const id = card.dataset.id;
-            const nombre = card.dataset.nombre;
-            const precio = parseFloat(card.dataset.precio);
-
-            // Permitir al usuario editar el precio y añadir descuento
-            const precioPactado = prompt(`Precio para "${nombre}":`, precio.toFixed(2));
-            const descuento = prompt(`Descuento para "${nombre}":`, "0.00");
-
-            if (precioPactado !== null && descuento !== null) {
-                agregarCursoAGrilla(id, nombre, precio, parseFloat(precioPactado), parseFloat(descuento));
-            }
-        }
-    });
-
-    function agregarCursoAGrilla(id, nombre, precioOrig, precioPactado, descuento) {
-        const precioFinal = precioPactado - descuento;
-        const newRow = document.createElement('tr');
-        newRow.dataset.id = id;
-        newRow.innerHTML = `
-            <td>${nombre}<input type="hidden" name="cursos[${id}][id_curso]" value="${id}"></td>
-            <td>${precioOrig.toFixed(2)}</td>
-            <td><input type="number" name="cursos[${id}][precio_pactado]" value="${precioPactado.toFixed(2)}" readonly></td>
-            <td><input type="number" name="cursos[${id}][descuento]" value="${descuento.toFixed(2)}" readonly></td>
-            <td class="precio-final">${precioFinal.toFixed(2)}</td>
-            <td><button type="button" class="btn-eliminar-curso">Eliminar</button></td>
-        `;
-        cursosSeleccionadosBody.appendChild(newRow);
-        actualizarTotal();
-    }
-
-    // Delegación de eventos para eliminar curso de la grilla
-    cursosSeleccionadosBody.addEventListener('click', function(e){
-        if(e.target.classList.contains('btn-eliminar-curso')){
-            e.target.closest('tr').remove();
-            actualizarTotal();
-        }
-    });
-
-    function actualizarTotal() {
-        let total = 0;
-        document.querySelectorAll('#cursos-seleccionados-grid .precio-final').forEach(function(item) {
-            total += parseFloat(item.textContent);
-        });
-        document.getElementById('total-matricula').textContent = `S/ ${total.toFixed(2)}`;
-    }
-
-    // --- Lógica para la Sección 3: Fechas ---
-    // Copiar fechas desde los filtros
-    document.getElementById('filtro-fecha-inicio').addEventListener('change', function(){
-        document.getElementById('fecha_inicio_matricula').value = this.value;
-    });
-    document.getElementById('filtro-fecha-fin').addEventListener('change', function(){
-        document.getElementById('fecha_fin_matricula').value = this.value;
-    });
-
-});
-</script>
+<script src="<?php echo $base_url; ?>public/assets/js/matricula_form.js"></script>
 
 <?php require_once 'views/partials/footer.php'; ?>
