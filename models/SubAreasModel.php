@@ -17,66 +17,41 @@ class SubAreasModel {
         return $this->db->single();
     }
 
-    public function buscar($term) {
-        $this->db->callStoredProcedure('sp_sub_areas_buscar', [$term]);
-        return $this->db->resultSet();
-    }
-
     public function crear($datos) {
-        try {
-            $params = [
-                $datos['id_area'],
-                $datos['descripcion'],
-                $datos['numero_sub_area'],
-                $datos['capacidad_maxima']
-            ];
-            $this->db->callStoredProcedure('sp_sub_areas_crear', $params);
-            return ['success' => true];
-        } catch (Exception $e) {
-            return ['success' => false, 'error' => $e->getMessage()];
-        }
+        $params = [
+            $datos['id_area'],
+            $datos['descripcion'],
+            $datos['numero_sub_area'],
+            $datos['capacidad_maxima']
+        ];
+        $this->db->callStoredProcedure('sp_sub_areas_crear', $params);
+        return $this->db->rowCount() > 0;
     }
 
     public function actualizar($datos) {
-        try {
-            $params = [
-                $datos['id_sub_area'],
-                $datos['id_area'],
-                $datos['descripcion'],
-                $datos['numero_sub_area'],
-                $datos['capacidad_maxima']
-            ];
-            $this->db->callStoredProcedure('sp_sub_areas_actualizar', $params);
-
-            if ($this->db->rowCount() > 0) {
-                return ['success' => true];
-            } else {
-                return ['success' => false, 'error' => 'No se realizaron cambios.'];
-            }
-        } catch (Exception $e) {
-            return ['success' => false, 'error' => $e->getMessage()];
-        }
+        $params = [
+            $datos['id_sub_area'],
+            $datos['id_area'],
+            $datos['descripcion'],
+            $datos['numero_sub_area'],
+            $datos['capacidad_maxima']
+        ];
+        $this->db->callStoredProcedure('sp_sub_areas_actualizar', $params);
+        return $this->db->rowCount() > 0;
     }
 
     public function eliminar($id) {
         try {
             $this->db->callStoredProcedure('sp_sub_areas_eliminar', [$id]);
-            return ['success' => true];
+            return true;
         } catch (Exception $e) {
-            if (strpos($e->getMessage(), 'foreign key constraint') !== false) {
-                 return ['success' => false, 'error' => 'No se puede eliminar la sub-área porque tiene horarios programados.'];
-            }
-            return ['success' => false, 'error' => $e->getMessage()];
+            return false;
         }
     }
 
-    public function verificarDependencias($id) {
-        $this->db->callStoredProcedure('sp_sub_areas_verificar_dependencias', [$id]);
-        $resultado = $this->db->single();
-        return $resultado['count'] ?? 0;
-    }
-
+    // Método para obtener las áreas para el dropdown del formulario
     public function obtenerAreas() {
+        // Puedo crear un sp_areas_listar_simple o reutilizar el existente
         $this->db->callStoredProcedure('sp_areas_listar');
         return $this->db->resultSet();
     }
