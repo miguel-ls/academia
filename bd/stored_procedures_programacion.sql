@@ -18,14 +18,18 @@ BEGIN
         c.nombre AS curso_nombre,
         CONCAT(p.nombres, ' ', p.apellidos) AS profesor_nombre,
         CONCAT(a.nombre, ' - ', sa.descripcion, ' ', sa.numero_sub_area) AS ubicacion,
+        th.descripcion AS tipo_horario_nombre,
         cp.fecha_inicio,
         cp.fecha_fin,
+        cp.hora_inicio,
+        cp.hora_fin,
         cp.estado
     FROM cursos_programados cp
     JOIN cursos c ON cp.id_curso = c.id_curso
     JOIN profesores p ON cp.id_profesor = p.id_profesor
     JOIN sub_areas sa ON cp.id_sub_area = sa.id_sub_area
     JOIN areas a ON sa.id_area = a.id_area
+    JOIN tipos_horario th ON cp.id_tipo_horario = th.id_tipo_horario
     ORDER BY cp.fecha_inicio DESC;
 END$$
 

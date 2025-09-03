@@ -22,8 +22,11 @@
             <th>Curso</th>
             <th>Profesor</th>
             <th>Ubicación</th>
+            <th>Tipo de Horario</th>
             <th>Fecha Inicio</th>
             <th>Fecha Fin</th>
+            <th>Hora Inicio</th>
+            <th>Hora Fin</th>
             <th>Estado</th>
             <th>Acciones</th>
         </tr>
@@ -31,7 +34,7 @@
     <tbody>
         <?php if (empty($programaciones)): ?>
             <tr>
-                <td colspan="8">No hay cursos programados.</td>
+                <td colspan="11">No hay cursos programados.</td>
             </tr>
         <?php else: ?>
             <?php foreach ($programaciones as $prog): ?>
@@ -40,8 +43,11 @@
                     <td><?php echo htmlspecialchars($prog['curso_nombre']); ?></td>
                     <td><?php echo htmlspecialchars($prog['profesor_nombre']); ?></td>
                     <td><?php echo htmlspecialchars($prog['ubicacion']); ?></td>
+                    <td><?php echo htmlspecialchars($prog['tipo_horario_nombre']); ?></td>
                     <td><?php echo date('d/m/Y', strtotime($prog['fecha_inicio'])); ?></td>
                     <td><?php echo date('d/m/Y', strtotime($prog['fecha_fin'])); ?></td>
+                    <td><?php echo date('h:i A', strtotime($prog['hora_inicio'])); ?></td>
+                    <td><?php echo date('h:i A', strtotime($prog['hora_fin'])); ?></td>
                     <td>
                         <span class="badge status-<?php echo strtolower($prog['estado']); ?>">
                             <?php echo htmlspecialchars($prog['estado']); ?>
