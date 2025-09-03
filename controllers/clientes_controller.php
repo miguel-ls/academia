@@ -103,6 +103,21 @@ try {
             }
             break;
 
+        case 'check_documento':
+            // Endpoint para validación AJAX
+            header('Content-Type: application/json');
+            $num_doc = $_GET['numero_documento'] ?? '';
+            $id_excluir = !empty($_GET['id_cliente']) ? (int)$_GET['id_cliente'] : null;
+
+            if (empty($num_doc)) {
+                echo json_encode(['exists' => false]);
+                exit();
+            }
+
+            $exists = $clienteModel->verificarDocumentoExistente($num_doc, $id_excluir);
+            echo json_encode(['exists' => $exists]);
+            exit();
+
         case 'delete':
             if ($id > 0) {
                 // 1. Verificar si el cliente tiene matrículas
