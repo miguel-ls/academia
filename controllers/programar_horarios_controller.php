@@ -57,8 +57,16 @@ if ($action === 'programar') {
 $listas_formulario = $programacionModel->obtenerListasParaFormulario();
 $cursos = $listas_formulario['cursos'];
 $profesores = $listas_formulario['profesores'];
-$sub_areas = $listas_formulario['sub_areas'];
+$sub_areas_raw = $listas_formulario['sub_areas'];
 $tipos_horario = $listas_formulario['tipos_horario'];
+
+// Formatear el nombre de la ubicación como lo solicita el usuario
+$sub_areas = [];
+foreach ($sub_areas_raw as $sub_area) {
+    $sub_area['nombre_completo'] = $sub_area['area_nombre'] . ' - ' . $sub_area['descripcion'] . ' ' . $sub_area['numero_sub_area'];
+    $sub_areas[] = $sub_area;
+}
+
 
 // --- Cargar la Vista ---
 require_once 'views/programar_horarios_view.php';

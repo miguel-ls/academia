@@ -57,7 +57,7 @@ class ProgramacionModel {
         $this->db->callStoredProcedure('sp_profesores_listar_simple');
         $listas['profesores'] = $this->db->resultSet();
 
-        $this->db->callStoredProcedure('sp_sub_areas_listar_simple');
+        $this->db->callStoredProcedure('sp_sub_areas_listar');
         $listas['sub_areas'] = $this->db->resultSet();
 
         $this->db->callStoredProcedure('sp_tipos_horario_listar_simple');
