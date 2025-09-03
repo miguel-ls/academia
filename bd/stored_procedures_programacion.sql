@@ -90,4 +90,28 @@ BEGIN
 END$$
 
 
+DROP PROCEDURE IF EXISTS `sp_cursos_programados_por_profesor_en_rango`$$
+CREATE PROCEDURE `sp_cursos_programados_por_profesor_en_rango`(
+    IN p_id_profesor INT,
+    IN p_fecha_inicio DATE,
+    IN p_fecha_fin DATE,
+    IN p_id_curso_programado_excluir INT
+)
+BEGIN
+    SELECT
+        cp.id_curso_programado,
+        cp.fecha_inicio,
+        cp.fecha_fin,
+        cp.hora_inicio,
+        cp.hora_fin,
+        th.dias_semana
+    FROM cursos_programados cp
+    JOIN tipos_horario th ON cp.id_tipo_horario = th.id_tipo_horario
+    WHERE
+        cp.id_profesor = p_id_profesor
+        AND cp.fecha_inicio <= p_fecha_fin
+        AND cp.fecha_fin >= p_fecha_inicio
+        AND (p_id_curso_programado_excluir IS NULL OR cp.id_curso_programado != p_id_curso_programado_excluir);
+END$$
+
 DELIMITER ;

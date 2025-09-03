@@ -49,6 +49,27 @@ try {
 
         case 'create':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                // --- Validación de Cruce de Horarios ---
+                $id_profesor_a_validar = (int)$_POST['id_profesor'];
+                $dias_semana_nuevo = $programacionModel->getDiasSemanaByTipoHorarioId((int)$_POST['id_tipo_horario']);
+
+                if ($dias_semana_nuevo) {
+                    $dias_nuevos_arr = explode(',', $dias_semana_nuevo);
+                    $horarios_existentes = $programacionModel->getProfesorSchedulesInRange($id_profesor_a_validar, $_POST['fecha_inicio'], $_POST['fecha_fin']);
+
+                    foreach ($horarios_existentes as $horario) {
+                        if ($_POST['hora_inicio'] < $horario['hora_fin'] && $horario['hora_inicio'] < $_POST['hora_fin']) {
+                            $dias_existentes_arr = explode(',', $horario['dias_semana']);
+                            if (count(array_intersect($dias_nuevos_arr, $dias_existentes_arr)) > 0) {
+                                $_SESSION['feedback_message'] = "Error de validación: El profesor ya tiene un curso programado que se cruza con este horario (fecha, hora y día de la semana).";
+                                header('Location: index.php?view=programar_horarios&action=new');
+                                exit();
+                            }
+                        }
+                    }
+                }
+                // --- Fin de Validación ---
+
                 $datos = [
                     'id_curso' => $_POST['id_curso'],
                     'id_profesor' => $_POST['id_profesor'],
@@ -105,6 +126,28 @@ try {
                      header('Location: index.php?view=programar_horarios');
                      exit();
                 }
+
+                // --- Validación de Cruce de Horarios ---
+                $id_profesor_a_validar = (int)$_POST['id_profesor'];
+                $dias_semana_nuevo = $programacionModel->getDiasSemanaByTipoHorarioId((int)$_POST['id_tipo_horario']);
+
+                if ($dias_semana_nuevo) {
+                    $dias_nuevos_arr = explode(',', $dias_semana_nuevo);
+                    $horarios_existentes = $programacionModel->getProfesorSchedulesInRange($id_profesor_a_validar, $_POST['fecha_inicio'], $_POST['fecha_fin'], $id_programacion);
+
+                    foreach ($horarios_existentes as $horario) {
+                        if ($_POST['hora_inicio'] < $horario['hora_fin'] && $horario['hora_inicio'] < $_POST['hora_fin']) {
+                            $dias_existentes_arr = explode(',', $horario['dias_semana']);
+                            if (count(array_intersect($dias_nuevos_arr, $dias_existentes_arr)) > 0) {
+                                $_SESSION['feedback_message'] = "Error de validación: El profesor ya tiene un curso programado que se cruza con este horario (fecha, hora y día de la semana).";
+                                header('Location: index.php?view=programar_horarios&action=edit&id=' . $id_programacion);
+                                exit();
+                            }
+                        }
+                    }
+                }
+                // --- Fin de Validación ---
+
                 $datos = [
                     'id_curso_programado' => $id_programacion,
                     'id_curso' => $_POST['id_curso'],

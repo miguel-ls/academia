@@ -97,4 +97,15 @@ class ProgramacionModel {
         $this->db->callStoredProcedure('sp_cursos_programados_eliminar', [$id]);
         return $this->db->rowCount() > 0;
     }
+
+    public function getProfesorSchedulesInRange($profesorId, $startDate, $endDate, $excludeScheduleId = null) {
+        $this->db->callStoredProcedure('sp_cursos_programados_por_profesor_en_rango', [$profesorId, $startDate, $endDate, $excludeScheduleId]);
+        return $this->db->resultSet();
+    }
+
+    public function getDiasSemanaByTipoHorarioId($tipoHorarioId) {
+        $this->db->callStoredProcedure('sp_tipos_horario_obtener_por_id', [$tipoHorarioId]);
+        $result = $this->db->single();
+        return $result ? $result['dias_semana'] : null;
+    }
 }
