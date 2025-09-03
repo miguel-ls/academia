@@ -17,7 +17,7 @@ BEGIN
         cp.id_curso_programado,
         c.nombre AS curso_nombre,
         CONCAT(p.nombres, ' ', p.apellidos) AS profesor_nombre,
-        CONCAT(a.nombre, ' - ', sa.descripcion) AS ubicacion,
+        CONCAT(a.nombre, ' - ', sa.descripcion, ' ', sa.numero_sub_area) AS ubicacion,
         cp.fecha_inicio,
         cp.fecha_fin,
         cp.estado
