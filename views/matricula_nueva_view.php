@@ -25,7 +25,8 @@
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="filtro-profesor">Profesor:</label>
-                        <input type="text" id="filtro-profesor" autocomplete="off">
+                        <input type="text" id="filtro-profesor" autocomplete="off" placeholder="Escriba para buscar profesor...">
+                        <input type="hidden" id="filtro-profesor-id" name="filtro_profesor_id">
                         <div id="profesor-search-results" class="search-results"></div>
                     </div>
                     <div class="form-group">

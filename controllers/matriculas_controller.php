@@ -44,8 +44,12 @@ switch ($action) {
     case 'buscar_cursos':
         // Endpoint para AJAX
         header('Content-Type: application/json');
-        // Aquí se usarían los filtros, por ahora usamos el método general
-        $cursos = $monitorModel->obtenerCursosDisponibles();
+        $filtros = [
+            'id_profesor'   => !empty($_GET['profesor_id']) ? (int)$_GET['profesor_id'] : null,
+            'fecha_inicio'  => !empty($_GET['fecha_inicio']) ? $_GET['fecha_inicio'] : null,
+            'fecha_fin'     => !empty($_GET['fecha_fin']) ? $_GET['fecha_fin'] : null
+        ];
+        $cursos = $monitorModel->obtenerCursosDisponibles($filtros);
         echo json_encode($cursos);
         exit;
 
