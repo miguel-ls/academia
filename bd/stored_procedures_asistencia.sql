@@ -31,8 +31,8 @@ BEGIN
     WHILE v_fecha_actual <= v_fecha_fin DO
         -- DAYOFWEEK devuelve 1 para Domingo, 2 para Lunes, etc.
         -- Se inserta si el día de la semana está en la cadena de días permitidos
-        -- Se usa CAST para evitar errores de collation
-        IF FIND_IN_SET(CAST(DAYOFWEEK(v_fecha_actual) AS CHAR), v_dias_semana) THEN
+        -- Se usa COLLATE para forzar la codificación correcta y evitar errores
+        IF FIND_IN_SET(DAYOFWEEK(v_fecha_actual), v_dias_semana COLLATE utf8mb4_unicode_ci) THEN
             INSERT INTO asistencia_profesor (id_curso_programado, id_profesor, fecha_clase, estado)
             VALUES (p_id_curso_programado, v_id_profesor, v_fecha_actual, 'Programado');
         END IF;
