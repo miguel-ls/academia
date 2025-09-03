@@ -1,36 +1,43 @@
 <?php
 
 // =================================================================
-// Controlador para el Mantenimiento de Usuarios
+// Controlador para el Mantenimiento de Usuarios (Refactorizado)
 // =================================================================
 
-// Se asume que `index.php` ya ha cargado `config.php` y `core/Session.php`
 require_once 'models/UsuarioModel.php';
 
 // --- Verificación de Seguridad ---
-// Solo los administradores pueden acceder a esta sección.
-// La clase Session ya debería estar disponible.
+Session::check();
 if (!Session::isAdmin()) {
-    // Si no es admin, redirigir al dashboard o mostrar un error.
     echo "<h1>Acceso Denegado</h1><p>No tienes permiso para acceder a esta página.</p>";
-    // Opcional: header('Location: index.php?view=dashboard');
     exit();
 }
 // ---------------------------------
 
-
 $usuarioModel = new UsuarioModel();
 
-// --- Lógica para manejar acciones (Crear, Actualizar, Eliminar) ---
-$action = $_POST['action'] ?? $_GET['action'] ?? 'list';
-$id = (int)($_POST['id_usuario'] ?? $_GET['id_usuario'] ?? 0);
-$feedback_message = ''; // Para mensajes de éxito o error.
+// --- Gestión de la Acción ---
+$action = $_GET['action'] ?? 'list';
+$id = (int)($_GET['id'] ?? 0);
+
+// --- Variables para la Vistas ---
+$feedback_message = $_SESSION['feedback_message'] ?? null;
+unset($_SESSION['feedback_message']); // Limpiar mensaje
+
+$error_message = '';
+$usuarios = [];
+$usuario_a_editar = null;
 
 try {
     switch ($action) {
         case 'create':
-            // Lógica para crear un nuevo usuario desde un formulario POST
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                if (empty($_POST['password'])) {
+                     $_SESSION['feedback_message'] = "Error: La contraseña es obligatoria para crear un usuario.";
+                     header('Location: index.php?view=usuarios&action=new');
+                     exit();
+                }
+
                 $password_hash = password_hash($_POST['password'], PASSWORD_DEFAULT);
                 $datos = [
                     'id_rol' => $_POST['id_rol'],
@@ -39,53 +46,99 @@ try {
                     'email' => $_POST['email'],
                     'nombre_completo' => $_POST['nombre_completo']
                 ];
-                $usuarioModel->crear($datos);
-                $feedback_message = "Usuario creado exitosamente.";
+                $resultado = $usuarioModel->crear($datos);
+                if ($resultado) {
+                    $_SESSION['feedback_message'] = "Usuario creado exitosamente.";
+                } else {
+                    $_SESSION['feedback_message'] = "Error al crear el usuario.";
+                }
+                header('Location: index.php?view=usuarios');
+                exit();
             }
-            break;
+            header('Location: index.php?view=usuarios&action=new');
+            exit();
 
         case 'update':
-            // Lógica para actualizar un usuario desde un formulario POST
-            if ($_SERVER['REQUEST_METHOD'] === 'POST' && $id > 0) {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $id_usuario = (int)($_POST['id_usuario'] ?? 0);
+                if ($id_usuario <= 0) {
+                    $_SESSION['feedback_message'] = "Error: ID de usuario no válido.";
+                    header('Location: index.php?view=usuarios');
+                    exit();
+                }
+
                 $datos = [
-                    'id_usuario' => $id,
+                    'id_usuario' => $id_usuario,
                     'id_rol' => $_POST['id_rol'],
                     'nombre_usuario' => $_POST['nombre_usuario'],
                     'email' => $_POST['email'],
                     'nombre_completo' => $_POST['nombre_completo'],
                     'activo' => $_POST['activo'] ?? 0
                 ];
-                $usuarioModel->actualizar($datos);
-                $feedback_message = "Usuario actualizado exitosamente.";
+
+                if (!empty($_POST['password'])) {
+                    $datos['password_hash'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
+                }
+
+                $resultado = $usuarioModel->actualizar($datos);
+
+                if ($resultado) {
+                    $_SESSION['feedback_message'] = "Usuario actualizado exitosamente.";
+                } else {
+                    $_SESSION['feedback_message'] = "Error al actualizar el usuario o no se realizaron cambios.";
+                }
+                header('Location: index.php?view=usuarios');
+                exit();
             }
-            break;
+            header('Location: index.php?view=usuarios');
+            exit();
 
         case 'delete':
-            // Lógica para eliminar (lógicamente) un usuario
             if ($id > 0) {
-                $usuarioModel->eliminar($id);
-                $feedback_message = "Usuario desactivado exitosamente.";
+                if ($id === (int)$_SESSION['user_id']) {
+                     $_SESSION['feedback_message'] = "Error: No puedes desactivar tu propia cuenta.";
+                } else {
+                    if ($usuarioModel->eliminar($id)) {
+                        $_SESSION['feedback_message'] = "Usuario desactivado exitosamente.";
+                    } else {
+                        $_SESSION['feedback_message'] = "Error: No se pudo desactivar el usuario.";
+                    }
+                }
+            } else {
+                $_SESSION['feedback_message'] = "Error: ID de usuario no válido.";
+            }
+            header('Location: index.php?view=usuarios');
+            exit();
+
+        case 'new':
+            require_once 'views/usuarios/form.php';
+            break;
+
+        case 'edit':
+            if ($id > 0) {
+                $usuario_a_editar = $usuarioModel->obtenerPorId($id);
+                if (!$usuario_a_editar) {
+                    $_SESSION['feedback_message'] = "Error: Usuario no encontrado.";
+                    header('Location: index.php?view=usuarios');
+                    exit();
+                }
+                require_once 'views/usuarios/form.php';
+            } else {
+                 $_SESSION['feedback_message'] = "Error: ID de usuario no válido.";
+                 header('Location: index.php?view=usuarios');
+                 exit();
             }
             break;
+
+        case 'list':
+        default:
+            $usuarios = $usuarioModel->obtenerTodos();
+            require_once 'views/usuarios/list.php';
+            break;
     }
+
 } catch (Exception $e) {
-    // En un caso real, loguearíamos el error.
-    $feedback_message = "Error: " . $e->getMessage();
+    $_SESSION['feedback_message'] = "Error inesperado en el sistema: " . $e->getMessage();
+    header('Location: index.php?view=usuarios');
+    exit();
 }
-
-
-// --- Obtención de datos para la vista ---
-
-// Obtener la lista de todos los usuarios para mostrarla en la tabla
-$usuarios = $usuarioModel->obtenerTodos();
-
-// Si la acción es 'edit', obtener los datos del usuario específico para el formulario
-$usuario_a_editar = null;
-if ($action === 'edit' && $id > 0) {
-    $usuario_a_editar = $usuarioModel->obtenerPorId($id);
-}
-
-
-// --- Cargar la Vista ---
-// Finalmente, incluimos el archivo de la vista que mostrará los datos.
-require_once 'views/usuarios_view.php';
