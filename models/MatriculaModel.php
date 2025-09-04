@@ -85,99 +85,6 @@ class MatriculaModel {
     }
 
     /**
-     * Actualiza una matrícula existente, incluyendo sus detalles.
-     * @param int $id_matricula El ID de la matrícula a actualizar.
-     * @param array $datos Los nuevos datos de la matrícula.
-     * @return bool True si fue exitoso.
-     */
-    public function actualizarMatricula($id_matricula, $datos) {
-        $this->db->beginTransaction();
-        try {
-            // 1. Obtener el estado actual de la matrícula desde la BD
-            $detalles_actuales_raw = $this->obtenerDetallesPorIdMatricula($id_matricula);
-            $detalles_actuales = [];
-            foreach ($detalles_actuales_raw as $detalle) {
-                $detalles_actuales[$detalle['id_curso_programado']] = $detalle;
-            }
-
-            $cursos_enviados = [];
-            foreach ($datos['cursos'] as $curso) {
-                $cursos_enviados[$curso['id_curso_programado']] = $curso;
-            }
-
-            // 2. Determinar qué hacer con cada detalle (Añadir, Actualizar, Eliminar)
-            $a_eliminar = array_diff_key($detalles_actuales, $cursos_enviados);
-            $a_anadir = array_diff_key($cursos_enviados, $detalles_actuales);
-            $a_actualizar = array_intersect_key($cursos_enviados, $detalles_actuales);
-
-            // 3. Procesar eliminaciones
-            foreach ($a_eliminar as $id_curso_programado => $detalle_a_eliminar) {
-                // El SP se encarga de la asistencia y de recalcular totales
-                $this->eliminarDetalle($detalle_a_eliminar['id_matricula_detalle'], $id_matricula);
-            }
-
-            // 4. Procesar adiciones
-            foreach ($a_anadir as $id_curso_programado => $detalle_a_anadir) {
-                // Aquí se deben correr las validaciones de vacantes y cruces de horario
-                // (Esta lógica se puede abstraer a un método privado si se vuelve muy compleja)
-                // Por simplicidad, la validación se deja al controlador por ahora, pero idealmente iría aquí.
-
-                $precio_final = (float)$detalle_a_anadir['precio_pactado'] - (float)$detalle_a_anadir['descuento'];
-                $params = [
-                    $id_matricula,
-                    $id_curso_programado,
-                    $detalle_a_anadir['id_cliente_asistencia'],
-                    $detalle_a_anadir['precio_pactado'],
-                    $detalle_a_anadir['descuento'],
-                    $precio_final
-                ];
-                $this->db->callStoredProcedure('sp_matricula_registrar_detalle', $params);
-                $result = $this->db->single();
-                $id_nuevo_detalle = $result['id_matricula_detalle'] ?? 0;
-                if ($id_nuevo_detalle > 0) {
-                    $this->db->callStoredProcedure('sp_asistencia_cliente_generar_cronograma', [$id_nuevo_detalle]);
-                }
-            }
-
-            // 5. Procesar actualizaciones
-            foreach ($a_actualizar as $id_curso_programado => $detalle_a_actualizar) {
-                $detalle_existente = $detalles_actuales[$id_curso_programado];
-                // Comprobar si algo ha cambiado antes de actualizar
-                if ($detalle_existente['id_cliente_asistencia'] != $detalle_a_actualizar['id_cliente_asistencia'] ||
-                    (float)$detalle_existente['precio_pactado'] != (float)$detalle_a_actualizar['precio_pactado'] ||
-                    (float)$detalle_existente['descuento'] != (float)$detalle_a_actualizar['descuento']) {
-
-                    $params_detalle = [
-                        $detalle_existente['id_matricula_detalle'],
-                        $detalle_a_actualizar['id_cliente_asistencia'],
-                        $detalle_a_actualizar['precio_pactado'],
-                        $detalle_a_actualizar['descuento']
-                    ];
-                    $this->db->callStoredProcedure('sp_matricula_detalle_actualizar', $params_detalle);
-                }
-            }
-
-            // 6. Actualizar la cabecera de la matrícula
-            $params_cabecera = [
-                $id_matricula,
-                $datos['id_forma_pago'],
-                $datos['observaciones']
-            ];
-            $this->db->callStoredProcedure('sp_matricula_cabecera_actualizar', $params_cabecera);
-
-            // 7. Recalcular totales finales
-            $this->db->callStoredProcedure('sp_matricula_cabecera_recalcular', [$id_matricula]);
-
-
-            $this->db->commit();
-            return true;
-        } catch (Exception $e) {
-            $this->db->rollBack();
-            throw $e;
-        }
-    }
-
-    /**
      * Anula una matrícula.
      * @param int $id_matricula
      * @param string $observaciones
@@ -194,6 +101,21 @@ class MatriculaModel {
     }
 
     /**
+     * Reverte la anulación de una matrícula, volviéndola al estado 'Activa'.
+     * @param int $id_matricula
+     * @return bool
+     */
+    public function revertirAnulacion($id_matricula) {
+        try {
+            $this->db->callStoredProcedure('sp_matricula_revertir_anulacion', [$id_matricula]);
+            return true;
+        } catch (Exception $e) {
+            // El SP lanzará un error si no hay vacantes o si la matrícula no está anulada.
+            throw new Exception("Error al revertir la anulación: " . $e->getMessage());
+        }
+    }
+
+    /**
      * Cuenta el número de alumnos inscritos en un curso programado específico.
      * @param int $id_curso_programado
      * @return int El número de alumnos inscritos.
@@ -202,16 +124,6 @@ class MatriculaModel {
         $this->db->callStoredProcedure('sp_matriculas_contar_por_curso', [$id_curso_programado]);
         $result = $this->db->single();
         return (int)($result['inscritos'] ?? 0);
-    }
-
-    /**
-     * Obtiene todos los horarios activos para un cliente específico.
-     * @param int $id_cliente
-     * @return array Lista de horarios activos.
-     */
-    public function obtenerHorariosActivosPorCliente($id_cliente) {
-        $this->db->callStoredProcedure('sp_cliente_horarios_activos', [$id_cliente]);
-        return $this->db->resultSet();
     }
 
     /**

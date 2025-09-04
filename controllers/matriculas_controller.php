@@ -193,6 +193,24 @@ switch ($action) {
         }
         break;
 
+    case 'revertir_anulacion':
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            try {
+                $id_matricula = (int)$_POST['id_matricula'];
+                if ($id_matricula > 0) {
+                    $matriculaModel->revertirAnulacion($id_matricula);
+                    header('Location: index.php?view=matriculas&success_revertir=1');
+                    exit;
+                } else {
+                    throw new Exception("ID de matrícula no válido.");
+                }
+            } catch (Exception $e) {
+                header('Location: index.php?view=matriculas&error_revertir=' . urlencode($e->getMessage()));
+                exit;
+            }
+        }
+        break;
+
     case 'eliminar_detalle':
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {

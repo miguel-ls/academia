@@ -44,6 +44,12 @@
                                 <input type="hidden" name="observaciones" class="observaciones-input">
                                 <button type="button" class="btn btn-warning btn-anular">Anular</button>
                             </form>
+                        <?php elseif ($matricula['estado'] === 'Anulada'): ?>
+                            <form action="index.php?view=matriculas" method="POST" style="display:inline;" class="form-revertir">
+                                <input type="hidden" name="action" value="revertir_anulacion">
+                                <input type="hidden" name="id_matricula" value="<?php echo $matricula['id_matricula']; ?>">
+                                <button type="button" class="btn btn-success btn-revertir">Revertir</button>
+                            </form>
                         <?php endif; ?>
 
                         <!-- Botón Eliminar -->
@@ -72,6 +78,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     form.querySelector('.observaciones-input').value = observaciones;
                     form.submit();
                 }
+            }
+        });
+    });
+
+    // Handler para Revertir
+    document.querySelectorAll('.btn-revertir').forEach(button => {
+        button.addEventListener('click', function() {
+            const form = this.closest('form');
+            const confirmacion = confirm('¿Está seguro de que desea REVERTIR la anulación de esta matrícula? Esta acción intentará volver a ocupar las vacantes en los cursos correspondientes.');
+            if (confirmacion) {
+                form.submit();
             }
         });
     });
