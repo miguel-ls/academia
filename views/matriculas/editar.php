@@ -116,8 +116,8 @@
     margin-top: 20px;
 }
 .form-actions .btn {
-    padding: 15px 30px;
-    font-size: 1.2em;
+    padding: 10px 20px;
+    font-size: 1em;
 }
 </style>
 

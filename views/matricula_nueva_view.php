@@ -99,9 +99,30 @@
             </div>
         </div>
 
-        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 1.2em;">Registrar Matrícula</button>
+        <div class="form-actions">
+            <a href="index.php?view=matriculas" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-success">Registrar Matrícula</button>
+        </div>
     </form>
 </div>
+
+<style>
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 20px;
+}
+.form-actions .btn {
+    padding: 10px 20px;
+    font-size: 1em;
+}
+</style>
+
+<script>
+    // Definir la variable global para que el script no falle en esta página
+    const matriculaDetalles = [];
+</script>
 
 <script src="<?php echo $base_url; ?>public/assets/js/matricula_form.js"></script>
 
