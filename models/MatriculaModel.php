@@ -187,6 +187,21 @@ class MatriculaModel {
     }
 
     /**
+     * Reverte la anulación de una matrícula, volviéndola al estado 'Activa'.
+     * @param int $id_matricula
+     * @return bool
+     */
+    public function revertirAnulacion($id_matricula) {
+        try {
+            $this->db->callStoredProcedure('sp_matricula_revertir_anulacion', [$id_matricula]);
+            return true;
+        } catch (Exception $e) {
+            // El SP lanzará un error si no hay vacantes o si la matrícula no está anulada.
+            throw new Exception("Error al revertir la anulación: " . $e->getMessage());
+        }
+    }
+
+    /**
      * Cuenta el número de alumnos inscritos en un curso programado específico.
      * @param int $id_curso_programado
      * @return int El número de alumnos inscritos.
