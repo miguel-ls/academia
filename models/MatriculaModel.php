@@ -99,4 +99,73 @@ class MatriculaModel {
             throw new Exception("Error al anular la matrícula: " . $e->getMessage());
         }
     }
+
+    /**
+     * Cuenta el número de alumnos inscritos en un curso programado específico.
+     * @param int $id_curso_programado
+     * @return int El número de alumnos inscritos.
+     */
+    public function contarInscritosPorCursoProgramado($id_curso_programado) {
+        $this->db->callStoredProcedure('sp_matriculas_contar_por_curso', [$id_curso_programado]);
+        $result = $this->db->single();
+        return (int)($result['inscritos'] ?? 0);
+    }
+
+    /**
+     * Elimina permanentemente una matrícula y todos sus registros asociados.
+     * @param int $id_matricula
+     * @return bool
+     */
+    public function eliminar($id_matricula) {
+        try {
+            $this->db->callStoredProcedure('sp_matricula_eliminar', [$id_matricula]);
+            return true;
+        } catch (Exception $e) {
+            // En caso de un error de base de datos, propagar la excepción.
+            throw new Exception("Error al eliminar la matrícula: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Obtiene la cabecera de una matrícula por su ID.
+     * @param int $id_matricula
+     * @return array|false
+     */
+    public function obtenerCabeceraPorId($id_matricula) {
+        $this->db->callStoredProcedure('sp_matricula_obtener_cabecera_por_id', [$id_matricula]);
+        return $this->db->single();
+    }
+
+    /**
+     * Obtiene todos los detalles (cursos) de una matrícula.
+     * @param int $id_matricula
+     * @return array
+     */
+    public function obtenerDetallesPorIdMatricula($id_matricula) {
+        $this->db->callStoredProcedure('sp_matricula_obtener_detalles_por_id_matricula', [$id_matricula]);
+        return $this->db->resultSet();
+    }
+
+    /**
+     * Elimina un curso (detalle) de una matrícula y recalcula los totales.
+     * @param int $id_matricula_detalle
+     * @param int $id_matricula
+     * @return bool
+     */
+    public function eliminarDetalle($id_matricula_detalle, $id_matricula) {
+        $this->db->beginTransaction();
+        try {
+            // 1. Eliminar el detalle y su asistencia
+            $this->db->callStoredProcedure('sp_matricula_detalle_eliminar', [$id_matricula_detalle]);
+
+            // 2. Recalcular los totales de la cabecera
+            $this->db->callStoredProcedure('sp_matricula_cabecera_recalcular', [$id_matricula]);
+
+            $this->db->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            throw new Exception("Error al eliminar el detalle de la matrícula: " . $e->getMessage());
+        }
+    }
 }

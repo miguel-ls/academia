@@ -14,10 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
         clearTimeout(mainClientSearchTimeout);
         const query = this.value;
 
-        if (query.length < 2) {
-            resultsContainer.innerHTML = '';
-            return;
-        }
+        if (query.length < 2) { resultsContainer.innerHTML = ''; return; }
 
         mainClientSearchTimeout = setTimeout(() => {
             fetch(`index.php?view=matriculas&action=buscar_cliente&q=${encodeURIComponent(query)}`)
@@ -101,6 +98,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     data.forEach(curso => {
                         const card = document.createElement('div');
                         card.className = 'curso-card';
+                        // Store all necessary data on the card
                         card.dataset.id = curso.id_curso_programado;
                         card.dataset.nombre = curso.nombre_curso;
                         card.dataset.precio = curso.precio_actual || '0.00';
@@ -108,6 +106,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         card.dataset.profesor = curso.nombre_profesor;
                         card.dataset.horario = curso.horario_dias;
                         card.dataset.horas = `${formatTime(curso.hora_inicio)} - ${formatTime(curso.hora_fin)}`;
+                        // Raw data for validation
+                        card.dataset.dias_semana_raw = curso.dias_semana;
+                        card.dataset.fecha_inicio_raw = curso.fecha_inicio;
+                        card.dataset.fecha_fin_raw = curso.fecha_fin;
+                        card.dataset.hora_inicio_raw = curso.hora_inicio;
+                        card.dataset.hora_fin_raw = curso.hora_fin;
 
                         card.innerHTML = `
                             <h4>${curso.nombre_curso}</h4>
@@ -126,10 +130,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     cursosContainer.innerHTML = '<p>No se encontraron cursos con los filtros seleccionados.</p>';
                 }
             })
-            .catch(error => {
-                console.error('Error al buscar cursos:', error);
-                cursosContainer.innerHTML = '<p>Ocurrió un error al buscar los cursos.</p>';
-            });
+            .catch(error => console.error('Error al buscar cursos:', error));
     });
 
     cursosContainer.addEventListener('click', function(e) {
@@ -151,16 +152,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 horario: card.dataset.horario,
                 horas: card.dataset.horas,
                 clienteId: mainClientId,
-                clienteNombre: mainClientName
+                clienteNombre: mainClientName,
+                // Pass raw data for hidden fields
+                dias_semana_raw: card.dataset.dias_semana_raw,
+                fecha_inicio_raw: card.dataset.fecha_inicio_raw,
+                fecha_fin_raw: card.dataset.fecha_fin_raw,
+                hora_inicio_raw: card.dataset.hora_inicio_raw,
+                hora_fin_raw: card.dataset.hora_fin_raw
             });
         }
     });
 
     function agregarCursoAGrilla(curso) {
-        const precioFinal = curso.precio; // Descuento es 0 al inicio
+        const precioFinal = curso.precio;
         const newRow = document.createElement('tr');
         newRow.dataset.id = curso.id;
-
         const uniqueId = `cliente_asistente_${curso.id}`;
 
         newRow.innerHTML = `
@@ -171,7 +177,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="search-results-list-inline"></div>
                 </div>
             </td>
-            <td>${curso.nombre}<input type="hidden" name="cursos[${curso.id}][id_curso]" value="${curso.id}"></td>
+            <td>
+                ${curso.nombre}
+                <input type="hidden" name="cursos[${curso.id}][dias_semana]" value="${curso.dias_semana_raw}">
+                <input type="hidden" name="cursos[${curso.id}][fecha_inicio]" value="${curso.fecha_inicio_raw}">
+                <input type="hidden" name="cursos[${curso.id}][fecha_fin]" value="${curso.fecha_fin_raw}">
+                <input type="hidden" name="cursos[${curso.id}][hora_inicio]" value="${curso.hora_inicio_raw}">
+                <input type="hidden" name="cursos[${curso.id}][hora_fin]" value="${curso.hora_fin_raw}">
+            </td>
             <td>${curso.ubicacion}</td>
             <td>${curso.profesor}</td>
             <td>${curso.horario}<br><small>${curso.horas}</small></td>
@@ -184,7 +197,6 @@ document.addEventListener('DOMContentLoaded', function() {
         actualizarTotal();
     }
 
-    // --- Lógica para la Búsqueda de Cliente en la Grilla ---
     let gridClientSearchTimeout;
     cursosSeleccionadosBody.addEventListener('keyup', function(e) {
         if (e.target.classList.contains('cliente-asistente-search')) {
@@ -258,7 +270,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('total-matricula').textContent = `S/ ${total.toFixed(2)}`;
     }
 
-    // --- Lógica para la Sección 3: Fechas ---
     document.getElementById('filtro-fecha-inicio').addEventListener('change', function(){
         document.getElementById('fecha_inicio_matricula').value = this.value;
     });
@@ -266,8 +277,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('fecha_fin_matricula').value = this.value;
     });
 
-
-    // --- Lógica para la Sección 2: Búsqueda de Profesor ---
     const inputBuscarProfesor = document.getElementById('filtro-profesor');
     const hiddenProfesorId = document.getElementById('filtro-profesor-id');
     const profesorResultsContainer = document.getElementById('profesor-search-results');
@@ -318,5 +327,4 @@ document.addEventListener('DOMContentLoaded', function() {
             profesorResultsContainer.innerHTML = '';
         }
     });
-
 });
