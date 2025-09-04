@@ -249,7 +249,7 @@ class MatriculaModel {
      * @return bool
      */
     public function eliminarDetalle($id_matricula_detalle, $id_matricula) {
-        $this->db->beginTransaction();
+        // La transacción es manejada por el método que llama (ej. actualizarMatricula)
         try {
             // 1. Eliminar el detalle y su asistencia
             $this->db->callStoredProcedure('sp_matricula_detalle_eliminar', [$id_matricula_detalle]);
@@ -257,10 +257,9 @@ class MatriculaModel {
             // 2. Recalcular los totales de la cabecera
             $this->db->callStoredProcedure('sp_matricula_cabecera_recalcular', [$id_matricula]);
 
-            $this->db->commit();
             return true;
         } catch (Exception $e) {
-            $this->db->rollBack();
+            // Propagar la excepción para que la transacción principal haga rollback.
             throw new Exception("Error al eliminar el detalle de la matrícula: " . $e->getMessage());
         }
     }
