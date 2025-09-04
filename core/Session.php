@@ -66,4 +66,15 @@ class Session {
         // Asumimos que el rol de Administrador tiene id = 1
         return (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 1);
     }
+
+    /**
+     * Verifica si el usuario actual tiene el rol de Profesor.
+     * @return bool
+     */
+    public static function isTeacher() {
+        // NOTA: El rol de "Profesor" no está definido en el esquema de BD inicial.
+        // Se asume un ID hipotético de 3 para este rol.
+        // Si se define un rol de profesor, se debe actualizar este ID.
+        return (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 3);
+    }
 }
