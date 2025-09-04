@@ -26,12 +26,12 @@ $action = $_REQUEST['action'] ?? 'list';
 switch ($action) {
     case 'list':
         $matriculas = $matriculaModel->obtenerTodas();
-        require_once 'views/matriculas_view.php';
+        require_once 'views/matriculas/list.php';
         break;
 
     case 'nueva':
         // Cargar la vista principal del formulario
-        require_once 'views/matricula_nueva_view.php';
+        require_once 'views/matriculas/nueva.php';
         break;
 
     case 'buscar_cliente':
@@ -370,6 +370,6 @@ switch ($action) {
 
     default:
         $matriculas = $matriculaModel->obtenerTodas();
-        require_once 'views/matriculas_view.php';
+        require_once 'views/matriculas/list.php';
         break;
 }
