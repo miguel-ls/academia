@@ -103,4 +103,27 @@
     </tbody>
 </table>
 
+<style>
+.badge {
+    padding: 5px 10px;
+    border-radius: 12px;
+    color: #fff;
+    font-weight: bold;
+    font-size: 0.9em;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
+}
+.status-programado {
+    background-color: #17a2b8; /* Azul (Info) */
+}
+.status-en { /* Para "En Curso" */
+    background-color: #28a745; /* Verde (Activo) */
+}
+.status-finalizado {
+    background-color: #6c757d; /* Gris (Secundario) */
+}
+.status-cancelado {
+    background-color: #dc3545; /* Rojo (Peligro) */
+}
+</style>
+
 <?php require_once 'views/partials/footer.php'; ?>
