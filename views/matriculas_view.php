@@ -112,4 +112,24 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+<style>
+.badge {
+    padding: 5px 10px;
+    border-radius: 12px;
+    color: #fff;
+    font-weight: bold;
+    font-size: 0.9em;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
+}
+.status-activa {
+    background-color: #28a745; /* Verde */
+}
+.status-anulada {
+    background-color: #dc3545; /* Rojo */
+}
+.status-completada {
+    background-color: #007bff; /* Azul */
+}
+</style>
+
 <?php require_once 'views/partials/footer.php'; ?>
