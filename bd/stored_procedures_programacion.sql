@@ -149,6 +149,7 @@ BEGIN
         cp.hora_inicio,
         cp.hora_fin,
         th.descripcion as horario_dias,
+        th.dias_semana,
         cp.vacantes_disponibles,
         (SELECT lp.precio FROM lista_precios lp WHERE lp.id_curso = c.id_curso AND cp.fecha_inicio BETWEEN lp.vigencia_inicio AND lp.vigencia_fin ORDER BY lp.id_tipo_precio LIMIT 1) AS precio_actual
     FROM cursos_programados cp

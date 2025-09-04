@@ -36,15 +36,22 @@
                     </td>
                     <td><?php echo htmlspecialchars($matricula['registrado_por']); ?></td>
                     <td>
-                        <a href="index.php?view=matriculas&action=ver_detalle&id=<?php echo $matricula['id_matricula']; ?>" class="btn btn-info">Ver Detalle</a>
+                        <a href="index.php?view=matriculas&action=detalle&id=<?php echo $matricula['id_matricula']; ?>" class="btn btn-info">Ver/Editar</a>
                         <?php if ($matricula['estado'] === 'Activa'): ?>
                             <form action="index.php?view=matriculas" method="POST" style="display:inline;" class="form-anular">
                                 <input type="hidden" name="action" value="anular">
                                 <input type="hidden" name="id_matricula" value="<?php echo $matricula['id_matricula']; ?>">
                                 <input type="hidden" name="observaciones" class="observaciones-input">
-                                <button type="submit" class="btn btn-danger">Anular</button>
+                                <button type="button" class="btn btn-warning btn-anular">Anular</button>
                             </form>
                         <?php endif; ?>
+
+                        <!-- Botón Eliminar -->
+                        <form action="index.php?view=matriculas" method="POST" style="display:inline;" class="form-eliminar">
+                            <input type="hidden" name="action" value="eliminar">
+                            <input type="hidden" name="id_matricula" value="<?php echo $matricula['id_matricula']; ?>">
+                            <button type="button" class="btn btn-danger btn-eliminar">Eliminar</button>
+                        </form>
                     </td>
                 </tr>
             <?php endforeach; ?>
@@ -54,16 +61,33 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const forms = document.querySelectorAll('.form-anular');
-    forms.forEach(form => {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const confirmacion = confirm('¿Está seguro de que desea ANULAR esta matrícula? Esta acción no se puede deshacer y devolverá las vacantes al curso.');
+    // Handler para Anular
+    document.querySelectorAll('.btn-anular').forEach(button => {
+        button.addEventListener('click', function() {
+            const form = this.closest('form');
+            const confirmacion = confirm('¿Está seguro de que desea ANULAR esta matrícula? Esta acción cambia el estado a "Anulada" y libera las vacantes.');
             if (confirmacion) {
                 const observaciones = prompt('Por favor, ingrese un motivo para la anulación:', 'Anulado a petición del cliente.');
                 if (observaciones !== null) {
                     form.querySelector('.observaciones-input').value = observaciones;
                     form.submit();
+                }
+            }
+        });
+    });
+
+    // Handler para Eliminar
+    document.querySelectorAll('.btn-eliminar').forEach(button => {
+        button.addEventListener('click', function() {
+            const form = this.closest('form');
+            const confirmacion = confirm('¡ADVERTENCIA! ¿Está seguro de que desea ELIMINAR PERMANENTEMENTE esta matrícula? Esta acción no se puede deshacer y borrará todos los registros asociados.');
+            if (confirmacion) {
+                // Doble confirmación para una acción tan destructiva
+                const confirmacionFinal = prompt('Para confirmar, por favor escriba la palabra ELIMINAR en mayúsculas:');
+                if (confirmacionFinal === 'ELIMINAR') {
+                    form.submit();
+                } else {
+                    alert('La confirmación no es correcta. La acción ha sido cancelada.');
                 }
             }
         });
