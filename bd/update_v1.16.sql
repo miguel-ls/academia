@@ -17,7 +17,7 @@ BEGIN
         fp.nombre AS forma_pago,
         CASE mc.estado WHEN 1 THEN 'Activa' WHEN 0 THEN 'Anulada' END AS estado
     FROM
-        matriculas_cabecera mc
+        matriculas mc
     JOIN
         clientes c ON mc.id_cliente = c.id_cliente
     JOIN

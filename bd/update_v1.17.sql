@@ -40,7 +40,7 @@ BEGIN
     SET v_monto_final = v_monto_total - v_descuento_total;
 
     -- Actualizar la cabecera de la matrícula.
-    UPDATE matriculas_cabecera
+    UPDATE matriculas
     SET
         monto_total = v_monto_total,
         descuento_total = v_descuento_total,
