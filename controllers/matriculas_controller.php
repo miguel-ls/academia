@@ -67,8 +67,10 @@ switch ($action) {
                      throw new Exception("Debe seleccionar al menos un curso.");
                 }
 
-                // --- Validación de Vacantes Disponibles ---
+                // --- Validación de Vacantes y Recopilación de Datos de Programación ---
                 $nuevos_por_curso = [];
+                $programaciones_cursos = []; // Almacenar datos de programación para reutilizar
+
                 foreach ($_POST['cursos'] as $id_curso_programado => $curso) {
                     if (!isset($nuevos_por_curso[$id_curso_programado])) {
                         $nuevos_por_curso[$id_curso_programado] = 0;
@@ -78,41 +80,74 @@ switch ($action) {
 
                 foreach ($nuevos_por_curso as $id_curso_programado => $nuevos_alumnos) {
                     $programacion = $programacionModel->obtenerPorId($id_curso_programado);
+                    if (!$programacion) {
+                        throw new Exception("El curso programado con ID {$id_curso_programado} no existe.");
+                    }
+                    $programaciones_cursos[$id_curso_programado] = $programacion; // Guardar para después
+
                     $vacantes = (int)$programacion['vacantes'];
                     $inscritos = $matriculaModel->contarInscritosPorCursoProgramado($id_curso_programado);
 
                     if (($inscritos + $nuevos_alumnos) > $vacantes) {
-                        throw new Exception("No hay suficientes vacantes para el curso '{$programacion['nombre_curso']}'. Disponibles: " . ($vacantes - $inscritos) . ", Intentando inscribir: {$nuevos_alumnos}.");
+                        $disponibles = $vacantes - $inscritos;
+                        throw new Exception("No hay suficientes vacantes para el curso '{$programacion['nombre_curso']}'. Disponibles: {$disponibles}, Intentando inscribir: {$nuevos_alumnos}.");
                     }
                 }
                 // --- Fin Validación de Vacantes ---
 
-
-                // --- Validación de Cruce de Horarios para Clientes ---
-                $cursos_por_cliente = [];
-                foreach ($_POST['cursos'] as $id_curso_programado => $curso) {
-                    $cursos_por_cliente[$curso['id_cliente_asistencia']][] = $curso;
+                // --- Validación de Cruce de Horarios para Clientes (Mejorada) ---
+                $clientes_a_validar = [];
+                foreach ($_POST['cursos'] as $id_curso_programado => $curso_data) {
+                    $clientes_a_validar[$curso_data['id_cliente_asistencia']] = true;
                 }
 
-                foreach ($cursos_por_cliente as $id_cliente => $cursos_del_cliente) {
-                    if (count($cursos_del_cliente) > 1) {
-                        // Este cliente tiene más de un curso, verificar cruces entre ellos
-                        for ($i = 0; $i < count($cursos_del_cliente); $i++) {
-                            for ($j = $i + 1; $j < count($cursos_del_cliente); $j++) {
-                                $curso1 = $cursos_del_cliente[$i];
-                                $curso2 = $cursos_del_cliente[$j];
+                foreach (array_keys($clientes_a_validar) as $id_cliente) {
+                    // 1. Obtener los horarios activos existentes del cliente
+                    $horarios_existentes = $matriculaModel->obtenerHorariosActivosPorCliente($id_cliente);
 
-                                // 1. Chequeo de cruce de fechas
-                                $fechas_cruzadas = ($curso1['fecha_inicio'] <= $curso2['fecha_fin']) && ($curso1['fecha_fin'] >= $curso2['fecha_inicio']);
-                                // 2. Chequeo de cruce de horas
-                                $horas_cruzadas = ($curso1['hora_inicio'] < $curso2['hora_fin']) && ($curso1['hora_fin'] > $curso2['hora_inicio']);
-                                // 3. Chequeo de cruce de días
-                                $dias1_arr = explode(',', $curso1['dias_semana']);
-                                $dias2_arr = explode(',', $curso2['dias_semana']);
+                    // 2. Preparar la lista de cursos nuevos para este cliente
+                    $cursos_nuevos = [];
+                    foreach ($_POST['cursos'] as $id_curso_programado => $curso_data) {
+                        if ($curso_data['id_cliente_asistencia'] == $id_cliente) {
+                            $programacion = $programaciones_cursos[$id_curso_programado];
+                            $cursos_nuevos[] = [
+                                'id_sub_area'   => $programacion['id_sub_area'],
+                                'fecha_inicio'  => $curso_data['fecha_inicio'],
+                                'fecha_fin'     => $curso_data['fecha_fin'],
+                                'hora_inicio'   => $curso_data['hora_inicio'],
+                                'hora_fin'      => $curso_data['hora_fin'],
+                                'dias_semana'   => $curso_data['dias_semana'],
+                                'nombre_curso'  => $programacion['nombre_curso'] // Para mensajes de error
+                            ];
+                        }
+                    }
+
+                    // 3. Combinar horarios existentes y nuevos en una sola lista para la validación
+                    $todos_los_horarios = array_merge($horarios_existentes, $cursos_nuevos);
+
+                    // 4. Realizar la validación de cruce
+                    if (count($todos_los_horarios) > 1) {
+                        for ($i = 0; $i < count($todos_los_horarios); $i++) {
+                            for ($j = $i + 1; $j < count($todos_los_horarios); $j++) {
+                                $h1 = $todos_los_horarios[$i];
+                                $h2 = $todos_los_horarios[$j];
+
+                                if ($h1['id_sub_area'] != $h2['id_sub_area']) {
+                                    continue;
+                                }
+
+                                $fechas_cruzadas = ($h1['fecha_inicio'] <= $h2['fecha_fin']) && ($h1['fecha_fin'] >= $h2['fecha_inicio']);
+                                $horas_cruzadas = ($h1['hora_inicio'] < $h2['hora_fin']) && ($h1['hora_fin'] > $h2['hora_inicio']);
+                                $dias1_arr = explode(',', $h1['dias_semana']);
+                                $dias2_arr = explode(',', $h2['dias_semana']);
                                 $dias_cruzados = count(array_intersect($dias1_arr, $dias2_arr)) > 0;
 
                                 if ($fechas_cruzadas && $horas_cruzadas && $dias_cruzados) {
-                                    throw new Exception("El cliente ID {$id_cliente} tiene un cruce de horarios entre los cursos seleccionados.");
+                                    $cliente_info = $clienteModel->obtenerPorId($id_cliente);
+                                    $nombre_cliente = $cliente_info ? $cliente_info['nombres'] . ' ' . $cliente_info['apellidos'] : "ID {$id_cliente}";
+                                    $curso1_nombre = $h1['nombre_curso'] ?? 'un curso existente';
+                                    $curso2_nombre = $h2['nombre_curso'] ?? 'un curso existente';
+                                    throw new Exception("Cruce de horario para {$nombre_cliente} entre '{$curso1_nombre}' y '{$curso2_nombre}'. Revise los cursos seleccionados y las matrículas activas del cliente.");
                                 }
                             }
                         }

@@ -12,7 +12,7 @@ BEGIN
         matriculas mc ON md.id_matricula = mc.id_matricula
     WHERE
         md.id_curso_programado = p_id_curso_programado
-        AND mc.estado = 1; -- Contar solo matrículas activas
+        AND mc.estado = 'Activa'; -- Contar solo matrículas activas
 END$$
 
 DELIMITER ;
