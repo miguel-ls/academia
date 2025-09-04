@@ -17,7 +17,7 @@ $action_url = $is_edit ? 'index.php?view=sub_areas&action=update' : 'index.php?v
 <?php endif; ?>
 
 <div class="form-container">
-    <form action="<?php echo $action_url; ?>" method="POST">
+    <form action="<?php echo $action_url; ?>" method="POST" id="sub-area-form">
 
         <?php if ($is_edit): ?>
             <input type="hidden" name="id_sub_area" value="<?php echo $item_a_editar['id_sub_area']; ?>">
@@ -60,32 +60,29 @@ $action_url = $is_edit ? 'index.php?view=sub_areas&action=update' : 'index.php?v
     </form>
 </div>
 
+<?php require_once 'views/partials/modal_error.php'; // Incluir el modal reutilizable ?>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const form = document.querySelector('form');
-    // Solo aplicar la lógica AJAX si estamos en modo de edición
+    const form = document.getElementById('sub-area-form');
     const isEditMode = <?php echo json_encode($is_edit); ?>;
 
-    if (isEditMode) {
-        let isSubmitting = false; // Flag para evitar bucles
+    // Solo ejecutar el script de validación AJAX en modo de edición y si el modal global existe
+    if (isEditMode && window.AppModal) {
+        let isSubmitting = false;
 
         form.addEventListener('submit', function(event) {
-            // Si ya estamos en proceso de envío (después de la validación AJAX), no hacer nada más.
-            if (isSubmitting) {
-                return;
-            }
-
-            event.preventDefault(); // Detener el envío inicial
+            if (isSubmitting) return;
+            event.preventDefault();
 
             const idSubAreaInput = form.querySelector('input[name="id_sub_area"]');
             const capacidadInput = form.querySelector('input[name="capacidad_maxima"]');
-
             const data = new FormData();
             data.append('id_sub_area', idSubAreaInput.value);
             data.append('capacidad', capacidadInput.value);
 
-            // Deshabilitar el botón de envío para evitar clics múltiples
             const submitButton = form.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.textContent;
             submitButton.disabled = true;
             submitButton.textContent = 'Validando...';
 
@@ -96,21 +93,20 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
-                    // Si la validación es exitosa, marcar como "enviando" y reenviar el formulario
                     isSubmitting = true;
                     form.submit();
                 } else {
-                    // Si hay un error, mostrar el mensaje y reactivar el botón
-                    alert('Error de validación:\n' + result.message);
+                    // Usar el modal global para mostrar el error
+                    window.AppModal.show(result.message, 'Error de Validación de Capacidad');
                     submitButton.disabled = false;
-                    submitButton.textContent = 'Actualizar Sub Área';
+                    submitButton.textContent = originalButtonText;
                 }
             })
             .catch(error => {
                 console.error('Error en la llamada AJAX:', error);
-                alert('Ocurrió un error al contactar al servidor. Por favor, intente de nuevo.');
+                window.AppModal.show('Ocurrió un error al contactar al servidor. Por favor, intente de nuevo.');
                 submitButton.disabled = false;
-                submitButton.textContent = 'Actualizar Sub Área';
+                submitButton.textContent = originalButtonText;
             });
         });
     }

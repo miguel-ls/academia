@@ -367,3 +367,111 @@ footer {
 #cursos-seleccionados-grid input[name*="[descuento]"] {
     width: 100px;
 }
+
+/* =================================================================
+   REUSABLE MODAL
+   ================================================================= */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: none; /* Oculto por defecto, se activa con JS */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+.modal-content {
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    width: 90%;
+    max-width: 500px;
+}
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.5em;
+}
+.modal-close {
+    cursor: pointer;
+    font-size: 1.8em;
+    font-weight: bold;
+    border: none;
+    background: none;
+    padding: 0;
+    line-height: 1;
+}
+.modal-body {
+    margin-bottom: 20px;
+}
+.modal-footer {
+    text-align: right;
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+    margin-top: 20px;
+}
+
+/* =================================================================
+   REUSABLE MODAL
+   ================================================================= */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: none; /* Oculto por defecto, se activa con JS */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+.modal-content {
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    width: 90%;
+    max-width: 500px;
+}
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.5em;
+}
+.modal-close {
+    cursor: pointer;
+    font-size: 1.8em;
+    font-weight: bold;
+    border: none;
+    background: none;
+    padding: 0;
+    line-height: 1;
+}
+.modal-body {
+    margin-bottom: 20px;
+}
+.modal-footer {
+    text-align: right;
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+    margin-top: 20px;
+}
