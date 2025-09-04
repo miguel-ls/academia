@@ -1,7 +1,42 @@
 // Archivo JavaScript principal.
 // Puede ser usado para añadir interactividad global al sitio.
+
+console.log('Sistema de Academia cargado.');
+
+// --- Lógica para el Modal de Error Reutilizable ---
+// Esta lógica asume que el HTML del modal está presente en la página.
+// Se define a nivel global para que esté disponible para otros scripts que se carguen después.
+const modal = document.getElementById('error-modal');
+if (modal) {
+    const modalMessage = document.getElementById('error-modal-message');
+    const modalTitle = document.getElementById('error-modal-title');
+    const closeButtons = document.querySelectorAll('.modal-close');
+
+    // Crear un objeto global para controlar el modal desde otros scripts
+    window.AppModal = {
+        show: function(message, title = 'Error') {
+            modalMessage.textContent = message;
+            modalTitle.textContent = title;
+            modal.style.display = 'flex';
+        },
+        hide: function() {
+            modal.style.display = 'none';
+        }
+    };
+
+    // Event listeners para cerrar el modal
+    closeButtons.forEach(button => button.addEventListener('click', window.AppModal.hide));
+    modal.addEventListener('click', function(event) {
+        // Cerrar si se hace clic en el overlay
+        if (event.target === modal) {
+            window.AppModal.hide();
+        }
+    });
+}
+
+
+// El resto del código que depende del DOM puede ir dentro de DOMContentLoaded
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Sistema de Academia cargado.');
 
     // --- Validación de Número de Documento Duplicado para Clientes ---
     const clienteForm = document.getElementById('cliente-form');
@@ -68,36 +103,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             isSubmitting = true;
             clienteForm.submit();
-        });
-    }
-
-    // --- Lógica para el Modal de Error Reutilizable ---
-    // Esta lógica asume que el HTML del modal está presente en la página.
-    const modal = document.getElementById('error-modal');
-    if (modal) {
-        const modalMessage = document.getElementById('error-modal-message');
-        const modalTitle = document.getElementById('error-modal-title');
-        const closeButtons = document.querySelectorAll('.modal-close');
-
-        // Crear un objeto global para controlar el modal desde otros scripts
-        window.AppModal = {
-            show: function(message, title = 'Error') {
-                modalMessage.textContent = message;
-                modalTitle.textContent = title;
-                modal.style.display = 'flex';
-            },
-            hide: function() {
-                modal.style.display = 'none';
-            }
-        };
-
-        // Event listeners para cerrar el modal
-        closeButtons.forEach(button => button.addEventListener('click', window.AppModal.hide));
-        modal.addEventListener('click', function(event) {
-            // Cerrar si se hace clic en el overlay
-            if (event.target === modal) {
-                window.AppModal.hide();
-            }
         });
     }
 });
