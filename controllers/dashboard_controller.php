@@ -49,4 +49,4 @@ $json_data_bar = json_encode($chart_data_bar);
 
 
 // Cargar la vista del dashboard
-require_once 'views/dashboard_view.php';
+require_once 'views/dashboard/dashboard_view.php';
