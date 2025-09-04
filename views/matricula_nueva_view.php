@@ -81,14 +81,9 @@
         <div class="section">
             <h2>3. Datos del Pago</h2>
             <div class="form-grid">
-                <div class="form-group">
-                    <label for="fecha_inicio_matricula">Fecha Inicio Matrícula:</label>
-                    <input type="date" id="fecha_inicio_matricula" name="fecha_inicio_matricula" readonly>
-                </div>
-                <div class="form-group">
-                    <label for="fecha_fin_matricula">Fecha Fin Matrícula:</label>
-                    <input type="date" id="fecha_fin_matricula" name="fecha_fin_matricula" readonly>
-                </div>
+                <!-- Las fechas se copian desde los filtros y se envían de forma oculta -->
+                <input type="hidden" id="fecha_inicio_matricula" name="fecha_inicio_matricula">
+                <input type="hidden" id="fecha_fin_matricula" name="fecha_fin_matricula">
                 <div class="form-group">
                     <label for="id_forma_pago">Forma de Pago:</label>
                     <select id="id_forma_pago" name="id_forma_pago" required>
