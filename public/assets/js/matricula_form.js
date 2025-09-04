@@ -174,9 +174,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <td>${curso.nombre}<input type="hidden" name="cursos[${curso.id}][id_curso]" value="${curso.id}"></td>
             <td>${curso.ubicacion}</td>
             <td>${curso.profesor}</td>
-            <td>${curso.horario}</td>
-            <td>${curso.horas}</td>
-            <td>${curso.precio.toFixed(2)}</td>
+            <td>${curso.horario}<br><small>${curso.horas}</small></td>
             <td><input type="number" class="recalc-trigger" name="cursos[${curso.id}][precio_pactado]" value="${curso.precio.toFixed(2)}" step="0.01"></td>
             <td><input type="number" class="recalc-trigger" name="cursos[${curso.id}][descuento]" value="0.00" step="0.01"></td>
             <td class="precio-final">${precioFinal.toFixed(2)}</td>

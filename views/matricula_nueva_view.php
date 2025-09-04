@@ -56,9 +56,7 @@
                             <th>Curso</th>
                             <th>Ubicación</th>
                             <th>Profesor</th>
-                            <th>Horario</th>
-                            <th>Horas</th>
-                            <th>Precio Orig.</th>
+                            <th>Horario y Horas</th>
                             <th>Precio Pactado</th>
                             <th>Descuento</th>
                             <th>Precio Final</th>
@@ -70,7 +68,7 @@
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colspan="9" class="total-row">TOTAL:</td>
+                            <td colspan="7" class="total-row">TOTAL:</td>
                             <td id="total-matricula" class="total-row">S/ 0.00</td>
                             <td></td>
                         </tr>
