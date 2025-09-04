@@ -101,9 +101,25 @@
             </div>
         </div>
 
-        <button type="submit" class="btn btn-success" style="width: 100%; padding: 15px; font-size: 1.2em;">Actualizar Matrícula</button>
+        <div class="form-actions">
+            <a href="index.php?view=matriculas" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-success">Actualizar Matrícula</button>
+        </div>
     </form>
 </div>
+
+<style>
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 20px;
+}
+.form-actions .btn {
+    padding: 15px 30px;
+    font-size: 1.2em;
+}
+</style>
 
 <!-- Embeber los datos de los detalles de la matrícula para que JS los pueda leer -->
 <script>
