@@ -28,25 +28,23 @@ class MatriculaModel {
         $this->db->beginTransaction();
 
         try {
-            // 1. Registrar cabecera (usando SQL directo para evitar SP con error)
-            $sql = "INSERT INTO matriculas (id_cliente, id_usuario_registro, id_forma_pago, fecha_inicio_clases, fecha_fin_clases, monto_total, descuento_total, monto_final, observaciones, estado)
-                    VALUES (:id_cliente, :id_usuario_registro, :id_forma_pago, :fecha_inicio_clases, :fecha_fin_clases, :monto_total, :descuento_total, :monto_final, :observaciones, 'Activa')";
+            // 1. Registrar cabecera
+            $params_cabecera = [
+                $datos['id_cliente'],
+                $_SESSION['user_id'], // El usuario que registra
+                $datos['id_forma_pago'],
+                $datos['fecha_inicio_matricula'],
+                $datos['fecha_fin_matricula'],
+                $datos['monto_total'],
+                $datos['descuento_total'],
+                $datos['monto_final'],
+                $datos['observaciones']
+            ];
+            $stmt_cabecera = $this->db->callStoredProcedure('sp_matricula_registrar_cabecera', $params_cabecera);
+            $result_cabecera = $this->db->single();
+            $id_matricula = $result_cabecera['id_matricula'] ?? 0;
 
-            $this->db->query($sql);
-            $this->db->bind(':id_cliente', $datos['id_cliente']);
-            $this->db->bind(':id_usuario_registro', $_SESSION['user_id']);
-            $this->db->bind(':id_forma_pago', $datos['id_forma_pago']);
-            $this->db->bind(':fecha_inicio_clases', $datos['fecha_inicio_matricula']);
-            $this->db->bind(':fecha_fin_clases', $datos['fecha_fin_matricula']);
-            $this->db->bind(':monto_total', $datos['monto_total']);
-            $this->db->bind(':descuento_total', $datos['descuento_total']);
-            $this->db->bind(':monto_final', $datos['monto_final']);
-            $this->db->bind(':observaciones', $datos['observaciones']);
-
-            $this->db->execute();
-            $id_matricula = $this->db->lastInsertId();
-
-            if (!$id_matricula) {
+            if ($id_matricula == 0) {
                 throw new Exception("No se pudo crear la cabecera de la matrícula.");
             }
 
@@ -111,16 +109,6 @@ class MatriculaModel {
         $this->db->callStoredProcedure('sp_matriculas_contar_por_curso', [$id_curso_programado]);
         $result = $this->db->single();
         return (int)($result['inscritos'] ?? 0);
-    }
-
-    /**
-     * Obtiene todos los horarios activos para un cliente específico.
-     * @param int $id_cliente
-     * @return array Lista de horarios activos.
-     */
-    public function obtenerHorariosActivosPorCliente($id_cliente) {
-        $this->db->callStoredProcedure('sp_cliente_horarios_activos', [$id_cliente]);
-        return $this->db->resultSet();
     }
 
     /**
