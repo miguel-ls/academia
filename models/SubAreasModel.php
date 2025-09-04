@@ -76,6 +76,11 @@ class SubAreasModel {
         return $resultado['count'] ?? 0;
     }
 
+    public function validarCapacidad($id_sub_area, $capacidad_maxima) {
+        $this->db->callStoredProcedure('sp_sub_areas_validar_capacidad', [$id_sub_area, $capacidad_maxima]);
+        return $this->db->single();
+    }
+
     public function obtenerAreas() {
         $this->db->callStoredProcedure('sp_areas_listar');
         return $this->db->resultSet();

@@ -60,4 +60,61 @@ $action_url = $is_edit ? 'index.php?view=sub_areas&action=update' : 'index.php?v
     </form>
 </div>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    // Solo aplicar la lógica AJAX si estamos en modo de edición
+    const isEditMode = <?php echo json_encode($is_edit); ?>;
+
+    if (isEditMode) {
+        let isSubmitting = false; // Flag para evitar bucles
+
+        form.addEventListener('submit', function(event) {
+            // Si ya estamos en proceso de envío (después de la validación AJAX), no hacer nada más.
+            if (isSubmitting) {
+                return;
+            }
+
+            event.preventDefault(); // Detener el envío inicial
+
+            const idSubAreaInput = form.querySelector('input[name="id_sub_area"]');
+            const capacidadInput = form.querySelector('input[name="capacidad_maxima"]');
+
+            const data = new FormData();
+            data.append('id_sub_area', idSubAreaInput.value);
+            data.append('capacidad', capacidadInput.value);
+
+            // Deshabilitar el botón de envío para evitar clics múltiples
+            const submitButton = form.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.textContent = 'Validando...';
+
+            fetch('index.php?view=sub_areas&action=validar_capacidad', {
+                method: 'POST',
+                body: data
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    // Si la validación es exitosa, marcar como "enviando" y reenviar el formulario
+                    isSubmitting = true;
+                    form.submit();
+                } else {
+                    // Si hay un error, mostrar el mensaje y reactivar el botón
+                    alert('Error de validación:\n' + result.message);
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Actualizar Sub Área';
+                }
+            })
+            .catch(error => {
+                console.error('Error en la llamada AJAX:', error);
+                alert('Ocurrió un error al contactar al servidor. Por favor, intente de nuevo.');
+                submitButton.disabled = false;
+                submitButton.textContent = 'Actualizar Sub Área';
+            });
+        });
+    }
+});
+</script>
+
 <?php require_once 'views/partials/footer.php'; ?>
