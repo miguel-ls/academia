@@ -327,4 +327,82 @@ document.addEventListener('DOMContentLoaded', function() {
             profesorResultsContainer.innerHTML = '';
         }
     });
+
+    // --- Lógica para la Validación y Envío del Formulario ---
+    const formMatricula = document.getElementById('form-matricula');
+    formMatricula.addEventListener('submit', function(e) {
+        // 1. Validación de cruce de horarios en la grilla (lado del cliente)
+        if (!validarCruceHorariosCliente()) {
+            e.preventDefault(); // Detener el envío del formulario si hay errores
+            return;
+        }
+
+        // Si todas las validaciones del lado del cliente pasan, el formulario se enviará.
+        // Las validaciones del lado del servidor se encargarán del resto.
+    });
+
+    /**
+     * Valida que un mismo cliente no tenga cursos con horarios y ubicaciones que se crucen
+     * dentro de la misma matrícula que se está creando.
+     */
+    function validarCruceHorariosCliente() {
+        const cursosPorCliente = {};
+        const filas = document.querySelectorAll('#cursos-seleccionados-grid tbody tr');
+
+        if (filas.length === 0) {
+            alert('Debe agregar al menos un curso a la matrícula.');
+            return false;
+        }
+
+        // Agrupar cursos por cliente
+        for (const fila of filas) {
+            const clienteId = fila.querySelector('.id-cliente-asistente').value;
+            const clienteNombre = fila.querySelector('.cliente-asistente-search').value;
+
+            if (!cursosPorCliente[clienteId]) {
+                cursosPorCliente[clienteId] = {
+                    nombre: clienteNombre,
+                    cursos: []
+                };
+            }
+
+            const cursoInfo = {
+                nombreCurso: fila.cells[1].innerText.trim(),
+                ubicacion: fila.cells[2].innerText.trim(),
+                dias: fila.querySelector('input[name*="[dias_semana]"]').value.split(','),
+                horaInicio: fila.querySelector('input[name*="[hora_inicio]"]').value,
+                horaFin: fila.querySelector('input[name*="[hora_fin]"]').value
+            };
+            cursosPorCliente[clienteId].cursos.push(cursoInfo);
+        }
+
+        // Validar cruces para cada cliente
+        for (const clienteId in cursosPorCliente) {
+            const dataCliente = cursosPorCliente[clienteId];
+            const cursos = dataCliente.cursos;
+            const nombreCliente = dataCliente.nombre;
+
+            if (cursos.length > 1) {
+                for (let i = 0; i < cursos.length; i++) {
+                    for (let j = i + 1; j < cursos.length; j++) {
+                        const curso1 = cursos[i];
+                        const curso2 = cursos[j];
+
+                        // Comprobar si los días se cruzan
+                        const diasEnComun = curso1.dias.some(dia => curso2.dias.includes(dia));
+                        // Comprobar si las horas se cruzan
+                        const horasSeCruzan = (curso1.horaInicio < curso2.horaFin) && (curso1.horaFin > curso2.horaInicio);
+                        // Comprobar si la ubicación es la misma
+                        const mismaUbicacion = curso1.ubicacion === curso2.ubicacion;
+
+                        if (diasEnComun && horasSeCruzan && mismaUbicacion) {
+                            alert(`Error de validación:\nEl cliente "${nombreCliente}" tiene un cruce de horario.\n\n- Curso 1: ${curso1.nombreCurso}\n- Curso 2: ${curso2.nombreCurso}\n- Ubicación: ${curso1.ubicacion}\n\nPor favor, corrija la selección antes de continuar.`);
+                            return false; // Cruce encontrado
+                        }
+                    }
+                }
+            }
+        }
+        return true; // No se encontraron cruces
+    }
 });
