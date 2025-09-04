@@ -10,7 +10,8 @@ const modal = document.getElementById('error-modal');
 if (modal) {
     const modalMessage = document.getElementById('error-modal-message');
     const modalTitle = document.getElementById('error-modal-title');
-    const closeButtons = document.querySelectorAll('.modal-close');
+    const closeButtons = document.querySelectorAll('.modal-close'); // Gets the 'X'
+    const acceptButton = document.getElementById('modal-accept-button'); // Gets the 'Aceptar' button
 
     // Crear un objeto global para controlar el modal desde otros scripts
     window.AppModal = {
@@ -26,6 +27,9 @@ if (modal) {
 
     // Event listeners para cerrar el modal
     closeButtons.forEach(button => button.addEventListener('click', window.AppModal.hide));
+    if (acceptButton) {
+        acceptButton.addEventListener('click', window.AppModal.hide);
+    }
     modal.addEventListener('click', function(event) {
         // Cerrar si se hace clic en el overlay
         if (event.target === modal) {
