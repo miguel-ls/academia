@@ -9,7 +9,7 @@
             <p id="error-modal-message"></p>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-primary modal-close">Entendido</button>
+            <button type="button" class="btn btn-primary modal-close">Aceptar</button>
         </div>
     </div>
 </div>
