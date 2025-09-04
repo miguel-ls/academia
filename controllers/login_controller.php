@@ -40,7 +40,7 @@ switch ($action) {
             }
         } else {
             // Si es GET, simplemente mostrar la vista de login
-            require_once 'views/login_view.php';
+            require_once 'views/login/login_view.php';
         }
         break;
 
@@ -77,12 +77,12 @@ switch ($action) {
             }
         } else {
             // Si es GET, mostrar la vista de verificación
-            require_once 'views/2fa_verify_view.php';
+            require_once 'views/login/2fa_verify_view.php';
         }
         break;
 
     default:
         // Por defecto, mostrar la vista de login
-        require_once 'views/login_view.php';
+        require_once 'views/login/login_view.php';
         break;
 }

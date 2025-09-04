@@ -18,4 +18,4 @@ $cursos_disponibles = $monitorModel->obtenerCursosDisponibles();
 
 
 // --- Cargar la Vista ---
-require_once 'views/monitor_view.php';
+require_once 'views/monitor/monitor_view.php';
