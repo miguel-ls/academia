@@ -50,10 +50,11 @@ class MatriculaModel {
 
             // 2. Registrar detalles
             foreach ($datos['cursos'] as $curso_detalle) {
-                $precio_final = $curso_detalle['precio_pactado'] - $curso_detalle['descuento'];
+                $precio_final = (float)$curso_detalle['precio_pactado'] - (float)$curso_detalle['descuento'];
                 $params_detalle = [
                     $id_matricula,
                     $curso_detalle['id_curso_programado'],
+                    $curso_detalle['id_cliente_asistencia'],
                     $curso_detalle['precio_pactado'],
                     $curso_detalle['descuento'],
                     $precio_final

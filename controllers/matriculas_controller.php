@@ -71,6 +71,7 @@ switch ($action) {
                     $descuento_total += (float)$curso['descuento'];
                     $cursos_detalle[] = [
                         'id_curso_programado' => (int)$id_curso_programado,
+                        'id_cliente_asistencia' => (int)$curso['id_cliente_asistencia'],
                         'precio_pactado' => (float)$curso['precio_pactado'],
                         'descuento' => (float)$curso['descuento']
                     ];
