@@ -112,6 +112,16 @@ class MatriculaModel {
     }
 
     /**
+     * Obtiene todos los horarios activos para un cliente específico.
+     * @param int $id_cliente
+     * @return array Lista de horarios activos.
+     */
+    public function obtenerHorariosActivosPorCliente($id_cliente) {
+        $this->db->callStoredProcedure('sp_cliente_horarios_activos', [$id_cliente]);
+        return $this->db->resultSet();
+    }
+
+    /**
      * Elimina permanentemente una matrícula y todos sus registros asociados.
      * @param int $id_matricula
      * @return bool
