@@ -20,7 +20,7 @@ BEGIN
     WHERE id_matricula = p_id_matricula;
 
     -- 3. Delete the header record.
-    DELETE FROM matriculas_cabecera
+    DELETE FROM matriculas
     WHERE id_matricula = p_id_matricula;
 
     COMMIT;

@@ -31,7 +31,7 @@ BEGIN
         CONCAT(TIME_FORMAT(cp.hora_inicio, '%h:%i %p'), ' - ', TIME_FORMAT(cp.hora_fin, '%h:%i %p')) AS horas,
         CONCAT(a.nombre, ' - ', sa.descripcion, ' ', sa.numero_sub_area) AS ubicacion,
         mc.estado
-    FROM matriculas_cabecera mc
+    FROM matriculas mc
     JOIN matriculas_detalle md ON mc.id_matricula = md.id_matricula
     JOIN clientes cli ON md.id_cliente_asistencia = cli.id_cliente
     JOIN cursos_programados cp ON md.id_curso_programado = cp.id_curso_programado
