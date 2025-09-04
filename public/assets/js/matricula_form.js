@@ -164,7 +164,11 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function agregarCursoAGrilla(curso) {
-        const precioFinal = curso.precio;
+        // Adaptación para modo de edición vs. nueva adición
+        const precioPactado = curso.precio_pactado !== undefined ? curso.precio_pactado : curso.precio;
+        const descuento = curso.descuento !== undefined ? curso.descuento : 0.00;
+        const precioFinal = precioPactado - descuento;
+
         const newRow = document.createElement('tr');
         newRow.dataset.id = curso.id;
         const uniqueId = `cliente_asistente_${curso.id}`;
@@ -188,8 +192,8 @@ document.addEventListener('DOMContentLoaded', function() {
             <td>${curso.ubicacion}</td>
             <td>${curso.profesor}</td>
             <td>${curso.horario}<br><small>${curso.horas}</small></td>
-            <td><input type="number" class="recalc-trigger" name="cursos[${curso.id}][precio_pactado]" value="${curso.precio.toFixed(2)}" step="0.01"></td>
-            <td><input type="number" class="recalc-trigger" name="cursos[${curso.id}][descuento]" value="0.00" step="0.01"></td>
+            <td><input type="number" class="recalc-trigger" name="cursos[${curso.id}][precio_pactado]" value="${parseFloat(precioPactado).toFixed(2)}" step="0.01"></td>
+            <td><input type="number" class="recalc-trigger" name="cursos[${curso.id}][descuento]" value="${parseFloat(descuento).toFixed(2)}" step="0.01"></td>
             <td class="precio-final">${precioFinal.toFixed(2)}</td>
             <td><button type="button" class="btn btn-danger btn-eliminar-curso">Eliminar</button></td>
         `;
@@ -405,4 +409,44 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         return true; // No se encontraron cruces
     }
+
+    /**
+     * Si estamos en modo de edición, esta función carga los cursos existentes en la grilla.
+     */
+    function inicializarGrillaParaEdicion() {
+        if (typeof matriculaDetalles !== 'undefined' && matriculaDetalles.length > 0) {
+            const formatTime = (timeString) => {
+                if (!timeString) return '';
+                let [hours, minutes] = timeString.split(':');
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                hours = hours % 12;
+                hours = hours ? hours : 12;
+                return `${String(hours).padStart(2, '0')}:${minutes} ${ampm}`;
+            };
+
+            matriculaDetalles.forEach(detalle => {
+                agregarCursoAGrilla({
+                    id: detalle.id_curso_programado,
+                    nombre: detalle.nombre_curso,
+                    precio_pactado: detalle.precio_pactado,
+                    descuento: detalle.descuento,
+                    ubicacion: detalle.ubicacion,
+                    profesor: detalle.profesor,
+                    horario: detalle.horario_dias,
+                    horas: `${formatTime(detalle.hora_inicio)} - ${formatTime(detalle.hora_fin)}`,
+                    clienteId: detalle.id_cliente_asistencia,
+                    clienteNombre: detalle.nombre_cliente_asistencia,
+                    // Pass raw data for hidden fields
+                    dias_semana_raw: detalle.dias_semana,
+                    fecha_inicio_raw: detalle.fecha_inicio,
+                    fecha_fin_raw: detalle.fecha_fin,
+                    hora_inicio_raw: detalle.hora_inicio,
+                    hora_fin_raw: detalle.hora_fin
+                });
+            });
+        }
+    }
+
+    // --- Inicialización ---
+    inicializarGrillaParaEdicion();
 });

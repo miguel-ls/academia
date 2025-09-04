@@ -39,7 +39,16 @@ BEGIN
         CONCAT(cli_asist.nombres, ' ', cli_asist.apellidos) AS nombre_cliente_asistencia,
         md.precio_pactado,
         md.descuento,
-        md.precio_final
+        md.precio_final,
+        -- Campos adicionales para la vista de edición
+        CONCAT(a.nombre, ' - ', sa.descripcion, ' ', sa.numero_sub_area) AS ubicacion,
+        CONCAT(p.nombres, ' ', p.apellidos) AS profesor,
+        th.descripcion AS horario_dias,
+        cp.hora_inicio,
+        cp.hora_fin,
+        th.dias_semana,
+        cp.fecha_inicio,
+        cp.fecha_fin
     FROM
         matriculas_detalle md
     JOIN
@@ -48,6 +57,14 @@ BEGIN
         cursos cur ON cp.id_curso = cur.id_curso
     JOIN
         clientes cli_asist ON md.id_cliente_asistencia = cli_asist.id_cliente
+    JOIN
+        profesores p ON cp.id_profesor = p.id_profesor
+    JOIN
+        sub_areas sa ON cp.id_sub_area = sa.id_sub_area
+    JOIN
+        areas a ON sa.id_area = a.id_area
+    JOIN
+        tipos_horario th ON cp.id_tipo_horario = th.id_tipo_horario
     WHERE
         md.id_matricula = p_id_matricula
     ORDER BY

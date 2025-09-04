@@ -236,6 +236,84 @@ switch ($action) {
         }
         break;
 
+    case 'editar':
+        $id_matricula = (int)($_GET['id'] ?? 0);
+        if ($id_matricula > 0) {
+            $matricula = $matriculaModel->obtenerCabeceraPorId($id_matricula);
+            $detalles = $matriculaModel->obtenerDetallesPorIdMatricula($id_matricula);
+
+            if ($matricula) {
+                // Cargar la vista de edición, que será una versión modificada de la de nueva matrícula
+                require_once 'views/matriculas/editar.php';
+            } else {
+                header('Location: index.php?view=matriculas&error_not_found=1');
+                exit;
+            }
+        } else {
+            header('Location: index.php?view=matriculas');
+            exit;
+        }
+        break;
+
+    case 'actualizar_matricula':
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $id_matricula = (int)($_POST['id_matricula'] ?? 0);
+            try {
+                if ($id_matricula === 0) {
+                    throw new Exception("ID de matrícula no válido.");
+                }
+
+                if(empty($_POST['cursos'])){
+                     throw new Exception("La matrícula no puede quedar sin cursos.");
+                }
+
+                // --- Validaciones (similar a registrar_matricula) ---
+                // ... (La lógica de validación de vacantes y cruce de horarios se debe implementar aquí,
+                // pero es más complejo porque hay que diferenciar cursos nuevos de existentes.
+                // Esto se hará en el modelo para mantener el controlador limpio).
+
+                // --- Recopilación de datos ---
+                $monto_total = 0;
+                $descuento_total = 0;
+                $cursos_detalle = [];
+
+                foreach ($_POST['cursos'] as $id_curso_programado => $curso) {
+                    $monto_total += (float)$curso['precio_pactado'];
+                    $descuento_total += (float)$curso['descuento'];
+                    // El id_matricula_detalle no viene del form, se manejará en el modelo
+                    $cursos_detalle[] = [
+                        'id_curso_programado' => (int)$id_curso_programado,
+                        'id_cliente_asistencia' => (int)$curso['id_cliente_asistencia'],
+                        'precio_pactado' => (float)$curso['precio_pactado'],
+                        'descuento' => (float)$curso['descuento']
+                    ];
+                }
+                $monto_final = $monto_total - $descuento_total;
+
+                $datos_matricula = [
+                    'id_cliente' => (int)$_POST['id_cliente'],
+                    'id_forma_pago' => (int)$_POST['id_forma_pago'],
+                    'fecha_inicio_matricula' => $_POST['fecha_inicio_matricula'],
+                    'fecha_fin_matricula' => $_POST['fecha_fin_matricula'],
+                    'observaciones' => $_POST['observaciones'],
+                    'monto_total' => $monto_total,
+                    'descuento_total' => $descuento_total,
+                    'monto_final' => $monto_final,
+                    'cursos' => $cursos_detalle
+                ];
+
+                $matriculaModel->actualizarMatricula($id_matricula, $datos_matricula);
+
+                header('Location: index.php?view=matriculas&action=detalle&id=' . $id_matricula . '&success_update=1');
+                exit;
+
+            } catch (Exception $e) {
+                header('Location: index.php?view=matriculas&action=editar&id=' . $id_matricula . '&error=' . urlencode($e->getMessage()));
+                exit;
+            }
+        }
+        break;
+
     case 'eliminar':
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {

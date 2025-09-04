@@ -36,7 +36,7 @@
                     </td>
                     <td><?php echo htmlspecialchars($matricula['registrado_por']); ?></td>
                     <td>
-                        <a href="index.php?view=matriculas&action=detalle&id=<?php echo $matricula['id_matricula']; ?>" class="btn btn-info">Ver/Editar</a>
+                        <a href="index.php?view=matriculas&action=editar&id=<?php echo $matricula['id_matricula']; ?>" class="btn btn-info">Ver/Editar</a>
                         <?php if ($matricula['estado'] === 'Activa'): ?>
                             <form action="index.php?view=matriculas" method="POST" style="display:inline;" class="form-anular">
                                 <input type="hidden" name="action" value="anular">
