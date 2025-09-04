@@ -75,6 +75,28 @@ try {
             }
             break;
 
+        case 'validar_capacidad':
+            // Endpoint para AJAX
+            header('Content-Type: application/json');
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $id_sub_area = (int)($_POST['id_sub_area'] ?? 0);
+                $capacidad = (int)($_POST['capacidad'] ?? 0);
+
+                if ($id_sub_area > 0) {
+                    $resultado = $subAreasModel->validarCapacidad($id_sub_area, $capacidad);
+                    if (isset($resultado['error'])) {
+                        echo json_encode(['success' => false, 'message' => $resultado['error']]);
+                    } else {
+                        echo json_encode(['success' => true]);
+                    }
+                } else {
+                    echo json_encode(['success' => false, 'message' => 'ID de sub área no válido.']);
+                }
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Método no permitido.']);
+            }
+            exit();
+
         case 'delete':
             if ($id > 0) {
                 $dependencias = $subAreasModel->verificarDependencias($id);
