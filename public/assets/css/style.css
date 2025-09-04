@@ -362,3 +362,8 @@ footer {
 #cursos-seleccionados-grid input.recalc-trigger {
     text-align: right;
 }
+
+#cursos-seleccionados-grid input[name*="[precio_pactado]"],
+#cursos-seleccionados-grid input[name*="[descuento]"] {
+    width: 100px;
+}

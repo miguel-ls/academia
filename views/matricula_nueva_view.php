@@ -52,6 +52,7 @@
                 <table class="table">
                     <thead>
                         <tr>
+                            <th>Cliente Asistente</th>
                             <th>Curso</th>
                             <th>Ubicación</th>
                             <th>Profesor</th>
@@ -69,7 +70,7 @@
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colspan="8" class="total-row">TOTAL:</td>
+                            <td colspan="9" class="total-row">TOTAL:</td>
                             <td id="total-matricula" class="total-row">S/ 0.00</td>
                             <td></td>
                         </tr>

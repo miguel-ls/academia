@@ -3,30 +3,25 @@
 // =================================================================
 document.addEventListener('DOMContentLoaded', function() {
 
-    // --- Lógica para la Sección 1: Búsqueda de Cliente ---
+    // --- Lógica para la Sección 1: Búsqueda de Cliente Principal ---
     const inputBuscarCliente = document.getElementById('buscar-cliente');
     const resultsContainer = document.getElementById('cliente-search-results');
     const infoCliente = document.getElementById('cliente-seleccionado-info');
     const hiddenIdCliente = document.getElementById('id_cliente');
-    let searchTimeout;
+    let mainClientSearchTimeout;
 
     inputBuscarCliente.addEventListener('keyup', function() {
-        clearTimeout(searchTimeout);
+        clearTimeout(mainClientSearchTimeout);
         const query = this.value;
 
-        if (query.length < 2) { // Reducido a 2 para mejor usabilidad
+        if (query.length < 2) {
             resultsContainer.innerHTML = '';
             return;
         }
 
-        searchTimeout = setTimeout(() => {
+        mainClientSearchTimeout = setTimeout(() => {
             fetch(`index.php?view=matriculas&action=buscar_cliente&q=${encodeURIComponent(query)}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(data => {
                     resultsContainer.innerHTML = '';
                     if (data.length > 0) {
@@ -38,12 +33,11 @@ document.addEventListener('DOMContentLoaded', function() {
                             item.textContent = `${cliente.nombres} ${cliente.apellidos} (${cliente.tipo_documento}: ${cliente.numero_documento})`;
                             item.dataset.id = cliente.id_cliente;
                             item.dataset.nombre = `${cliente.nombres} ${cliente.apellidos}`;
-                            item.dataset.documento = `${cliente.tipo_documento}: ${cliente.numero_documento}`;
 
                             item.addEventListener('click', function() {
                                 hiddenIdCliente.value = this.dataset.id;
-                                infoCliente.textContent = `Cliente Seleccionado: ${this.dataset.nombre} (${this.dataset.documento})`;
-                                inputBuscarCliente.value = '';
+                                infoCliente.textContent = `Cliente Seleccionado: ${this.dataset.nombre}`;
+                                inputBuscarCliente.value = this.dataset.nombre;
                                 resultsContainer.innerHTML = '';
                             });
                             list.appendChild(item);
@@ -53,14 +47,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         resultsContainer.innerHTML = '<div class="search-results-list"><div class="search-results-item">No se encontraron clientes.</div></div>';
                     }
                 })
-                .catch(error => {
-                    console.error('Error en la búsqueda de clientes:', error);
-                    resultsContainer.innerHTML = '<div class="search-results-list"><div class="search-results-item">Error al buscar.</div></div>';
-                });
-        }, 300); // Debounce para no saturar con peticiones
+                .catch(error => console.error('Error en la búsqueda de clientes:', error));
+        }, 300);
     });
 
-    // Ocultar resultados si se hace clic fuera
     document.addEventListener('click', function(e) {
         if (resultsContainer && !resultsContainer.contains(e.target) && e.target !== inputBuscarCliente) {
             resultsContainer.innerHTML = '';
@@ -99,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function() {
             let [hours, minutes] = timeString.split(':');
             const ampm = hours >= 12 ? 'PM' : 'AM';
             hours = hours % 12;
-            hours = hours ? hours : 12; // the hour '0' should be '12'
+            hours = hours ? hours : 12;
             return `${String(hours).padStart(2, '0')}:${minutes} ${ampm}`;
         };
 
@@ -118,7 +108,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         card.dataset.profesor = curso.nombre_profesor;
                         card.dataset.horario = curso.horario_dias;
                         card.dataset.horas = `${formatTime(curso.hora_inicio)} - ${formatTime(curso.hora_fin)}`;
-
 
                         card.innerHTML = `
                             <h4>${curso.nombre_curso}</h4>
@@ -143,38 +132,53 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     });
 
-    // Usamos delegación de eventos para los botones "Seleccionar"
     cursosContainer.addEventListener('click', function(e) {
         if (e.target.classList.contains('btn-seleccionar-curso')) {
             const card = e.target.closest('.curso-card');
-            const id = card.dataset.id;
-            const nombre = card.dataset.nombre;
-            const precio = parseFloat(card.dataset.precio);
+            if (!hiddenIdCliente.value) {
+                alert('Por favor, seleccione un cliente principal primero.');
+                return;
+            }
+            const mainClientName = inputBuscarCliente.value;
+            const mainClientId = hiddenIdCliente.value;
 
-            // Se añade directamente a la grilla con descuento 0.
-            agregarCursoAGrilla(id, nombre, precio, precio, 0);
+            agregarCursoAGrilla({
+                id: card.dataset.id,
+                nombre: card.dataset.nombre,
+                precio: parseFloat(card.dataset.precio),
+                ubicacion: card.dataset.ubicacion,
+                profesor: card.dataset.profesor,
+                horario: card.dataset.horario,
+                horas: card.dataset.horas,
+                clienteId: mainClientId,
+                clienteNombre: mainClientName
+            });
         }
     });
 
-    function agregarCursoAGrilla(id, nombre, precioOrig, precioPactado, descuento) {
-        const card = cursosContainer.querySelector(`.curso-card[data-id='${id}']`);
-        const ubicacion = card.dataset.ubicacion;
-        const profesor = card.dataset.profesor;
-        const horario = card.dataset.horario;
-        const horas = card.dataset.horas;
-
-        const precioFinal = precioPactado - descuento;
+    function agregarCursoAGrilla(curso) {
+        const precioFinal = curso.precio; // Descuento es 0 al inicio
         const newRow = document.createElement('tr');
-        newRow.dataset.id = id;
+        newRow.dataset.id = curso.id;
+
+        const uniqueId = `cliente_asistente_${curso.id}`;
+
         newRow.innerHTML = `
-            <td>${nombre}<input type="hidden" name="cursos[${id}][id_curso]" value="${id}"></td>
-            <td>${ubicacion}</td>
-            <td>${profesor}</td>
-            <td>${horario}</td>
-            <td>${horas}</td>
-            <td>${precioOrig.toFixed(2)}</td>
-            <td><input type="number" class="recalc-trigger" name="cursos[${id}][precio_pactado]" value="${precioPactado.toFixed(2)}" step="0.01"></td>
-            <td><input type="number" class="recalc-trigger" name="cursos[${id}][descuento]" value="${descuento.toFixed(2)}" step="0.01"></td>
+            <td>
+                <div class="search-results">
+                    <input type="text" id="${uniqueId}" class="cliente-asistente-search" value="${curso.clienteNombre}" placeholder="Buscar cliente...">
+                    <input type="hidden" class="id-cliente-asistente" name="cursos[${curso.id}][id_cliente_asistencia]" value="${curso.clienteId}">
+                    <div class="search-results-list-inline"></div>
+                </div>
+            </td>
+            <td>${curso.nombre}<input type="hidden" name="cursos[${curso.id}][id_curso]" value="${curso.id}"></td>
+            <td>${curso.ubicacion}</td>
+            <td>${curso.profesor}</td>
+            <td>${curso.horario}</td>
+            <td>${curso.horas}</td>
+            <td>${curso.precio.toFixed(2)}</td>
+            <td><input type="number" class="recalc-trigger" name="cursos[${curso.id}][precio_pactado]" value="${curso.precio.toFixed(2)}" step="0.01"></td>
+            <td><input type="number" class="recalc-trigger" name="cursos[${curso.id}][descuento]" value="0.00" step="0.01"></td>
             <td class="precio-final">${precioFinal.toFixed(2)}</td>
             <td><button type="button" class="btn btn-danger btn-eliminar-curso">Eliminar</button></td>
         `;
@@ -182,7 +186,49 @@ document.addEventListener('DOMContentLoaded', function() {
         actualizarTotal();
     }
 
-    // Delegación de eventos para eliminar curso y recalcular
+    // --- Lógica para la Búsqueda de Cliente en la Grilla ---
+    let gridClientSearchTimeout;
+    cursosSeleccionadosBody.addEventListener('keyup', function(e) {
+        if (e.target.classList.contains('cliente-asistente-search')) {
+            const input = e.target;
+            const parentCell = input.closest('td');
+            const resultsList = parentCell.querySelector('.search-results-list-inline');
+            const hiddenInput = parentCell.querySelector('.id-cliente-asistente');
+
+            clearTimeout(gridClientSearchTimeout);
+            const query = input.value;
+
+            if (query.length < 2) {
+                resultsList.innerHTML = '';
+                return;
+            }
+
+            gridClientSearchTimeout = setTimeout(() => {
+                fetch(`index.php?view=matriculas&action=buscar_cliente&q=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        resultsList.innerHTML = '';
+                        if (data.length > 0) {
+                            data.forEach(cliente => {
+                                const item = document.createElement('div');
+                                item.className = 'search-results-item';
+                                item.textContent = `${cliente.nombres} ${cliente.apellidos}`;
+                                item.dataset.id = cliente.id_cliente;
+                                item.addEventListener('click', function() {
+                                    input.value = this.textContent;
+                                    hiddenInput.value = this.dataset.id;
+                                    resultsList.innerHTML = '';
+                                });
+                                resultsList.appendChild(item);
+                            });
+                        } else {
+                           resultsList.innerHTML = '<div class="search-results-item">No encontrado</div>';
+                        }
+                    });
+            }, 300);
+        }
+    });
+
     cursosSeleccionadosBody.addEventListener('click', function(e){
         if(e.target.classList.contains('btn-eliminar-curso')){
             e.target.closest('tr').remove();
@@ -215,7 +261,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // --- Lógica para la Sección 3: Fechas ---
-    // Copiar fechas desde los filtros
     document.getElementById('filtro-fecha-inicio').addEventListener('change', function(){
         document.getElementById('fecha_inicio_matricula').value = this.value;
     });
@@ -232,7 +277,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     inputBuscarProfesor.addEventListener('keyup', function() {
         clearTimeout(profesorSearchTimeout);
-        hiddenProfesorId.value = ''; // Limpiar ID si el usuario escribe de nuevo
+        hiddenProfesorId.value = '';
         const query = this.value;
 
         if (query.length < 2) {
@@ -256,7 +301,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                             item.addEventListener('click', function() {
                                 inputBuscarProfesor.value = this.textContent;
-                                hiddenProfesorId.value = this.dataset.id; // Guardar el ID
+                                hiddenProfesorId.value = this.dataset.id;
                                 profesorResultsContainer.innerHTML = '';
                             });
                             list.appendChild(item);
@@ -266,14 +311,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         profesorResultsContainer.innerHTML = '<div class="search-results-list"><div class="search-results-item">No se encontraron profesores.</div></div>';
                     }
                 })
-                .catch(error => {
-                    console.error('Error en la búsqueda de profesores:', error);
-                    profesorResultsContainer.innerHTML = '<div class="search-results-list"><div class="search-results-item">Error al buscar.</div></div>';
-                });
+                .catch(error => console.error('Error en la búsqueda de profesores:', error));
         }, 300);
     });
 
-    // Ocultar resultados de profesor si se hace clic fuera
     document.addEventListener('click', function(e) {
         if (profesorResultsContainer && !profesorResultsContainer.contains(e.target) && e.target !== inputBuscarProfesor) {
             profesorResultsContainer.innerHTML = '';
