@@ -40,8 +40,7 @@ BEGIN
     JOIN sub_areas sa ON cp.id_sub_area = sa.id_sub_area
     JOIN areas a ON sa.id_area = a.id_area
     WHERE
-        mc.estado = 1 -- Solo matrículas activas
-        AND (p_id_cliente IS NULL OR md.id_cliente_asistencia = p_id_cliente)
+        (p_id_cliente IS NULL OR md.id_cliente_asistencia = p_id_cliente)
         AND (p_id_curso IS NULL OR cp.id_curso = p_id_curso)
         AND (p_fecha_inicio IS NULL OR cp.fecha_inicio >= p_fecha_inicio)
         AND (p_fecha_fin IS NULL OR cp.fecha_fin <= p_fecha_fin)
