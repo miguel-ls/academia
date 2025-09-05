@@ -101,11 +101,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(data => {
                     if (data.numeroDocumento) {
                         if (tipoDocText === 'DNI') {
-                            inputNombres.value = data.nombres || '';
+                            inputNombres.value = data.nombre || ''; // Nombre completo
                             inputApellidos.value = `${data.apellidoPaterno || ''} ${data.apellidoMaterno || ''}`.trim();
                         } else if (tipoDocText === 'RUC') {
-                            inputNombres.value = data.nombre || '';
-                            inputDireccion.value = data.direccion || '';
+                            inputNombres.value = data.nombre || ''; // Razón Social
+                            const fullAddress = `${data.direccion || ''} - ${data.departamento || ''} - ${data.provincia || ''} - ${data.distrito || ''}`.trim();
+                            inputDireccion.value = fullAddress.replace(/^-| -$/g, '').replace(/ - - /g, ' - ');
                             inputUbigeo.value = data.ubigeo || '';
                         }
                     } else {
