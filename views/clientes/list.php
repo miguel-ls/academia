@@ -32,13 +32,15 @@
             <th>Documento</th>
             <th>Email</th>
             <th>Teléfono</th>
+            <th>Dirección</th>
+            <th>Ubigeo</th>
             <th>Acciones</th>
         </tr>
     </thead>
     <tbody>
         <?php if (empty($clientes)): ?>
             <tr>
-                <td colspan="6">No se encontraron clientes.</td>
+                <td colspan="9">No se encontraron clientes.</td>
             </tr>
         <?php else: ?>
             <?php foreach ($clientes as $cliente): ?>
@@ -48,6 +50,8 @@
                     <td><?php echo htmlspecialchars($cliente['tipo_documento']) . ': ' . htmlspecialchars($cliente['numero_documento']); ?></td>
                     <td><?php echo htmlspecialchars($cliente['email']); ?></td>
                     <td><?php echo htmlspecialchars($cliente['telefono']); ?></td>
+                    <td><?php echo htmlspecialchars($cliente['direccion'] ?? ''); ?></td>
+                    <td><?php echo htmlspecialchars($cliente['codigo_ubigeo'] ?? ''); ?></td>
                     <td>
                         <a href="index.php?view=clientes&action=edit&id=<?php echo $cliente['id_cliente']; ?>" class="btn btn-warning">Editar</a>
                         <a href="index.php?view=clientes&action=delete&id=<?php echo $cliente['id_cliente']; ?>" class="btn btn-danger" onclick="return confirm('¿Está seguro de que desea eliminar este cliente?');">Eliminar</a>
