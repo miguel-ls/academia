@@ -48,10 +48,17 @@ class ClienteModel {
             $result = $this->db->single();
             return ['success' => true, 'id' => $result['id_cliente'] ?? 0];
         } catch (PDOException $e) {
+            // Log the detailed error for the developer
+            error_log("PDOException in ClienteModel::crear: " . $e->getMessage());
+
+            // Check if it's a user-defined exception (like duplicate document)
             if ($e->getCode() == '45000') {
+                // Return the specific message from the stored procedure
                 return ['success' => false, 'error' => $e->errorInfo[2]];
+            } else {
+                // Return a generic error for other database issues
+                return ['success' => false, 'error' => 'Ocurrió un error en la base de datos al crear el cliente.'];
             }
-            throw $e;
         }
     }
 
