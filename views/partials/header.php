@@ -50,6 +50,7 @@ $base_url = defined('SITE_URL') ? SITE_URL : '';
                     <li><a href="<?php echo $base_url; ?>index.php?view=asistencia_profesores">Asistencia Profesores</a></li>
                     <li><a href="<?php echo $base_url; ?>index.php?view=asistencia_clientes">Asistencia Clientes</a></li>
                     <li><a href="<?php echo $base_url; ?>index.php?view=calendario">Calendario</a></li>
+                    <li><a href="<?php echo $base_url; ?>index.php?view=calendario_cursos">Calendario de Cursos</a></li>
                 </ul>
             </li>
 
