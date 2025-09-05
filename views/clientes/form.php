@@ -38,7 +38,10 @@ $action_url = $is_edit ? 'index.php?view=clientes&action=update' : 'index.php?vi
             </div>
             <div class="form-group">
                 <label for="numero_documento">Número de Documento:</label>
-                <input type="text" id="numero_documento" name="numero_documento" value="<?php echo htmlspecialchars($cliente_a_editar['numero_documento'] ?? ''); ?>" required>
+                <div class="input-with-button">
+                    <input type="text" id="numero_documento" name="numero_documento" value="<?php echo htmlspecialchars($cliente_a_editar['numero_documento'] ?? ''); ?>" required>
+                    <button type="button" id="btn_sunat" class="btn btn-info" style="display: none;">Sunat</button>
+                </div>
                 <div id="documento-error" class="validation-error" style="display: none; color: red; font-size: 0.9em;"></div>
             </div>
         </div>

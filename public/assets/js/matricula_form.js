@@ -1,5 +1,5 @@
 // =================================================================
-// Lógica JavaScript para la página de Nueva Matrícula (v5 con validación de apellidos)
+// Lógica JavaScript para la página de Nueva Matrícula (v6 con API Sunat)
 // =================================================================
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -17,6 +17,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const modalLabelNombres = document.getElementById('label_modal_nombres');
     const modalGroupApellidos = document.getElementById('group_modal_apellidos');
     const modalInputApellidos = document.getElementById('modal_apellidos');
+    const modalBtnSunat = document.getElementById('btn_sunat_modal');
+    const modalInputNombres = document.getElementById('modal_nombres');
+    const modalInputDireccion = document.getElementById('modal_direccion');
+    const modalInputUbigeo = document.getElementById('modal_codigo_ubigeo');
     let debounceTimeout;
 
 
@@ -31,9 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
         clearTimeout(mainClientSearchTimeout);
         const query = this.value;
         btnNuevoCliente.style.display = 'none';
-
         if (query.length < 2) { resultsContainer.innerHTML = ''; return; }
-
         mainClientSearchTimeout = setTimeout(() => {
             fetch(`index.php?view=matriculas&action=buscar_cliente&q=${encodeURIComponent(query)}`)
                 .then(response => response.json())
@@ -86,20 +88,76 @@ document.addEventListener('DOMContentLoaded', function() {
         modalSubmitBtn.disabled = false;
         modalLabelNombres.textContent = 'Nombres:';
         modalGroupApellidos.style.display = 'block';
+        modalBtnSunat.style.display = 'none';
     }
 
     btnCerrarModal.addEventListener('click', cerrarModal);
     btnCancelarModal.addEventListener('click', cerrarModal);
 
+    // --- Lógica Dinámica para RUC y Botón Sunat en Modal ---
     modalTipoDocumento.addEventListener('change', function() {
         const selectedOptionText = this.options[this.selectedIndex].text.trim().toUpperCase();
         if (selectedOptionText === 'RUC') {
             modalLabelNombres.textContent = 'Razón Social:';
             modalGroupApellidos.style.display = 'none';
+            modalBtnSunat.style.display = 'inline-block';
+        } else if (selectedOptionText === 'DNI') {
+            modalLabelNombres.textContent = 'Nombres:';
+            modalGroupApellidos.style.display = 'block';
+            modalBtnSunat.style.display = 'inline-block';
         } else {
             modalLabelNombres.textContent = 'Nombres:';
             modalGroupApellidos.style.display = 'block';
+            modalBtnSunat.style.display = 'none';
         }
+    });
+
+    // --- Lógica del Botón Sunat en Modal ---
+    modalBtnSunat.addEventListener('click', function() {
+        const numero = modalInputDocumento.value.trim();
+        const tipoDocText = modalTipoDocumento.options[modalTipoDocumento.selectedIndex].text.trim().toUpperCase();
+
+        if ((tipoDocText === 'DNI' && numero.length !== 8) || (tipoDocText === 'RUC' && numero.length !== 11)) {
+            alert(`El número de ${tipoDocText} debe tener ${tipoDocText === 'DNI' ? 8 : 11} dígitos.`);
+            return;
+        }
+
+        let apiUrl = '';
+        if (tipoDocText === 'DNI') {
+            apiUrl = `https://api.apis.net.pe/v1/dni?numero=${numero}`;
+        } else if (tipoDocText === 'RUC') {
+            apiUrl = `https://api.apis.net.pe/v1/ruc?numero=${numero}`;
+        } else {
+            return;
+        }
+
+        this.textContent = '...';
+        this.disabled = true;
+
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                if (data.numeroDocumento) {
+                    if (tipoDocText === 'DNI') {
+                        modalInputNombres.value = data.nombres || '';
+                        modalInputApellidos.value = `${data.apellidoPaterno || ''} ${data.apellidoMaterno || ''}`.trim();
+                    } else if (tipoDocText === 'RUC') {
+                        modalInputNombres.value = data.nombre || '';
+                        modalInputDireccion.value = data.direccion || '';
+                        modalInputUbigeo.value = data.ubigeo || '';
+                    }
+                } else {
+                    alert('No se encontraron datos para el documento ingresado.');
+                }
+            })
+            .catch(error => {
+                console.error('Error en la consulta a la API:', error);
+                alert('Ocurrió un error al consultar el servicio.');
+            })
+            .finally(() => {
+                this.textContent = 'Sunat';
+                this.disabled = false;
+            });
     });
 
     modalInputDocumento.addEventListener('keyup', function() {
@@ -126,27 +184,21 @@ document.addEventListener('DOMContentLoaded', function() {
     formNuevoCliente.addEventListener('submit', function(e) {
         e.preventDefault();
         modalErrorMessage.style.display = 'none';
-
         if (modalSubmitBtn.disabled) {
             modalErrorMessage.textContent = 'Por favor, corrija los errores antes de continuar.';
             modalErrorMessage.style.display = 'block';
             return;
         }
-
         const selectedOptionText = modalTipoDocumento.options[modalTipoDocumento.selectedIndex].text.trim().toUpperCase();
-
-        // --- Validación de Apellidos ---
         if (selectedOptionText !== 'RUC' && modalInputApellidos.value.trim() === '') {
             modalErrorMessage.textContent = 'El campo Apellidos es obligatorio para este tipo de documento.';
             modalErrorMessage.style.display = 'block';
             return;
         }
-
         const formData = new FormData(this);
         if (selectedOptionText === 'RUC') {
             formData.set('apellidos', '');
         }
-
         fetch('index.php?view=clientes&action=crear_ajax', {
             method: 'POST',
             body: formData
