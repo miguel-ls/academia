@@ -183,6 +183,16 @@
                 <label for="modal_codigo_erp">Código ERP:</label>
                 <input type="text" id="modal_codigo_erp" name="codigo_erp">
             </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="modal_direccion">Dirección:</label>
+                <input type="text" id="modal_direccion" name="direccion">
+            </div>
+            <div class="form-group">
+                <label for="modal_codigo_ubigeo">Código de Ubigeo:</label>
+                <input type="text" id="modal_codigo_ubigeo" name="codigo_ubigeo">
+            </div>
+        </div>
             <div class="form-actions">
                 <button type="button" id="modal-cancel-btn" class="btn btn-secondary">Cancelar</button>
                 <button type="submit" class="btn btn-primary">Crear Cliente</button>

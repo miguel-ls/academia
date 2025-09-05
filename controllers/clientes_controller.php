@@ -40,7 +40,9 @@ try {
                     'apellidos' => $_POST['apellidos'],
                     'email' => $_POST['email'],
                     'telefono' => $_POST['telefono'],
-                    'codigo_erp' => $_POST['codigo_erp']
+                    'codigo_erp' => $_POST['codigo_erp'],
+                    'direccion' => $_POST['direccion'],
+                    'codigo_ubigeo' => $_POST['codigo_ubigeo']
                 ];
                 $resultado = $clienteModel->crear($datos);
                 if ($resultado['success']) {
@@ -65,7 +67,9 @@ try {
                     'apellidos' => $_POST['apellidos'],
                     'email' => $_POST['email'],
                     'telefono' => $_POST['telefono'],
-                    'codigo_erp' => $_POST['codigo_erp']
+                    'codigo_erp' => $_POST['codigo_erp'],
+                    'direccion' => $_POST['direccion'],
+                    'codigo_ubigeo' => $_POST['codigo_ubigeo']
                 ];
                 $resultado = $clienteModel->actualizar($datos);
 
@@ -107,10 +111,12 @@ try {
                     'apellidos' => $_POST['apellidos'],
                     'email' => $_POST['email'] ?? null,
                     'telefono' => $_POST['telefono'] ?? null,
-                    'codigo_erp' => $_POST['codigo_erp'] ?? null
+                    'codigo_erp' => $_POST['codigo_erp'] ?? null,
+                    'direccion' => $_POST['direccion'] ?? null,
+                    'codigo_ubigeo' => $_POST['codigo_ubigeo'] ?? null
                 ];
 
-                if (empty($datos['nombres']) || empty($datos['apellidos']) || empty($datos['numero_documento'])) {
+                if (empty($datos['nombres']) || empty($datos['numero_documento'])) {
                     http_response_code(400);
                     echo json_encode(['success' => false, 'error' => 'Nombres, apellidos y número de documento son obligatorios.']);
                     exit();

@@ -41,7 +41,9 @@ class ClienteModel {
             $datos['apellidos'],
             $datos['email'],
             $datos['telefono'],
-            $datos['codigo_erp']
+            $datos['codigo_erp'],
+            $datos['direccion'],
+            $datos['codigo_ubigeo']
         ];
         try {
             $this->db->callStoredProcedure('sp_clientes_crear', $params);
@@ -76,7 +78,9 @@ class ClienteModel {
             $datos['apellidos'],
             $datos['email'],
             $datos['telefono'],
-            $datos['codigo_erp']
+            $datos['codigo_erp'],
+            $datos['direccion'],
+            $datos['codigo_ubigeo']
         ];
         try {
             $this->db->callStoredProcedure('sp_clientes_actualizar', $params);
