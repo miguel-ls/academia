@@ -131,9 +131,11 @@ try {
                 } else {
                     // Set a Bad Request status code to be more explicit
                     http_response_code(400);
-                    // Ensure the error message is properly encoded to prevent json_encode failure
-                    $error_message = mb_convert_encoding($resultado['error'], 'UTF-8', 'UTF-8');
-                    echo json_encode(['success' => false, 'error' => 'Error al crear el cliente: ' . $error_message]);
+                    // Use JSON_INVALID_UTF8_SUBSTITUTE to prevent json_encode from failing on malformed strings
+                    echo json_encode(
+                        ['success' => false, 'error' => 'Error al crear el cliente: ' . $resultado['error']],
+                        JSON_INVALID_UTF8_SUBSTITUTE
+                    );
                 }
             } else {
                 http_response_code(405); // Method Not Allowed
