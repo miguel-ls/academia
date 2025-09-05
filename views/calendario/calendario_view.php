@@ -45,13 +45,18 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
 
-    // --- Función para generar colores pastel basados en un string ---
-    function generatePastelColor(key) {
-        let hash = 0;
-        for (let i = 0; i < key.length; i++) {
-            hash = key.charCodeAt(i) + ((hash << 5) - hash);
+    // --- Función para generar colores pastel basados en un string (usando FNV-1a) ---
+    function generatePastelColor(str) {
+        let hash = 0x811c9dc5; // FNV_offset_basis
+
+        for (let i = 0; i < str.length; i++) {
+            hash ^= str.charCodeAt(i);
+            // FNV_prime: 16777619
+            hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
         }
-        const h = hash % 360;
+
+        const h = (hash >>> 0) % 360; // Asegurar unsigned 32-bit y mapear a 0-359
+        // Usar HSL para colores pastel: alta luminosidad (l), saturación media (s)
         return `hsl(${h}, 70%, 85%)`;
     }
 
