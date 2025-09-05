@@ -55,17 +55,6 @@ $action_url = $is_edit ? 'index.php?view=clientes&action=update' : 'index.php?vi
         </div>
 
         <div class="form-row">
-             <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($cliente_a_editar['email'] ?? ''); ?>">
-            </div>
-            <div class="form-group">
-                <label for="telefono">Teléfono:</label>
-                <input type="text" id="telefono" name="telefono" value="<?php echo htmlspecialchars($cliente_a_editar['telefono'] ?? ''); ?>">
-            </div>
-        </div>
-
-        <div class="form-row">
             <div class="form-group">
                 <label for="direccion">Dirección:</label>
                 <input type="text" id="direccion" name="direccion" value="<?php echo htmlspecialchars($cliente_a_editar['direccion'] ?? ''); ?>">
@@ -73,6 +62,17 @@ $action_url = $is_edit ? 'index.php?view=clientes&action=update' : 'index.php?vi
             <div class="form-group">
                 <label for="codigo_ubigeo">Código de Ubigeo:</label>
                 <input type="text" id="codigo_ubigeo" name="codigo_ubigeo" value="<?php echo htmlspecialchars($cliente_a_editar['codigo_ubigeo'] ?? ''); ?>">
+            </div>
+        </div>
+
+        <div class="form-row">
+             <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($cliente_a_editar['email'] ?? ''); ?>">
+            </div>
+            <div class="form-group">
+                <label for="telefono">Teléfono:</label>
+                <input type="text" id="telefono" name="telefono" value="<?php echo htmlspecialchars($cliente_a_editar['telefono'] ?? ''); ?>">
             </div>
         </div>
 
