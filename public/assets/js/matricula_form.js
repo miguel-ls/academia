@@ -1,5 +1,5 @@
 // =================================================================
-// Lógica JavaScript para la página de Nueva Matrícula (v2 con modal)
+// Lógica JavaScript para la página de Nueva Matrícula (v3 con validación JS)
 // =================================================================
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -10,6 +10,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnCancelarModal = document.getElementById('modal-cancel-btn');
     const formNuevoCliente = document.getElementById('form-nuevo-cliente');
     const modalErrorMessage = document.getElementById('modal-error-message');
+    const modalInputDocumento = document.getElementById('modal_numero_documento');
+    const modalDocumentoError = document.getElementById('modal-documento-error');
+    const modalSubmitBtn = formNuevoCliente.querySelector('button[type="submit"]');
+    let debounceTimeout;
+
 
     // --- Lógica para la Sección 1: Búsqueda de Cliente Principal ---
     const inputBuscarCliente = document.getElementById('buscar-cliente');
@@ -21,8 +26,6 @@ document.addEventListener('DOMContentLoaded', function() {
     inputBuscarCliente.addEventListener('keyup', function() {
         clearTimeout(mainClientSearchTimeout);
         const query = this.value;
-
-        // Ocultar el botón de nuevo cliente al empezar a escribir
         btnNuevoCliente.style.display = 'none';
 
         if (query.length < 2) { resultsContainer.innerHTML = ''; return; }
@@ -41,7 +44,6 @@ document.addEventListener('DOMContentLoaded', function() {
                             item.textContent = `${cliente.nombres} ${cliente.apellidos} (${cliente.tipo_documento}: ${cliente.numero_documento})`;
                             item.dataset.id = cliente.id_cliente;
                             item.dataset.nombre = `${cliente.nombres} ${cliente.apellidos}`;
-
                             item.addEventListener('click', function() {
                                 hiddenIdCliente.value = this.dataset.id;
                                 infoCliente.textContent = `Cliente Seleccionado: ${this.dataset.nombre}`;
@@ -54,7 +56,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         resultsContainer.appendChild(list);
                     } else {
                         resultsContainer.innerHTML = '<div class="search-results-list"><div class="search-results-item">No se encontraron clientes.</div></div>';
-                        // Mostrar el botón si no hay resultados
                         btnNuevoCliente.style.display = 'block';
                     }
                 })
@@ -77,15 +78,48 @@ document.addEventListener('DOMContentLoaded', function() {
         modal.style.display = 'none';
         formNuevoCliente.reset();
         modalErrorMessage.style.display = 'none';
-        modalErrorMessage.textContent = '';
+        modalDocumentoError.style.display = 'none';
+        modalSubmitBtn.disabled = false;
     }
 
     btnCerrarModal.addEventListener('click', cerrarModal);
     btnCancelarModal.addEventListener('click', cerrarModal);
 
+    // --- Validación de Documento Duplicado con JS ---
+    modalInputDocumento.addEventListener('keyup', function() {
+        clearTimeout(debounceTimeout);
+        const numeroDocumento = this.value;
+
+        if (numeroDocumento.length < 3) { // No buscar con menos de 3 caracteres
+            return;
+        }
+
+        debounceTimeout = setTimeout(() => {
+            fetch(`index.php?view=clientes&action=check_documento&numero_documento=${encodeURIComponent(numeroDocumento)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.exists) {
+                        modalDocumentoError.textContent = 'Este número de documento ya está registrado.';
+                        modalDocumentoError.style.display = 'block';
+                        modalSubmitBtn.disabled = true;
+                    } else {
+                        modalDocumentoError.style.display = 'none';
+                        modalSubmitBtn.disabled = false;
+                    }
+                })
+                .catch(error => console.error('Error al verificar documento:', error));
+        }, 500); // 500ms de espera antes de la llamada
+    });
+
     formNuevoCliente.addEventListener('submit', function(e) {
         e.preventDefault();
         modalErrorMessage.style.display = 'none';
+
+        if (modalSubmitBtn.disabled) {
+            modalErrorMessage.textContent = 'Por favor, corrija los errores antes de continuar.';
+            modalErrorMessage.style.display = 'block';
+            return;
+        }
 
         const formData = new FormData(this);
 
@@ -93,22 +127,25 @@ document.addEventListener('DOMContentLoaded', function() {
             method: 'POST',
             body: formData
         })
-        .then(response => response.json())
+        .then(response => {
+            // Revisar si la respuesta es OK, incluso para errores de validación que devolvemos como JSON
+            if (!response.ok) {
+                 // Para errores de servidor 500, o 401, 405 que sí lanzan un error
+                throw new Error(`Error del servidor: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.success && data.cliente) {
-                // Éxito: poblar el formulario principal
                 const cliente = data.cliente;
                 hiddenIdCliente.value = cliente.id_cliente;
                 const nombreCompleto = `${cliente.nombres} ${cliente.apellidos}`;
                 infoCliente.textContent = `Cliente Seleccionado: ${nombreCompleto}`;
                 inputBuscarCliente.value = nombreCompleto;
-
                 resultsContainer.innerHTML = '';
                 btnNuevoCliente.style.display = 'none';
-
                 cerrarModal();
             } else {
-                // Error: mostrar mensaje en el modal
                 modalErrorMessage.textContent = data.error || 'Ocurrió un error desconocido.';
                 modalErrorMessage.style.display = 'block';
             }
@@ -130,14 +167,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const profesorId = document.getElementById('filtro-profesor-id').value;
         const fechaInicio = document.getElementById('filtro-fecha-inicio').value;
         const fechaFin = document.getElementById('filtro-fecha-fin').value;
-
         let url = `index.php?view=matriculas&action=buscar_cursos`;
         if (profesorId) url += `&profesor_id=${profesorId}`;
         if (fechaInicio) url += `&fecha_inicio=${fechaInicio}`;
         if (fechaFin) url += `&fecha_fin=${fechaFin}`;
-
         cursosContainer.innerHTML = '<p>Buscando cursos...</p>';
-
         const formatDate = (dateString) => {
             if (!dateString) return '';
             const date = new Date(dateString + 'T00:00:00');
@@ -146,7 +180,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const year = date.getFullYear();
             return `${day}/${month}/${year}`;
         };
-
         const formatTime = (timeString) => {
             if (!timeString) return '';
             let [hours, minutes] = timeString.split(':');
@@ -155,7 +188,6 @@ document.addEventListener('DOMContentLoaded', function() {
             hours = hours ? hours : 12;
             return `${String(hours).padStart(2, '0')}:${minutes} ${ampm}`;
         };
-
         fetch(url)
             .then(response => response.json())
             .then(data => {
@@ -176,7 +208,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         card.dataset.fecha_fin_raw = curso.fecha_fin;
                         card.dataset.hora_inicio_raw = curso.hora_inicio;
                         card.dataset.hora_fin_raw = curso.hora_fin;
-
                         card.innerHTML = `
                             <h4>${curso.nombre_curso}</h4>
                             <p><small><strong>Ubicación:</strong> ${card.dataset.ubicacion}</small></p>
@@ -206,7 +237,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             const mainClientName = inputBuscarCliente.value;
             const mainClientId = hiddenIdCliente.value;
-
             agregarCursoAGrilla({
                 id: card.dataset.id,
                 nombre: card.dataset.nombre,
@@ -230,11 +260,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const precioPactado = curso.precio_pactado !== undefined ? curso.precio_pactado : curso.precio;
         const descuento = curso.descuento !== undefined ? curso.descuento : 0.00;
         const precioFinal = precioPactado - descuento;
-
         const newRow = document.createElement('tr');
         newRow.dataset.id = curso.id;
         const uniqueId = `cliente_asistente_${curso.id}`;
-
         newRow.innerHTML = `
             <td>
                 <div class="search-results">
@@ -270,15 +298,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const parentCell = input.closest('td');
             const resultsList = parentCell.querySelector('.search-results-list-inline');
             const hiddenInput = parentCell.querySelector('.id-cliente-asistente');
-
             clearTimeout(gridClientSearchTimeout);
             const query = input.value;
-
             if (query.length < 2) {
                 resultsList.innerHTML = '';
                 return;
             }
-
             gridClientSearchTimeout = setTimeout(() => {
                 fetch(`index.php?view=matriculas&action=buscar_cliente&q=${encodeURIComponent(query)}`)
                     .then(response => response.json())
@@ -318,11 +343,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const precioPactadoInput = row.querySelector('input[name*="[precio_pactado]"]');
             const descuentoInput = row.querySelector('input[name*="[descuento]"]');
             const precioFinalCell = row.querySelector('.precio-final');
-
             const precioPactado = parseFloat(precioPactadoInput.value) || 0;
             const descuento = parseFloat(descuentoInput.value) || 0;
             const precioFinal = precioPactado - descuento;
-
             precioFinalCell.textContent = precioFinal.toFixed(2);
             actualizarTotal();
         }
@@ -352,12 +375,10 @@ document.addEventListener('DOMContentLoaded', function() {
         clearTimeout(profesorSearchTimeout);
         hiddenProfesorId.value = '';
         const query = this.value;
-
         if (query.length < 2) {
             profesorResultsContainer.innerHTML = '';
             return;
         }
-
         profesorSearchTimeout = setTimeout(() => {
             fetch(`index.php?view=profesores&action=buscar&q=${encodeURIComponent(query)}`)
                 .then(response => response.json())
@@ -371,7 +392,6 @@ document.addEventListener('DOMContentLoaded', function() {
                             item.className = 'search-results-item';
                             item.textContent = profesor.nombre_completo;
                             item.dataset.id = profesor.id_profesor;
-
                             item.addEventListener('click', function() {
                                 inputBuscarProfesor.value = this.textContent;
                                 hiddenProfesorId.value = this.dataset.id;
@@ -394,7 +414,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // --- Lógica para la Validación y Envío del Formulario ---
     const formMatricula = document.getElementById('form-matricula');
     formMatricula.addEventListener('submit', function(e) {
         if (!validarCruceHorariosCliente()) {
@@ -406,23 +425,19 @@ document.addEventListener('DOMContentLoaded', function() {
     function validarCruceHorariosCliente() {
         const cursosPorCliente = {};
         const filas = document.querySelectorAll('#cursos-seleccionados-grid tbody tr');
-
         if (filas.length === 0) {
             alert('Debe agregar al menos un curso a la matrícula.');
             return false;
         }
-
         for (const fila of filas) {
             const clienteId = fila.querySelector('.id-cliente-asistente').value;
             const clienteNombre = fila.querySelector('.cliente-asistente-search').value;
-
             if (!cursosPorCliente[clienteId]) {
                 cursosPorCliente[clienteId] = {
                     nombre: clienteNombre,
                     cursos: []
                 };
             }
-
             const cursoInfo = {
                 nombreCurso: fila.cells[1].innerText.trim(),
                 ubicacion: fila.cells[2].innerText.trim(),
@@ -432,22 +447,18 @@ document.addEventListener('DOMContentLoaded', function() {
             };
             cursosPorCliente[clienteId].cursos.push(cursoInfo);
         }
-
         for (const clienteId in cursosPorCliente) {
             const dataCliente = cursosPorCliente[clienteId];
             const cursos = dataCliente.cursos;
             const nombreCliente = dataCliente.nombre;
-
             if (cursos.length > 1) {
                 for (let i = 0; i < cursos.length; i++) {
                     for (let j = i + 1; j < cursos.length; j++) {
                         const curso1 = cursos[i];
                         const curso2 = cursos[j];
-
                         const diasEnComun = curso1.dias.some(dia => curso2.dias.includes(dia));
                         const horasSeCruzan = (curso1.horaInicio < curso2.horaFin) && (curso1.horaFin > curso2.horaInicio);
                         const mismaUbicacion = curso1.ubicacion === curso2.ubicacion;
-
                         if (diasEnComun && horasSeCruzan && mismaUbicacion) {
                             alert(`Error de validación:\nEl cliente "${nombreCliente}" tiene un cruce de horario.\n\n- Curso 1: ${curso1.nombreCurso}\n- Curso 2: ${curso2.nombreCurso}\n- Ubicación: ${curso1.ubicacion}\n\nPor favor, corrija la selección antes de continuar.`);
                             return false;
@@ -469,7 +480,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 hours = hours ? hours : 12;
                 return `${String(hours).padStart(2, '0')}:${minutes} ${ampm}`;
             };
-
             matriculaDetalles.forEach(detalle => {
                 agregarCursoAGrilla({
                     id: detalle.id_curso_programado,
