@@ -1,5 +1,5 @@
 // =================================================================
-// Lógica JavaScript para la página de Nueva Matrícula (v6 con API Sunat)
+// Lógica JavaScript para la página de Nueva Matrícula (v7 - Final Fix)
 // =================================================================
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -94,7 +94,6 @@ document.addEventListener('DOMContentLoaded', function() {
     btnCerrarModal.addEventListener('click', cerrarModal);
     btnCancelarModal.addEventListener('click', cerrarModal);
 
-    // --- Lógica Dinámica para RUC y Botón Sunat en Modal ---
     modalTipoDocumento.addEventListener('change', function() {
         const selectedOptionText = this.options[this.selectedIndex].text.trim().toUpperCase();
         if (selectedOptionText === 'RUC') {
@@ -112,7 +111,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // --- Lógica del Botón Sunat en Modal ---
     modalBtnSunat.addEventListener('click', function() {
         const numero = modalInputDocumento.value.trim();
         const tipoDocText = modalTipoDocumento.options[modalTipoDocumento.selectedIndex].text.trim().toUpperCase();
@@ -138,15 +136,18 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(data => {
                 if (data.numeroDocumento) {
+                    const fullAddress = `${data.direccion || ''} - ${data.departamento || ''} - ${data.provincia || ''} - ${data.distrito || ''}`.trim();
+
                     if (tipoDocText === 'DNI') {
-                            modalInputNombres.value = data.nombre || ''; // Nombre completo
+                        modalInputNombres.value = data.nombre || ''; // Nombre completo
                         modalInputApellidos.value = `${data.apellidoPaterno || ''} ${data.apellidoMaterno || ''}`.trim();
                     } else if (tipoDocText === 'RUC') {
-                            modalInputNombres.value = data.nombre || ''; // Razón Social
-                            const fullAddress = `${data.direccion || ''} - ${data.departamento || ''} - ${data.provincia || ''} - ${data.distrito || ''}`.trim();
-                            modalInputDireccion.value = fullAddress.replace(/^-| -$/g, '').replace(/ - - /g, ' - ');
-                        modalInputUbigeo.value = data.ubigeo || '';
+                        modalInputNombres.value = data.nombre || ''; // Razón Social
                     }
+
+                    // Llenar dirección y ubigeo para ambos casos
+                    modalInputDireccion.value = fullAddress.replace(/^-| -$/g, '').replace(/ - - /g, ' - ');
+                    modalInputUbigeo.value = data.ubigeo || '';
                 } else {
                     alert('No se encontraron datos para el documento ingresado.');
                 }

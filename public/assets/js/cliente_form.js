@@ -101,15 +101,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
                 .then(data => {
                     if (data.numeroDocumento) {
+                        const fullAddress = `${data.direccion || ''} - ${data.departamento || ''} - ${data.provincia || ''} - ${data.distrito || ''}`.trim();
+
                         if (tipoDocText === 'DNI') {
                             inputNombres.value = data.nombre || ''; // Nombre completo
                             inputApellidos.value = `${data.apellidoPaterno || ''} ${data.apellidoMaterno || ''}`.trim();
                         } else if (tipoDocText === 'RUC') {
                             inputNombres.value = data.nombre || ''; // Razón Social
-                            const fullAddress = `${data.direccion || ''} - ${data.departamento || ''} - ${data.provincia || ''} - ${data.distrito || ''}`.trim();
-                            inputDireccion.value = fullAddress.replace(/^-| -$/g, '').replace(/ - - /g, ' - ');
-                            inputUbigeo.value = data.ubigeo || '';
                         }
+
+                        // Llenar dirección y ubigeo para ambos casos
+                        inputDireccion.value = fullAddress.replace(/^-| -$/g, '').replace(/ - - /g, ' - ');
+                        inputUbigeo.value = data.ubigeo || '';
+
                     } else {
                         alert('No se encontraron datos para el documento ingresado.');
                     }
