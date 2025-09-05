@@ -25,17 +25,6 @@ $action_url = $is_edit ? 'index.php?view=clientes&action=update' : 'index.php?vi
 
         <div class="form-row">
             <div class="form-group">
-                <label for="nombres">Nombres:</label>
-                <input type="text" id="nombres" name="nombres" value="<?php echo htmlspecialchars($cliente_a_editar['nombres'] ?? ''); ?>" required>
-            </div>
-            <div class="form-group">
-                <label for="apellidos">Apellidos:</label>
-                <input type="text" id="apellidos" name="apellidos" value="<?php echo htmlspecialchars($cliente_a_editar['apellidos'] ?? ''); ?>" required>
-            </div>
-        </div>
-
-        <div class="form-row">
-            <div class="form-group">
                 <label for="id_tipo_documento">Tipo de Documento:</label>
                 <select id="id_tipo_documento" name="id_tipo_documento" required>
                     <option value="">Seleccione...</option>
@@ -55,6 +44,17 @@ $action_url = $is_edit ? 'index.php?view=clientes&action=update' : 'index.php?vi
         </div>
 
         <div class="form-row">
+            <div class="form-group">
+                <label for="nombres" id="label_nombres">Nombres:</label>
+                <input type="text" id="nombres" name="nombres" value="<?php echo htmlspecialchars($cliente_a_editar['nombres'] ?? ''); ?>" required>
+            </div>
+            <div class="form-group" id="group_apellidos">
+                <label for="apellidos">Apellidos:</label>
+                <input type="text" id="apellidos" name="apellidos" value="<?php echo htmlspecialchars($cliente_a_editar['apellidos'] ?? ''); ?>">
+            </div>
+        </div>
+
+        <div class="form-row">
              <div class="form-group">
                 <label for="email">Email:</label>
                 <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($cliente_a_editar['email'] ?? ''); ?>">
@@ -63,10 +63,6 @@ $action_url = $is_edit ? 'index.php?view=clientes&action=update' : 'index.php?vi
                 <label for="telefono">Teléfono:</label>
                 <input type="text" id="telefono" name="telefono" value="<?php echo htmlspecialchars($cliente_a_editar['telefono'] ?? ''); ?>">
             </div>
-        </div>
-        <div class="form-group">
-            <label for="codigo_erp">Código ERP:</label>
-            <input type="text" id="codigo_erp" name="codigo_erp" value="<?php echo htmlspecialchars($cliente_a_editar['codigo_erp'] ?? ''); ?>">
         </div>
 
         <div class="form-row">
@@ -80,11 +76,19 @@ $action_url = $is_edit ? 'index.php?view=clientes&action=update' : 'index.php?vi
             </div>
         </div>
 
+        <div class="form-group">
+            <label for="codigo_erp">Código ERP:</label>
+            <input type="text" id="codigo_erp" name="codigo_erp" value="<?php echo htmlspecialchars($cliente_a_editar['codigo_erp'] ?? ''); ?>">
+        </div>
+
         <div class="form-actions">
             <a href="index.php?view=clientes" class="btn btn-secondary">Cancelar</a>
             <button type="submit" id="submit-btn" class="btn btn-primary"><?php echo $is_edit ? 'Actualizar Cliente' : 'Crear Cliente'; ?></button>
         </div>
     </form>
 </div>
+
+<!-- Incluir el nuevo archivo JS -->
+<script src="public/assets/js/cliente_form.js"></script>
 
 <?php require_once 'views/partials/footer.php'; ?>
