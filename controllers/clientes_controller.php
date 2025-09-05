@@ -1,27 +1,25 @@
 <?php
 
 // =================================================================
-// Controlador para el Mantenimiento de Clientes (Refactorizado)
+// Controlador para el Mantenimiento de Clientes (Refactorizado v2)
 // =================================================================
 
 require_once 'models/ClienteModel.php';
 require_once 'models/TiposDocumentoModel.php';
 
-// --- Verificación de Seguridad ---
-Session::check();
-// ---------------------------------
+// --- NO LLAMAR A Session::check() globalmente ---
+// Se llamará dentro de cada case que renderice una página completa.
 
 $clienteModel = new ClienteModel();
 $tiposDocumentoModel = new TiposDocumentoModel();
 
 // --- Gestión de la Acción ---
-// Si no se especifica, la acción por defecto es 'list'
-$action = $_GET['action'] ?? 'list';
+$action = $_REQUEST['action'] ?? 'list'; // Usar $_REQUEST para aceptar GET y POST
 $id = (int)($_GET['id'] ?? 0);
 
 // --- Variables para la Vistas ---
 $feedback_message = $_SESSION['feedback_message'] ?? null;
-unset($_SESSION['feedback_message']); // Limpiar mensaje para no mostrarlo de nuevo
+unset($_SESSION['feedback_message']);
 
 $error_message = '';
 $clientes = [];
@@ -33,7 +31,7 @@ $search_term = '';
 try {
     switch ($action) {
         case 'create':
-            // Procesa el formulario de creación
+            Session::check(); // Proteger la acción
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $datos = [
                     'id_tipo_documento' => $_POST['id_tipo_documento'],
@@ -53,12 +51,11 @@ try {
                 header('Location: index.php?view=clientes');
                 exit();
             }
-            // 'new' es el caso que muestra el formulario, no 'create'
             header('Location: index.php?view=clientes&action=new');
             exit();
 
         case 'update':
-            // Procesa el formulario de edición (v2 con manejo de errores en la vista)
+            Session::check(); // Proteger la acción
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $datos = [
                     'id_cliente' => $_POST['id_cliente'],
@@ -77,34 +74,30 @@ try {
                     header('Location: index.php?view=clientes');
                     exit();
                 } else {
-                    // Verificar si el error es por documento duplicado
                     if (isset($resultado['error']) && strpos($resultado['error'], 'El nuevo número de documento ya está en uso') !== false) {
                         $error_message = "Error: El número de documento '" . htmlspecialchars($datos['numero_documento']) . "' ya está registrado.";
-
-                        // Recargar los datos del formulario con lo que el usuario envió
                         $cliente_a_editar = $datos;
-
-                        // Cargar los tipos de documento para el select
                         $tipos_documento = $tiposDocumentoModel->obtenerTodos();
-
-                        // Volver a mostrar el formulario de edición con el error
                         require_once 'views/clientes/form.php';
                     } else {
-                        // Otro tipo de error, redirigir con mensaje genérico
                         $_SESSION['feedback_message'] = "Error al actualizar: " . ($resultado['error'] ?? 'No se realizaron cambios.');
                         header('Location: index.php?view=clientes');
                         exit();
                     }
                 }
             } else {
-                // Si no es POST, redirigir a la lista
                 header('Location: index.php?view=clientes');
                 exit();
             }
             break;
 
         case 'crear_ajax':
-            // Endpoint para creación de cliente vía AJAX desde la página de matrícula
+            // Proteger la acción AJAX con una comprobación que devuelve JSON
+            if (!isset($_SESSION['user_id'])) {
+                http_response_code(401); // Unauthorized
+                echo json_encode(['success' => false, 'error' => 'Sesión expirada. Por favor, inicie sesión de nuevo.']);
+                exit();
+            }
             header('Content-Type: application/json');
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $datos = [
@@ -117,8 +110,8 @@ try {
                     'codigo_erp' => $_POST['codigo_erp'] ?? null
                 ];
 
-                // Validaciones básicas del lado del servidor
                 if (empty($datos['nombres']) || empty($datos['apellidos']) || empty($datos['numero_documento'])) {
+                    http_response_code(400);
                     echo json_encode(['success' => false, 'error' => 'Nombres, apellidos y número de documento son obligatorios.']);
                     exit();
                 }
@@ -129,22 +122,24 @@ try {
                     $nuevo_cliente = $clienteModel->obtenerPorId($resultado['id']);
                     echo json_encode(['success' => true, 'cliente' => $nuevo_cliente]);
                 } else {
-                    // Set a Bad Request status code to be more explicit
                     http_response_code(400);
-                    // Use JSON_INVALID_UTF8_SUBSTITUTE to prevent json_encode from failing on malformed strings
                     echo json_encode(
                         ['success' => false, 'error' => 'Error al crear el cliente: ' . $resultado['error']],
                         JSON_INVALID_UTF8_SUBSTITUTE
                     );
                 }
             } else {
-                http_response_code(405); // Method Not Allowed
+                http_response_code(405);
                 echo json_encode(['success' => false, 'error' => 'Método no permitido.']);
             }
             exit();
 
         case 'check_documento':
-            // Endpoint para validación AJAX
+            if (!isset($_SESSION['user_id'])) {
+                http_response_code(401);
+                echo json_encode(['exists' => false, 'error' => 'Sesión expirada.']);
+                exit();
+            }
             header('Content-Type: application/json');
             $num_doc = $_GET['numero_documento'] ?? '';
             $id_excluir = !empty($_GET['id_cliente']) ? (int)$_GET['id_cliente'] : null;
@@ -159,15 +154,12 @@ try {
             exit();
 
         case 'delete':
+            Session::check(); // Proteger la acción
             if ($id > 0) {
-                // 1. Verificar si el cliente tiene matrículas
                 $num_matriculas = $clienteModel->verificarMatriculas($id);
-
                 if ($num_matriculas > 0) {
-                    // 2. Si tiene, mostrar error y no eliminar
                     $_SESSION['feedback_message'] = "Error: No se puede eliminar el cliente porque tiene {$num_matriculas} matrícula(s) asociada(s).";
                 } else {
-                    // 3. Si no tiene, proceder a eliminar
                     if ($clienteModel->eliminar($id)) {
                         $_SESSION['feedback_message'] = "Cliente eliminado exitosamente.";
                     } else {
@@ -181,13 +173,13 @@ try {
             exit();
 
         case 'new':
-            // Muestra el formulario de creación
+            Session::check(); // Proteger la vista
             $tipos_documento = $tiposDocumentoModel->obtenerTodos();
             require_once 'views/clientes/form.php';
             break;
 
         case 'edit':
-            // Muestra el formulario de edición
+            Session::check(); // Proteger la vista
             if ($id > 0) {
                 $cliente_a_editar = $clienteModel->obtenerPorId($id);
                 $tipos_documento = $tiposDocumentoModel->obtenerTodos();
@@ -206,7 +198,7 @@ try {
 
         case 'list':
         default:
-            // Muestra la lista de clientes (con o sin búsqueda)
+            Session::check(); // Proteger la vista
             $search_term = $_GET['search'] ?? '';
             if (!empty($search_term)) {
                 $clientes = $clienteModel->buscar($search_term);
@@ -218,8 +210,7 @@ try {
     }
 
 } catch (Exception $e) {
-    // Captura de errores inesperados
+    Session::check();
     $error_message = "Error inesperado en el sistema: " . $e->getMessage();
-    // En un caso real, esto se loguearía y se mostraría una vista de error genérica
-    require_once 'views/clientes/list.php'; // Volver a la lista con un mensaje de error
+    require_once 'views/clientes/list.php';
 }
