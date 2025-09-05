@@ -155,7 +155,10 @@
                 </div>
                 <div class="form-group">
                     <label for="modal_numero_documento">Número de Documento:</label>
-                    <input type="text" id="modal_numero_documento" name="numero_documento" required>
+                    <div class="input-with-button">
+                        <input type="text" id="modal_numero_documento" name="numero_documento" required>
+                        <button type="button" id="btn_sunat_modal" class="btn btn-info" style="display: none;">Sunat</button>
+                    </div>
                     <div id="modal-documento-error" class="validation-error-modal" style="display: none;"></div>
                 </div>
             </div>
