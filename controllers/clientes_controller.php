@@ -103,6 +103,39 @@ try {
             }
             break;
 
+        case 'crear_ajax':
+            // Endpoint para creación de cliente vía AJAX desde la página de matrícula
+            header('Content-Type: application/json');
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $datos = [
+                    'id_tipo_documento' => $_POST['id_tipo_documento'],
+                    'numero_documento' => $_POST['numero_documento'],
+                    'nombres' => $_POST['nombres'],
+                    'apellidos' => $_POST['apellidos'],
+                    'email' => $_POST['email'] ?? null,
+                    'telefono' => $_POST['telefono'] ?? null,
+                    'codigo_erp' => $_POST['codigo_erp'] ?? null
+                ];
+
+                // Validaciones básicas del lado del servidor
+                if (empty($datos['nombres']) || empty($datos['apellidos']) || empty($datos['numero_documento'])) {
+                    echo json_encode(['success' => false, 'error' => 'Nombres, apellidos y número de documento son obligatorios.']);
+                    exit();
+                }
+
+                $resultado = $clienteModel->crear($datos);
+
+                if ($resultado['success']) {
+                    $nuevo_cliente = $clienteModel->obtenerPorId($resultado['id']);
+                    echo json_encode(['success' => true, 'cliente' => $nuevo_cliente]);
+                } else {
+                    echo json_encode(['success' => false, 'error' => 'Error al crear el cliente: ' . $resultado['error']]);
+                }
+            } else {
+                echo json_encode(['success' => false, 'error' => 'Método no permitido.']);
+            }
+            exit();
+
         case 'check_documento':
             // Endpoint para validación AJAX
             header('Content-Type: application/json');

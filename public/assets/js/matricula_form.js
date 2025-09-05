@@ -1,7 +1,15 @@
 // =================================================================
-// Lógica JavaScript para la página de Nueva Matrícula
+// Lógica JavaScript para la página de Nueva Matrícula (v2 con modal)
 // =================================================================
 document.addEventListener('DOMContentLoaded', function() {
+
+    // --- Referencias a elementos del Modal ---
+    const modal = document.getElementById('modal-nuevo-cliente');
+    const btnNuevoCliente = document.getElementById('btn-nuevo-cliente');
+    const btnCerrarModal = document.getElementById('modal-close-btn');
+    const btnCancelarModal = document.getElementById('modal-cancel-btn');
+    const formNuevoCliente = document.getElementById('form-nuevo-cliente');
+    const modalErrorMessage = document.getElementById('modal-error-message');
 
     // --- Lógica para la Sección 1: Búsqueda de Cliente Principal ---
     const inputBuscarCliente = document.getElementById('buscar-cliente');
@@ -13,6 +21,9 @@ document.addEventListener('DOMContentLoaded', function() {
     inputBuscarCliente.addEventListener('keyup', function() {
         clearTimeout(mainClientSearchTimeout);
         const query = this.value;
+
+        // Ocultar el botón de nuevo cliente al empezar a escribir
+        btnNuevoCliente.style.display = 'none';
 
         if (query.length < 2) { resultsContainer.innerHTML = ''; return; }
 
@@ -36,12 +47,15 @@ document.addEventListener('DOMContentLoaded', function() {
                                 infoCliente.textContent = `Cliente Seleccionado: ${this.dataset.nombre}`;
                                 inputBuscarCliente.value = this.dataset.nombre;
                                 resultsContainer.innerHTML = '';
+                                btnNuevoCliente.style.display = 'none';
                             });
                             list.appendChild(item);
                         });
                         resultsContainer.appendChild(list);
                     } else {
                         resultsContainer.innerHTML = '<div class="search-results-list"><div class="search-results-item">No se encontraron clientes.</div></div>';
+                        // Mostrar el botón si no hay resultados
+                        btnNuevoCliente.style.display = 'block';
                     }
                 })
                 .catch(error => console.error('Error en la búsqueda de clientes:', error));
@@ -54,8 +68,60 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // --- Lógica del Modal de Nuevo Cliente ---
+    btnNuevoCliente.addEventListener('click', function() {
+        modal.style.display = 'flex';
+    });
 
-    // --- Lógica para la Sección 2: Búsqueda y Selección de Cursos ---
+    function cerrarModal() {
+        modal.style.display = 'none';
+        formNuevoCliente.reset();
+        modalErrorMessage.style.display = 'none';
+        modalErrorMessage.textContent = '';
+    }
+
+    btnCerrarModal.addEventListener('click', cerrarModal);
+    btnCancelarModal.addEventListener('click', cerrarModal);
+
+    formNuevoCliente.addEventListener('submit', function(e) {
+        e.preventDefault();
+        modalErrorMessage.style.display = 'none';
+
+        const formData = new FormData(this);
+
+        fetch('index.php?view=clientes&action=crear_ajax', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.cliente) {
+                // Éxito: poblar el formulario principal
+                const cliente = data.cliente;
+                hiddenIdCliente.value = cliente.id_cliente;
+                const nombreCompleto = `${cliente.nombres} ${cliente.apellidos}`;
+                infoCliente.textContent = `Cliente Seleccionado: ${nombreCompleto}`;
+                inputBuscarCliente.value = nombreCompleto;
+
+                resultsContainer.innerHTML = '';
+                btnNuevoCliente.style.display = 'none';
+
+                cerrarModal();
+            } else {
+                // Error: mostrar mensaje en el modal
+                modalErrorMessage.textContent = data.error || 'Ocurrió un error desconocido.';
+                modalErrorMessage.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error('Error en la creación del cliente:', error);
+            modalErrorMessage.textContent = 'Error de conexión. Inténtelo de nuevo.';
+            modalErrorMessage.style.display = 'block';
+        });
+    });
+
+
+    // --- Lógica para la Sección 2: Búsqueda y Selección de Cursos (sin cambios) ---
     const btnBuscarCursos = document.getElementById('btn-buscar-cursos');
     const cursosContainer = document.getElementById('cursos-disponibles-container');
     const cursosSeleccionadosBody = document.querySelector('#cursos-seleccionados-grid tbody');
@@ -98,7 +164,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     data.forEach(curso => {
                         const card = document.createElement('div');
                         card.className = 'curso-card';
-                        // Store all necessary data on the card
                         card.dataset.id = curso.id_curso_programado;
                         card.dataset.nombre = curso.nombre_curso;
                         card.dataset.precio = curso.precio_actual || '0.00';
@@ -106,7 +171,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         card.dataset.profesor = curso.nombre_profesor;
                         card.dataset.horario = curso.horario_dias;
                         card.dataset.horas = `${formatTime(curso.hora_inicio)} - ${formatTime(curso.hora_fin)}`;
-                        // Raw data for validation
                         card.dataset.dias_semana_raw = curso.dias_semana;
                         card.dataset.fecha_inicio_raw = curso.fecha_inicio;
                         card.dataset.fecha_fin_raw = curso.fecha_fin;
@@ -153,7 +217,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 horas: card.dataset.horas,
                 clienteId: mainClientId,
                 clienteNombre: mainClientName,
-                // Pass raw data for hidden fields
                 dias_semana_raw: card.dataset.dias_semana_raw,
                 fecha_inicio_raw: card.dataset.fecha_inicio_raw,
                 fecha_fin_raw: card.dataset.fecha_fin_raw,
@@ -164,7 +227,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function agregarCursoAGrilla(curso) {
-        // Adaptación para modo de edición vs. nueva adición
         const precioPactado = curso.precio_pactado !== undefined ? curso.precio_pactado : curso.precio;
         const descuento = curso.descuento !== undefined ? curso.descuento : 0.00;
         const precioFinal = precioPactado - descuento;
@@ -335,20 +397,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- Lógica para la Validación y Envío del Formulario ---
     const formMatricula = document.getElementById('form-matricula');
     formMatricula.addEventListener('submit', function(e) {
-        // 1. Validación de cruce de horarios en la grilla (lado del cliente)
         if (!validarCruceHorariosCliente()) {
-            e.preventDefault(); // Detener el envío del formulario si hay errores
+            e.preventDefault();
             return;
         }
-
-        // Si todas las validaciones del lado del cliente pasan, el formulario se enviará.
-        // Las validaciones del lado del servidor se encargarán del resto.
     });
 
-    /**
-     * Valida que un mismo cliente no tenga cursos con horarios y ubicaciones que se crucen
-     * dentro de la misma matrícula que se está creando.
-     */
     function validarCruceHorariosCliente() {
         const cursosPorCliente = {};
         const filas = document.querySelectorAll('#cursos-seleccionados-grid tbody tr');
@@ -358,7 +412,6 @@ document.addEventListener('DOMContentLoaded', function() {
             return false;
         }
 
-        // Agrupar cursos por cliente
         for (const fila of filas) {
             const clienteId = fila.querySelector('.id-cliente-asistente').value;
             const clienteNombre = fila.querySelector('.cliente-asistente-search').value;
@@ -380,7 +433,6 @@ document.addEventListener('DOMContentLoaded', function() {
             cursosPorCliente[clienteId].cursos.push(cursoInfo);
         }
 
-        // Validar cruces para cada cliente
         for (const clienteId in cursosPorCliente) {
             const dataCliente = cursosPorCliente[clienteId];
             const cursos = dataCliente.cursos;
@@ -392,27 +444,21 @@ document.addEventListener('DOMContentLoaded', function() {
                         const curso1 = cursos[i];
                         const curso2 = cursos[j];
 
-                        // Comprobar si los días se cruzan
                         const diasEnComun = curso1.dias.some(dia => curso2.dias.includes(dia));
-                        // Comprobar si las horas se cruzan
                         const horasSeCruzan = (curso1.horaInicio < curso2.horaFin) && (curso1.horaFin > curso2.horaInicio);
-                        // Comprobar si la ubicación es la misma
                         const mismaUbicacion = curso1.ubicacion === curso2.ubicacion;
 
                         if (diasEnComun && horasSeCruzan && mismaUbicacion) {
                             alert(`Error de validación:\nEl cliente "${nombreCliente}" tiene un cruce de horario.\n\n- Curso 1: ${curso1.nombreCurso}\n- Curso 2: ${curso2.nombreCurso}\n- Ubicación: ${curso1.ubicacion}\n\nPor favor, corrija la selección antes de continuar.`);
-                            return false; // Cruce encontrado
+                            return false;
                         }
                     }
                 }
             }
         }
-        return true; // No se encontraron cruces
+        return true;
     }
 
-    /**
-     * Si estamos en modo de edición, esta función carga los cursos existentes en la grilla.
-     */
     function inicializarGrillaParaEdicion() {
         if (typeof matriculaDetalles !== 'undefined' && matriculaDetalles.length > 0) {
             const formatTime = (timeString) => {
@@ -436,7 +482,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     horas: `${formatTime(detalle.hora_inicio)} - ${formatTime(detalle.hora_fin)}`,
                     clienteId: detalle.id_cliente_asistencia,
                     clienteNombre: detalle.nombre_cliente_asistencia,
-                    // Pass raw data for hidden fields
                     dias_semana_raw: detalle.dias_semana,
                     fecha_inicio_raw: detalle.fecha_inicio,
                     fecha_fin_raw: detalle.fecha_fin,
@@ -447,6 +492,5 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // --- Inicialización ---
     inicializarGrillaParaEdicion();
 });
