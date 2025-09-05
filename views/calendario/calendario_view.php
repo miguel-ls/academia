@@ -4,22 +4,92 @@
     <h1>Calendario de Clases</h1>
 </div>
 
+<!-- Filtros del Calendario -->
+<div class="card" style="padding: 20px; margin-bottom: 20px;">
+    <div class="filter-container">
+        <div class="form-group">
+            <label for="filtro_curso">Curso:</label>
+            <select id="filtro_curso" class="form-control">
+                <option value="">Todos</option>
+                <?php foreach ($filter_data['cursos'] as $id => $nombre): ?>
+                    <option value="<?php echo $id; ?>"><?php echo htmlspecialchars($nombre); ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="filtro_cliente">Alumno:</label>
+            <select id="filtro_cliente" class="form-control">
+                <option value="">Todos</option>
+                <?php foreach ($filter_data['clientes'] as $id => $nombre): ?>
+                    <option value="<?php echo $id; ?>"><?php echo htmlspecialchars($nombre); ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="filtro_profesor">Profesor:</label>
+            <select id="filtro_profesor" class="form-control">
+                <option value="">Todos</option>
+                <?php foreach ($filter_data['profesores'] as $nombre): ?>
+                    <option value="<?php echo htmlspecialchars($nombre); ?>"><?php echo htmlspecialchars($nombre); ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="filtro_ubicacion">Ubicación:</label>
+            <select id="filtro_ubicacion" class="form-control">
+                <option value="">Todas</option>
+                <?php foreach ($filter_data['ubicaciones'] as $nombre): ?>
+                    <option value="<?php echo htmlspecialchars($nombre); ?>"><?php echo htmlspecialchars($nombre); ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div class="form-group filter-buttons">
+            <button id="btn_filtrar" type="button" class="btn btn-primary">Filtrar</button>
+            <button id="btn_limpiar" type="button" class="btn btn-secondary">Limpiar</button>
+        </div>
+    </div>
+</div>
+
+
 <div class="card" style="padding: 20px;">
     <div id="calendar"></div>
 </div>
 
 <style>
+    .filter-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+        align-items: flex-end;
+    }
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+    .form-group label {
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+    .form-control {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    .filter-buttons {
+        flex-direction: row;
+        gap: 10px;
+    }
+
     /* Estilos para los eventos del calendario */
     .fc-event-main-frame {
         padding: 5px;
         font-size: 12px;
         line-height: 1.3;
         cursor: pointer;
-        /* Corrección de desbordamiento */
         overflow: hidden;
     }
     .fc-event-title, .event-details p, .event-time {
-        /* Evitar que el texto se divida y se desborde */
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -45,18 +115,24 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
 
-    // --- Función para generar colores pastel basados en un string (usando FNV-1a) ---
-    function generatePastelColor(str) {
-        let hash = 0x811c9dc5; // FNV_offset_basis
+    // --- Variables y referencias ---
+    const allEvents = <?php echo $calendar_events_json; ?>;
+    const calendarEl = document.getElementById('calendar');
+    const filtroCurso = document.getElementById('filtro_curso');
+    const filtroCliente = document.getElementById('filtro_cliente');
+    const filtroProfesor = document.getElementById('filtro_profesor');
+    const filtroUbicacion = document.getElementById('filtro_ubicacion');
+    const btnFiltrar = document.getElementById('btn_filtrar');
+    const btnLimpiar = document.getElementById('btn_limpiar');
 
+    // --- Función para generar colores pastel ---
+    function generatePastelColor(str) {
+        let hash = 0x811c9dc5;
         for (let i = 0; i < str.length; i++) {
             hash ^= str.charCodeAt(i);
-            // FNV_prime: 16777619
             hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
         }
-
-        const h = (hash >>> 0) % 360; // Asegurar unsigned 32-bit y mapear a 0-359
-        // Usar HSL para colores pastel: alta luminosidad (l), saturación media (s)
+        const h = (hash >>> 0) % 360;
         return `hsl(${h}, 70%, 85%)`;
     }
 
@@ -67,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function() {
         hour12: false
     });
 
-    var calendarEl = document.getElementById('calendar');
+    // --- Inicialización del Calendario ---
     var calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         locale: 'es',
@@ -76,14 +152,13 @@ document.addEventListener('DOMContentLoaded', function() {
             center: 'title',
             right: 'dayGridMonth,timeGridWeek,timeGridDay'
         },
-        events: <?php echo $calendar_events_json; ?>,
+        events: allEvents,
 
         eventContent: function(arg) {
             const props = arg.event.extendedProps;
             const key = `${props.id_curso}-${props.id_area}-${props.id_sub_area}-${props.id_cliente}`;
             const color = generatePastelColor(key);
 
-            // Formatear la hora
             const startTime = timeFormatter.format(arg.event.start);
             const endTime = timeFormatter.format(arg.event.end);
             const timeText = `${startTime} - ${endTime}`;
@@ -93,7 +168,6 @@ document.addEventListener('DOMContentLoaded', function() {
             eventEl.style.borderColor = color;
             eventEl.classList.add('fc-event-main-frame');
 
-            // Añadir la hora antes del título
             eventEl.innerHTML = `
                 <div class="event-time">${timeText}</div>
                 <div class="fc-event-title-container">
@@ -110,6 +184,37 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     calendar.render();
+
+    // --- Lógica de los Filtros ---
+    btnFiltrar.addEventListener('click', function() {
+        const cursoId = filtroCurso.value;
+        const clienteId = filtroCliente.value;
+        const profesorNombre = filtroProfesor.value;
+        const ubicacionNombre = filtroUbicacion.value;
+
+        const filteredEvents = allEvents.filter(function(event) {
+            const props = event.extendedProps;
+            const matchCurso = !cursoId || props.id_curso == cursoId;
+            const matchCliente = !clienteId || props.id_cliente == clienteId;
+            const matchProfesor = !profesorNombre || props.nombre_profesor == profesorNombre;
+            const matchUbicacion = !ubicacionNombre || props.ubicacion == ubicacionNombre;
+
+            return matchCurso && matchCliente && matchProfesor && matchUbicacion;
+        });
+
+        calendar.removeAllEvents();
+        calendar.addEventSource(filteredEvents);
+    });
+
+    btnLimpiar.addEventListener('click', function() {
+        filtroCurso.value = "";
+        filtroCliente.value = "";
+        filtroProfesor.value = "";
+        filtroUbicacion.value = "";
+
+        calendar.removeAllEvents();
+        calendar.addEventSource(allEvents);
+    });
 });
 </script>
 
