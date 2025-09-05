@@ -44,7 +44,7 @@ $allowed_views = [
     // Vistas de Mantenimientos (Configuración)
     'usuarios', 'clientes', 'cursos', 'areas', 'sub_areas', 'profesores', 'tipos_area', 'tipos_documento', 'formas_pago', 'tipos_curso', 'tipos_precio', 'tipos_horario', 'lista_precios',
     // Vistas de Operaciones
-    'monitor', 'programar_horarios', 'asistencia_profesores', 'asistencia_clientes', 'calendario',
+    'monitor', 'programar_horarios', 'asistencia_profesores', 'asistencia_clientes', 'calendario', 'calendario_cursos',
     // Vistas de Matrícula
     'matriculas', 'matricula_nueva'
 ];
