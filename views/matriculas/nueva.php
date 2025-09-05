@@ -1,5 +1,42 @@
 <?php require_once 'views/partials/header.php'; ?>
 
+<!-- Estilos para el Modal -->
+<style>
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+.modal-container {
+    background: white;
+    padding: 20px;
+    border-radius: 5px;
+    width: 90%;
+    max-width: 600px;
+    position: relative;
+}
+.modal-close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.validation-error-modal {
+    color: red;
+    font-size: 0.9em;
+    margin-top: 5px;
+}
+</style>
+
 <div class="matricula-container">
     <h1>Nueva Matrícula</h1>
     <form id="form-matricula" action="index.php?view=matriculas" method="POST">
@@ -14,10 +51,12 @@
                 <div id="cliente-search-results" class="search-results"></div>
                 <input type="hidden" id="id_cliente" name="id_cliente" required>
                 <div id="cliente-seleccionado-info" style="margin-top:10px; font-weight:bold;"></div>
+                <!-- Botón para nuevo cliente, inicialmente oculto -->
+                <button type="button" id="btn-nuevo-cliente" class="btn btn-success" style="display: none; margin-top: 10px;">Nuevo Cliente</button>
             </div>
         </div>
 
-        <!-- SECCIÓN 2: CURSOS -->
+        <!-- SECCIÓN 2: CURSOS (sin cambios) -->
         <div class="section">
             <h2>2. Selección de Cursos</h2>
             <fieldset>
@@ -42,11 +81,7 @@
                     </div>
                 </div>
             </fieldset>
-
-            <div id="cursos-disponibles-container">
-                <p>Los cursos disponibles aparecerán aquí...</p>
-            </div>
-
+            <div id="cursos-disponibles-container"><p>Los cursos disponibles aparecerán aquí...</p></div>
             <h3>Cursos Agregados a la Matrícula</h3>
             <div id="cursos-seleccionados-grid">
                 <table class="table">
@@ -63,9 +98,7 @@
                             <th>Acción</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <!-- Las filas de cursos se añadirán aquí con JS -->
-                    </tbody>
+                    <tbody></tbody>
                     <tfoot>
                         <tr>
                             <td colspan="7" class="total-row">TOTAL:</td>
@@ -77,17 +110,15 @@
             </div>
         </div>
 
-        <!-- SECCIÓN 3: PAGO -->
+        <!-- SECCIÓN 3: PAGO (sin cambios) -->
         <div class="section">
             <h2>3. Datos del Pago</h2>
             <div class="form-grid">
-                <!-- Las fechas se copian desde los filtros y se envían de forma oculta -->
                 <input type="hidden" id="fecha_inicio_matricula" name="fecha_inicio_matricula">
                 <input type="hidden" id="fecha_fin_matricula" name="fecha_fin_matricula">
                 <div class="form-group">
                     <label for="id_forma_pago">Forma de Pago:</label>
                     <select id="id_forma_pago" name="id_forma_pago" required>
-                        <!-- Opciones cargadas desde BD -->
                         <option value="1">Efectivo</option>
                         <option value="2">Tarjeta de Crédito/Débito</option>
                     </select>
@@ -106,24 +137,64 @@
     </form>
 </div>
 
-<style>
-.form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 15px;
-    margin-top: 20px;
-}
-.form-actions .btn {
-    padding: 10px 20px;
-    font-size: 1em;
-}
-</style>
+<!-- Modal para Nuevo Cliente -->
+<div id="modal-nuevo-cliente" class="modal-overlay">
+    <div class="modal-container">
+        <span id="modal-close-btn" class="modal-close">&times;</span>
+        <h2>Crear Nuevo Cliente</h2>
+        <div id="modal-error-message" class="info-message error-message" style="display: none;"></div>
+        <form id="form-nuevo-cliente">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="modal_nombres">Nombres:</label>
+                    <input type="text" id="modal_nombres" name="nombres" required>
+                </div>
+                <div class="form-group">
+                    <label for="modal_apellidos">Apellidos:</label>
+                    <input type="text" id="modal_apellidos" name="apellidos" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="modal_id_tipo_documento">Tipo de Documento:</label>
+                    <select id="modal_id_tipo_documento" name="id_tipo_documento" required>
+                        <option value="">Seleccione...</option>
+                        <?php foreach ($tipos_documento as $tipo): ?>
+                            <option value="<?php echo $tipo['id_tipo_documento']; ?>"><?php echo htmlspecialchars($tipo['descripcion']); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="modal_numero_documento">Número de Documento:</label>
+                    <input type="text" id="modal_numero_documento" name="numero_documento" required>
+                    <div id="modal-documento-error" class="validation-error-modal" style="display: none;"></div>
+                </div>
+            </div>
+            <div class="form-row">
+                 <div class="form-group">
+                    <label for="modal_email">Email:</label>
+                    <input type="email" id="modal_email" name="email">
+                </div>
+                <div class="form-group">
+                    <label for="modal_telefono">Teléfono:</label>
+                    <input type="text" id="modal_telefono" name="telefono">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="modal_codigo_erp">Código ERP:</label>
+                <input type="text" id="modal_codigo_erp" name="codigo_erp">
+            </div>
+            <div class="form-actions">
+                <button type="button" id="modal-cancel-btn" class="btn btn-secondary">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Crear Cliente</button>
+            </div>
+        </form>
+    </div>
+</div>
 
 <script>
-    // Definir la variable global para que el script no falle en esta página
     const matriculaDetalles = [];
 </script>
-
 <script src="<?php echo $base_url; ?>public/assets/js/matricula_form.js"></script>
 
 <?php require_once 'views/partials/footer.php'; ?>

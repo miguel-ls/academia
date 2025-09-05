@@ -30,6 +30,11 @@ switch ($action) {
         break;
 
     case 'nueva':
+        // Cargar datos adicionales para el formulario, como los tipos de documento
+        require_once 'models/TiposDocumentoModel.php';
+        $tiposDocumentoModel = new TiposDocumentoModel();
+        $tipos_documento = $tiposDocumentoModel->obtenerTodos();
+
         // Cargar la vista principal del formulario
         require_once 'views/matriculas/nueva.php';
         break;
