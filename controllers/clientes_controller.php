@@ -140,6 +140,58 @@ try {
             }
             exit();
 
+        case 'proxy_sunat':
+            // Proteger la acción AJAX con una comprobación que devuelve JSON
+            if (!isset($_SESSION['user_id'])) {
+                http_response_code(401); // Unauthorized
+                echo json_encode(['error' => 'Sesión expirada. Por favor, inicie sesión de nuevo.']);
+                exit();
+            }
+            header('Content-Type: application/json');
+
+            $tipo = $_GET['tipo'] ?? '';
+            $numero = $_GET['numero'] ?? '';
+
+            if (empty($tipo) || empty($numero)) {
+                http_response_code(400);
+                echo json_encode(['error' => 'Tipo y número de documento son requeridos.']);
+                exit();
+            }
+
+            $apiUrl = '';
+            if ($tipo === 'DNI') {
+                $apiUrl = "https://api.apis.net.pe/v1/dni?numero=" . urlencode($numero);
+            } elseif ($tipo === 'RUC') {
+                $apiUrl = "https://api.apis.net.pe/v1/ruc?numero=" . urlencode($numero);
+            } else {
+                http_response_code(400);
+                echo json_encode(['error' => 'Tipo de documento no válido.']);
+                exit();
+            }
+
+            // Usar file_get_contents con un stream context para manejar errores y timeouts
+            $options = [
+                "ssl" => [
+                    "verify_peer" => false,
+                    "verify_peer_name" => false,
+                ],
+                "http" => [
+                    'timeout' => 5 // 5 segundos de timeout
+                ]
+            ];
+            $context = stream_context_create($options);
+            $response = @file_get_contents($apiUrl, false, $context);
+
+            if ($response === FALSE) {
+                http_response_code(500);
+                echo json_encode(['error' => 'No se pudo conectar con el servicio de consulta.']);
+                exit();
+            }
+
+            // Simplemente pasar la respuesta
+            echo $response;
+            exit();
+
         case 'check_documento':
             if (!isset($_SESSION['user_id'])) {
                 http_response_code(401);

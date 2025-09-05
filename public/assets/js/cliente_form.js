@@ -84,20 +84,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            let apiUrl = '';
-            if (tipoDocText === 'DNI') {
-                apiUrl = `https://api.apis.net.pe/v1/dni?numero=${numero}`;
-            } else if (tipoDocText === 'RUC') {
-                apiUrl = `https://api.apis.net.pe/v1/ruc?numero=${numero}`;
-            } else {
-                return; // No hacer nada si no es DNI o RUC
-            }
+            const apiUrl = `index.php?view=clientes&action=proxy_sunat&tipo=${tipoDocText}&numero=${numero}`;
 
             this.textContent = '...';
             this.disabled = true;
 
             fetch(apiUrl)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        // Si el proxy devuelve un error (4xx, 5xx), lo capturamos aquí
+                        return response.json().then(errorData => {
+                            throw new Error(errorData.error || 'Error en el servidor proxy.');
+                        });
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.numeroDocumento) {
                         if (tipoDocText === 'DNI') {
