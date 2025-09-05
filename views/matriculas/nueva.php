@@ -207,6 +207,6 @@
 <script>
     const matriculaDetalles = [];
 </script>
-<script src="<?php echo $base_url; ?>public/assets/js/matricula_form.js"></script>
+<script src="<?php echo $base_url; ?>public/assets/js/matricula_form.js?v=<?php echo time(); ?>"></script>
 
 <?php require_once 'views/partials/footer.php'; ?>

@@ -91,7 +91,7 @@ $action_url = $is_edit ? 'index.php?view=clientes&action=update' : 'index.php?vi
     </form>
 </div>
 
-<!-- Incluir el nuevo archivo JS -->
-<script src="public/assets/js/cliente_form.js"></script>
+<!-- Incluir el nuevo archivo JS con cache-busting -->
+<script src="public/assets/js/cliente_form.js?v=<?php echo time(); ?>"></script>
 
 <?php require_once 'views/partials/footer.php'; ?>
