@@ -51,7 +51,6 @@
                 <div id="cliente-search-results" class="search-results"></div>
                 <input type="hidden" id="id_cliente" name="id_cliente" required>
                 <div id="cliente-seleccionado-info" style="margin-top:10px; font-weight:bold;"></div>
-                <!-- Botón para nuevo cliente, inicialmente oculto -->
                 <button type="button" id="btn-nuevo-cliente" class="btn btn-success" style="display: none; margin-top: 10px;">Nuevo Cliente</button>
             </div>
         </div>
@@ -137,23 +136,13 @@
     </form>
 </div>
 
-<!-- Modal para Nuevo Cliente -->
+<!-- Modal para Nuevo Cliente (Campos Reordenados) -->
 <div id="modal-nuevo-cliente" class="modal-overlay">
     <div class="modal-container">
         <span id="modal-close-btn" class="modal-close">&times;</span>
         <h2>Crear Nuevo Cliente</h2>
         <div id="modal-error-message" class="info-message error-message" style="display: none;"></div>
         <form id="form-nuevo-cliente">
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="modal_nombres">Nombres:</label>
-                    <input type="text" id="modal_nombres" name="nombres" required>
-                </div>
-                <div class="form-group">
-                    <label for="modal_apellidos">Apellidos:</label>
-                    <input type="text" id="modal_apellidos" name="apellidos" required>
-                </div>
-            </div>
             <div class="form-row">
                 <div class="form-group">
                     <label for="modal_id_tipo_documento">Tipo de Documento:</label>
@@ -168,6 +157,16 @@
                     <label for="modal_numero_documento">Número de Documento:</label>
                     <input type="text" id="modal_numero_documento" name="numero_documento" required>
                     <div id="modal-documento-error" class="validation-error-modal" style="display: none;"></div>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="modal_nombres" id="label_modal_nombres">Nombres:</label>
+                    <input type="text" id="modal_nombres" name="nombres" required>
+                </div>
+                <div class="form-group" id="group_modal_apellidos">
+                    <label for="modal_apellidos">Apellidos:</label>
+                    <input type="text" id="modal_apellidos" name="apellidos"> <!-- `required` eliminado -->
                 </div>
             </div>
             <div class="form-row">

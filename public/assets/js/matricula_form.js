@@ -1,5 +1,5 @@
 // =================================================================
-// Lógica JavaScript para la página de Nueva Matrícula (v3 con validación JS)
+// Lógica JavaScript para la página de Nueva Matrícula (v5 con validación de apellidos)
 // =================================================================
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -13,6 +13,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const modalInputDocumento = document.getElementById('modal_numero_documento');
     const modalDocumentoError = document.getElementById('modal-documento-error');
     const modalSubmitBtn = formNuevoCliente.querySelector('button[type="submit"]');
+    const modalTipoDocumento = document.getElementById('modal_id_tipo_documento');
+    const modalLabelNombres = document.getElementById('label_modal_nombres');
+    const modalGroupApellidos = document.getElementById('group_modal_apellidos');
+    const modalInputApellidos = document.getElementById('modal_apellidos');
     let debounceTimeout;
 
 
@@ -80,20 +84,28 @@ document.addEventListener('DOMContentLoaded', function() {
         modalErrorMessage.style.display = 'none';
         modalDocumentoError.style.display = 'none';
         modalSubmitBtn.disabled = false;
+        modalLabelNombres.textContent = 'Nombres:';
+        modalGroupApellidos.style.display = 'block';
     }
 
     btnCerrarModal.addEventListener('click', cerrarModal);
     btnCancelarModal.addEventListener('click', cerrarModal);
 
-    // --- Validación de Documento Duplicado con JS ---
+    modalTipoDocumento.addEventListener('change', function() {
+        const selectedOptionText = this.options[this.selectedIndex].text.trim().toUpperCase();
+        if (selectedOptionText === 'RUC') {
+            modalLabelNombres.textContent = 'Razón Social:';
+            modalGroupApellidos.style.display = 'none';
+        } else {
+            modalLabelNombres.textContent = 'Nombres:';
+            modalGroupApellidos.style.display = 'block';
+        }
+    });
+
     modalInputDocumento.addEventListener('keyup', function() {
         clearTimeout(debounceTimeout);
         const numeroDocumento = this.value;
-
-        if (numeroDocumento.length < 3) { // No buscar con menos de 3 caracteres
-            return;
-        }
-
+        if (numeroDocumento.length < 3) { return; }
         debounceTimeout = setTimeout(() => {
             fetch(`index.php?view=clientes&action=check_documento&numero_documento=${encodeURIComponent(numeroDocumento)}`)
                 .then(response => response.json())
@@ -108,7 +120,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 })
                 .catch(error => console.error('Error al verificar documento:', error));
-        }, 500); // 500ms de espera antes de la llamada
+        }, 500);
     });
 
     formNuevoCliente.addEventListener('submit', function(e) {
@@ -121,25 +133,33 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
+        const selectedOptionText = modalTipoDocumento.options[modalTipoDocumento.selectedIndex].text.trim().toUpperCase();
+
+        // --- Validación de Apellidos ---
+        if (selectedOptionText !== 'RUC' && modalInputApellidos.value.trim() === '') {
+            modalErrorMessage.textContent = 'El campo Apellidos es obligatorio para este tipo de documento.';
+            modalErrorMessage.style.display = 'block';
+            return;
+        }
+
         const formData = new FormData(this);
+        if (selectedOptionText === 'RUC') {
+            formData.set('apellidos', '');
+        }
 
         fetch('index.php?view=clientes&action=crear_ajax', {
             method: 'POST',
             body: formData
         })
         .then(response => {
-            // Revisar si la respuesta es OK, incluso para errores de validación que devolvemos como JSON
-            if (!response.ok) {
-                 // Para errores de servidor 500, o 401, 405 que sí lanzan un error
-                throw new Error(`Error del servidor: ${response.status}`);
-            }
+            if (!response.ok) { throw new Error(`Error del servidor: ${response.status}`); }
             return response.json();
         })
         .then(data => {
             if (data.success && data.cliente) {
                 const cliente = data.cliente;
                 hiddenIdCliente.value = cliente.id_cliente;
-                const nombreCompleto = `${cliente.nombres} ${cliente.apellidos}`;
+                const nombreCompleto = (cliente.apellidos) ? `${cliente.nombres} ${cliente.apellidos}` : cliente.nombres;
                 infoCliente.textContent = `Cliente Seleccionado: ${nombreCompleto}`;
                 inputBuscarCliente.value = nombreCompleto;
                 resultsContainer.innerHTML = '';
@@ -157,12 +177,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-
-    // --- Lógica para la Sección 2: Búsqueda y Selección de Cursos (sin cambios) ---
+    // --- Lógica de Búsqueda de Cursos y Grilla (sin cambios) ---
     const btnBuscarCursos = document.getElementById('btn-buscar-cursos');
     const cursosContainer = document.getElementById('cursos-disponibles-container');
     const cursosSeleccionadosBody = document.querySelector('#cursos-seleccionados-grid tbody');
-
     btnBuscarCursos.addEventListener('click', function() {
         const profesorId = document.getElementById('filtro-profesor-id').value;
         const fechaInicio = document.getElementById('filtro-fecha-inicio').value;
@@ -227,7 +245,6 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => console.error('Error al buscar cursos:', error));
     });
-
     cursosContainer.addEventListener('click', function(e) {
         if (e.target.classList.contains('btn-seleccionar-curso')) {
             const card = e.target.closest('.curso-card');
@@ -255,7 +272,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
-
     function agregarCursoAGrilla(curso) {
         const precioPactado = curso.precio_pactado !== undefined ? curso.precio_pactado : curso.precio;
         const descuento = curso.descuento !== undefined ? curso.descuento : 0.00;
@@ -290,7 +306,6 @@ document.addEventListener('DOMContentLoaded', function() {
         cursosSeleccionadosBody.appendChild(newRow);
         actualizarTotal();
     }
-
     let gridClientSearchTimeout;
     cursosSeleccionadosBody.addEventListener('keyup', function(e) {
         if (e.target.classList.contains('cliente-asistente-search')) {
@@ -329,14 +344,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 300);
         }
     });
-
     cursosSeleccionadosBody.addEventListener('click', function(e){
         if(e.target.classList.contains('btn-eliminar-curso')){
             e.target.closest('tr').remove();
             actualizarTotal();
         }
     });
-
     cursosSeleccionadosBody.addEventListener('input', function(e) {
         if (e.target.classList.contains('recalc-trigger')) {
             const row = e.target.closest('tr');
@@ -350,7 +363,6 @@ document.addEventListener('DOMContentLoaded', function() {
             actualizarTotal();
         }
     });
-
     function actualizarTotal() {
         let total = 0;
         document.querySelectorAll('#cursos-seleccionados-grid .precio-final').forEach(function(item) {
@@ -358,19 +370,16 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         document.getElementById('total-matricula').textContent = `S/ ${total.toFixed(2)}`;
     }
-
     document.getElementById('filtro-fecha-inicio').addEventListener('change', function(){
         document.getElementById('fecha_inicio_matricula').value = this.value;
     });
     document.getElementById('filtro-fecha-fin').addEventListener('change', function(){
         document.getElementById('fecha_fin_matricula').value = this.value;
     });
-
     const inputBuscarProfesor = document.getElementById('filtro-profesor');
     const hiddenProfesorId = document.getElementById('filtro-profesor-id');
     const profesorResultsContainer = document.getElementById('profesor-search-results');
     let profesorSearchTimeout;
-
     inputBuscarProfesor.addEventListener('keyup', function() {
         clearTimeout(profesorSearchTimeout);
         hiddenProfesorId.value = '';
@@ -407,13 +416,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 .catch(error => console.error('Error en la búsqueda de profesores:', error));
         }, 300);
     });
-
     document.addEventListener('click', function(e) {
         if (profesorResultsContainer && !profesorResultsContainer.contains(e.target) && e.target !== inputBuscarProfesor) {
             profesorResultsContainer.innerHTML = '';
         }
     });
-
     const formMatricula = document.getElementById('form-matricula');
     formMatricula.addEventListener('submit', function(e) {
         if (!validarCruceHorariosCliente()) {
@@ -421,7 +428,6 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
     });
-
     function validarCruceHorariosCliente() {
         const cursosPorCliente = {};
         const filas = document.querySelectorAll('#cursos-seleccionados-grid tbody tr');
@@ -469,7 +475,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         return true;
     }
-
     function inicializarGrillaParaEdicion() {
         if (typeof matriculaDetalles !== 'undefined' && matriculaDetalles.length > 0) {
             const formatTime = (timeString) => {
@@ -501,6 +506,5 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     }
-
     inicializarGrillaParaEdicion();
 });
