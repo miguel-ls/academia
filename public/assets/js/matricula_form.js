@@ -139,11 +139,12 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 if (data.numeroDocumento) {
                     if (tipoDocText === 'DNI') {
-                        modalInputNombres.value = data.nombres || '';
+                            modalInputNombres.value = data.nombre || ''; // Nombre completo
                         modalInputApellidos.value = `${data.apellidoPaterno || ''} ${data.apellidoMaterno || ''}`.trim();
                     } else if (tipoDocText === 'RUC') {
-                        modalInputNombres.value = data.nombre || '';
-                        modalInputDireccion.value = data.direccion || '';
+                            modalInputNombres.value = data.nombre || ''; // Razón Social
+                            const fullAddress = `${data.direccion || ''} - ${data.departamento || ''} - ${data.provincia || ''} - ${data.distrito || ''}`.trim();
+                            modalInputDireccion.value = fullAddress.replace(/^-| -$/g, '').replace(/ - - /g, ' - ');
                         modalInputUbigeo.value = data.ubigeo || '';
                     }
                 } else {
