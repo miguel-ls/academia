@@ -124,12 +124,21 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- Gráfico de Barras: Ventas Mensuales ---
     const barCtx = document.getElementById('barChartVentas').getContext('2d');
     const barData = <?php echo $json_data_bar; ?>;
-    new Chart(barCtx, { type: 'bar', data: { labels: barData.labels, datasets: [{
-        label: 'Ventas Totales', data: barData.data,
-        backgroundColor: 'rgba(0, 123, 255, 0.7)',
-        borderColor: 'rgba(0, 123, 255, 1)',
-        borderWidth: 1
-    }]}, options: { scales: { y: { beginAtZero: true } }, plugins: { legend: { display: true }, datalabels: { display: false } } }});
+    new Chart(barCtx, {
+        type: 'bar',
+        data: barData, // La nueva estructura ya tiene 'labels' y 'datasets'
+        options: {
+            plugins: {
+                title: { display: false },
+                legend: { display: true, position: 'top' } // Habilitar leyenda
+            },
+            responsive: true,
+            scales: {
+                x: { stacked: true }, // Apilar en el eje X
+                y: { stacked: true, beginAtZero: true } // Apilar en el eje Y
+            }
+        }
+    });
 
     // --- Gráfico Circular 1: Ventas por Curso ---
     const pieCtx = document.getElementById('pieChartVentas').getContext('2d');

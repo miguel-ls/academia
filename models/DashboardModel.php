@@ -23,12 +23,12 @@ class DashboardModel {
     }
 
     /**
-     * Obtiene los datos de ventas mensuales para un año.
+     * Obtiene los datos de ventas anuales desglosado por mes y curso.
      * @param int $anio
      * @return array
      */
-    public function getVentasMensuales($anio) {
-        $this->db->callStoredProcedure('sp_dashboard_ventas_mensuales', [$anio]);
+    public function getVentasAnualesPorCurso($anio) {
+        $this->db->callStoredProcedure('sp_dashboard_ventas_anuales_por_mes_y_curso', [$anio]);
         return $this->db->resultSet();
     }
 
