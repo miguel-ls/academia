@@ -60,9 +60,8 @@
 }
 .chart-container-pie {
     position: relative;
-    margin-left: 0;
-    margin-right: auto;
-    max-width: 400px;
+    margin: auto; /* Centrar el contenedor */
+    max-width: 250px; /* Tamaño reducido original */
 }
 </style>
 
