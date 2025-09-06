@@ -60,8 +60,9 @@
 }
 .chart-container-pie {
     position: relative;
-    margin: auto;
-    max-width: 315px; /* Tamaño ajustado (25% más grande que 250px) */
+    margin-left: 0; /* Alinear a la izquierda */
+    margin-right: auto;
+    max-width: 400px; /* Aumentado otro 25% */
 }
 </style>
 
