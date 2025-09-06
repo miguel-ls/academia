@@ -61,10 +61,7 @@
 .chart-container-pie {
     position: relative;
     margin: auto;
-    height: 60vh;
-    width: 60vw;
-    max-width: 350px; /* Controla el tamaño máximo */
-    max-height: 350px;
+    max-width: 250px; /* Tamaño reducido */
 }
 </style>
 
@@ -80,17 +77,31 @@ document.addEventListener('DOMContentLoaded', function() {
     // Configuración común para los datalabels de los gráficos circulares
     const pieDatalabelsConfig = {
         formatter: (value, ctx) => {
-            let sum = 0;
             let dataArr = ctx.chart.data.datasets[0].data;
-            dataArr.map(data => {
-                sum += data;
-            });
-            let percentage = (value*100 / sum).toFixed(2)+"%";
+            // Asegurarse de que todos los valores son números antes de sumar
+            const sum = dataArr.reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
+            if (sum === 0) {
+                return '0.00%';
+            }
+            // Asegurarse de que el valor actual es un número
+            const percentage = ((parseFloat(value) * 100) / sum).toFixed(2) + "%";
             return percentage;
         },
         color: '#fff',
         font: {
             weight: 'bold'
+        }
+    };
+
+    // Configuración común para las opciones de los gráficos circulares
+    const pieOptions = {
+        responsive: true,
+        maintainAspectRatio: true, // Mantiene el aspecto circular
+        plugins: {
+            legend: {
+                position: 'right', // Mover la leyenda a la derecha
+            },
+            datalabels: pieDatalabelsConfig
         }
     };
 
@@ -111,7 +122,7 @@ document.addEventListener('DOMContentLoaded', function() {
         new Chart(pieCtx, { type: 'pie', data: { labels: pieData.labels, datasets: [{
             label: 'Ventas', data: pieData.data,
             backgroundColor: ['#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1', '#fd7e14', '#20c997', '#6610f2'],
-        }]}, options: { plugins: { datalabels: pieDatalabelsConfig } }});
+        }]}, options: pieOptions});
     } else {
         pieCtx.font = "16px Arial";
         pieCtx.textAlign = "center";
@@ -125,7 +136,7 @@ document.addEventListener('DOMContentLoaded', function() {
         new Chart(pieAreaCtx, { type: 'pie', data: { labels: pieAreaData.labels, datasets: [{
             label: 'Ventas', data: pieAreaData.data,
             backgroundColor: ['#17a2b8', '#fd7e14', '#6610f2', '#e83e8c', '#20c997', '#ffc107', '#28a745', '#dc3545'],
-        }]}, options: { plugins: { datalabels: pieDatalabelsConfig } }});
+        }]}, options: pieOptions});
     } else {
         pieAreaCtx.font = "16px Arial";
         pieAreaCtx.textAlign = "center";
