@@ -60,8 +60,8 @@
 }
 .chart-container-pie {
     position: relative;
-    margin: auto; /* Centrar el contenedor */
-    max-width: 250px; /* Tamaño reducido original */
+    margin: auto;
+    max-width: 320px; /* Tamaño final ajustado */
 }
 </style>
 
@@ -90,17 +90,13 @@ document.addEventListener('DOMContentLoaded', function() {
         maintainAspectRatio: true,
         plugins: {
             legend: {
-                position: 'right',
+                position: 'top', // Leyenda en la parte superior
                 labels: {
-                    // Usar una función para generar las etiquetas de la leyenda
                     generateLabels: function(chart) {
-                        // Obtener las etiquetas por defecto
                         const originalLabels = Chart.defaults.plugins.legend.labels.generateLabels(chart);
-
-                        // Envolver el texto de cada etiqueta
                         originalLabels.forEach(label => {
                             const text = label.text;
-                            const maxWidth = 25; // Ancho máximo en caracteres
+                            const maxWidth = 40; // Aumentar ancho ya que la leyenda está arriba
                             if (text.length > maxWidth) {
                                 const words = text.split(' ');
                                 const newText = [];
@@ -114,10 +110,9 @@ document.addEventListener('DOMContentLoaded', function() {
                                     }
                                 });
                                 newText.push(currentLine);
-                                label.text = newText; // Asignar el array de strings
+                                label.text = newText;
                             }
                         });
-
                         return originalLabels;
                     }
                 }
@@ -134,7 +129,7 @@ document.addEventListener('DOMContentLoaded', function() {
         backgroundColor: 'rgba(0, 123, 255, 0.7)',
         borderColor: 'rgba(0, 123, 255, 1)',
         borderWidth: 1
-    }]}, options: { scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false }, datalabels: { display: false } } }});
+    }]}, options: { scales: { y: { beginAtZero: true } }, plugins: { legend: { display: true }, datalabels: { display: false } } }});
 
     // --- Gráfico Circular 1: Ventas por Curso ---
     const pieCtx = document.getElementById('pieChartVentas').getContext('2d');
