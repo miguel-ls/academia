@@ -61,7 +61,7 @@
 .chart-container-pie {
     position: relative;
     margin: auto;
-    max-width: 320px; /* Tamaño final ajustado */
+    max-width: 320px;
 }
 </style>
 
@@ -90,32 +90,9 @@ document.addEventListener('DOMContentLoaded', function() {
         maintainAspectRatio: true,
         plugins: {
             legend: {
-                position: 'top', // Leyenda en la parte superior
-                labels: {
-                    generateLabels: function(chart) {
-                        const originalLabels = Chart.defaults.plugins.legend.labels.generateLabels(chart);
-                        originalLabels.forEach(label => {
-                            const text = label.text;
-                            const maxWidth = 40; // Aumentar ancho ya que la leyenda está arriba
-                            if (text.length > maxWidth) {
-                                const words = text.split(' ');
-                                const newText = [];
-                                let currentLine = '';
-                                words.forEach(word => {
-                                    if ((currentLine + ' ' + word).length > maxWidth) {
-                                        newText.push(currentLine);
-                                        currentLine = word;
-                                    } else {
-                                        currentLine += (currentLine.length > 0 ? ' ' : '') + word;
-                                    }
-                                });
-                                newText.push(currentLine);
-                                label.text = newText;
-                            }
-                        });
-                        return originalLabels;
-                    }
-                }
+                position: 'top',
+                // Dejar que Chart.js genere la leyenda por defecto a partir de los labels del data.
+                // Esto asegura que la leyenda muestre los nombres de los cursos.
             },
             datalabels: pieDatalabelsConfig
         }
@@ -126,16 +103,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const barData = <?php echo $json_data_bar; ?>;
     new Chart(barCtx, {
         type: 'bar',
-        data: barData, // La nueva estructura ya tiene 'labels' y 'datasets'
+        data: barData,
         options: {
             plugins: {
                 title: { display: false },
-                legend: { display: true, position: 'top' } // Habilitar leyenda
+                legend: { display: true, position: 'top' }
             },
             responsive: true,
             scales: {
-                x: { stacked: true }, // Apilar en el eje X
-                y: { stacked: true, beginAtZero: true } // Apilar en el eje Y
+                x: { stacked: true },
+                y: { stacked: true, beginAtZero: true }
             }
         }
     });
@@ -144,10 +121,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const pieCtx = document.getElementById('pieChartVentas').getContext('2d');
     const pieData = <?php echo $json_data_pie; ?>;
     if (pieData.labels.length > 0) {
-        new Chart(pieCtx, { type: 'pie', data: { labels: pieData.labels, datasets: [{
-            label: 'Ventas', data: pieData.data,
-            backgroundColor: ['#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1', '#fd7e14', '#20c997', '#6610f2'],
-        }]}, options: pieOptions});
+        new Chart(pieCtx, {
+            type: 'pie',
+            data: {
+                labels: pieData.labels, // <-- ESTO es lo que usa la leyenda
+                datasets: [{
+                    label: 'Ventas', // Este label no se usa en la leyenda del pie chart
+                    data: pieData.data,
+                    backgroundColor: ['#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1', '#fd7e14', '#20c997', '#6610f2'],
+                }]
+            },
+            options: pieOptions
+        });
     } else {
         pieCtx.font = "16px Arial";
         pieCtx.textAlign = "center";
@@ -158,10 +143,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const pieAreaCtx = document.getElementById('pieChartVentasArea').getContext('2d');
     const pieAreaData = <?php echo $json_data_pie_area; ?>;
     if (pieAreaData.labels.length > 0) {
-        new Chart(pieAreaCtx, { type: 'pie', data: { labels: pieAreaData.labels, datasets: [{
-            label: 'Ventas', data: pieAreaData.data,
-            backgroundColor: ['#17a2b8', '#fd7e14', '#6610f2', '#e83e8c', '#20c997', '#ffc107', '#28a745', '#dc3545'],
-        }]}, options: pieOptions});
+        new Chart(pieAreaCtx, {
+            type: 'pie',
+            data: {
+                labels: pieAreaData.labels, // <-- ESTO es lo que usa la leyenda
+                datasets: [{
+                    label: 'Ventas',
+                    data: pieAreaData.data,
+                    backgroundColor: ['#17a2b8', '#fd7e14', '#6610f2', '#e83e8c', '#20c997', '#ffc107', '#28a745', '#dc3545'],
+                }]
+            },
+            options: pieOptions
+        });
     } else {
         pieAreaCtx.font = "16px Arial";
         pieAreaCtx.textAlign = "center";
