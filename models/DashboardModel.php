@@ -31,4 +31,15 @@ class DashboardModel {
         $this->db->callStoredProcedure('sp_dashboard_ventas_mensuales', [$anio]);
         return $this->db->resultSet();
     }
+
+    /**
+     * Obtiene los datos de ventas por curso-area para un mes y año.
+     * @param int $anio
+     * @param int $mes
+     * @return array
+     */
+    public function getVentasPorCursoArea($anio, $mes) {
+        $this->db->callStoredProcedure('sp_dashboard_ventas_mes_por_curso_area', [$anio, $mes]);
+        return $this->db->resultSet();
+    }
 }

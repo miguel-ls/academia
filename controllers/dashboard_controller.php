@@ -43,9 +43,17 @@ for ($i = 1; $i <= 12; $i++) {
 }
 
 
+// --- Obtención de datos para el tercer gráfico ---
+$ventas_por_curso_area_data = $dashboardModel->getVentasPorCursoArea($anio_seleccionado, $mes_seleccionado);
+$chart_data_pie_area = [
+    'labels' => array_column($ventas_por_curso_area_data, 'label'),
+    'data' => array_column($ventas_por_curso_area_data, 'total_ventas')
+];
+
 // Convertir los datos a JSON para inyectarlos en el script de la vista
 $json_data_pie = json_encode($chart_data_pie);
 $json_data_bar = json_encode($chart_data_bar);
+$json_data_pie_area = json_encode($chart_data_pie_area);
 
 
 // Cargar la vista del dashboard
