@@ -60,9 +60,9 @@
 }
 .chart-container-pie {
     position: relative;
-    margin-left: 0; /* Alinear a la izquierda */
+    margin-left: 0;
     margin-right: auto;
-    max-width: 400px; /* Aumentado otro 25% */
+    max-width: 400px;
 }
 </style>
 
@@ -72,35 +72,56 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Registrar el plugin globalmente
     Chart.register(ChartDataLabels);
 
-    // Configuración común para los datalabels de los gráficos circulares
     const pieDatalabelsConfig = {
         formatter: (value, ctx) => {
             let dataArr = ctx.chart.data.datasets[0].data;
-            // Asegurarse de que todos los valores son números antes de sumar
             const sum = dataArr.reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
-            if (sum === 0) {
-                return '0.00%';
-            }
-            // Asegurarse de que el valor actual es un número
+            if (sum === 0) return '0.00%';
             const percentage = ((parseFloat(value) * 100) / sum).toFixed(2) + "%";
             return percentage;
         },
         color: '#fff',
-        font: {
-            weight: 'bold'
-        }
+        font: { weight: 'bold' }
     };
 
-    // Configuración común para las opciones de los gráficos circulares
     const pieOptions = {
         responsive: true,
-        maintainAspectRatio: true, // Mantiene el aspecto circular
+        maintainAspectRatio: true,
         plugins: {
             legend: {
-                position: 'right', // Mover la leyenda a la derecha
+                position: 'right',
+                labels: {
+                    // Usar una función para generar las etiquetas de la leyenda
+                    generateLabels: function(chart) {
+                        // Obtener las etiquetas por defecto
+                        const originalLabels = Chart.defaults.plugins.legend.labels.generateLabels(chart);
+
+                        // Envolver el texto de cada etiqueta
+                        originalLabels.forEach(label => {
+                            const text = label.text;
+                            const maxWidth = 25; // Ancho máximo en caracteres
+                            if (text.length > maxWidth) {
+                                const words = text.split(' ');
+                                const newText = [];
+                                let currentLine = '';
+                                words.forEach(word => {
+                                    if ((currentLine + ' ' + word).length > maxWidth) {
+                                        newText.push(currentLine);
+                                        currentLine = word;
+                                    } else {
+                                        currentLine += (currentLine.length > 0 ? ' ' : '') + word;
+                                    }
+                                });
+                                newText.push(currentLine);
+                                label.text = newText; // Asignar el array de strings
+                            }
+                        });
+
+                        return originalLabels;
+                    }
+                }
             },
             datalabels: pieDatalabelsConfig
         }
