@@ -40,27 +40,60 @@
     </div>
     <div class="card">
         <h3>Ventas por Curso (<?php echo $meses[$mes_seleccionado - 1] . ' ' . $anio_seleccionado; ?>)</h3>
-        <canvas id="pieChartVentas"></canvas>
+        <div class="chart-container-pie">
+            <canvas id="pieChartVentas"></canvas>
+        </div>
     </div>
     <div class="card">
         <h3>Ventas por Curso-Área (<?php echo $meses[$mes_seleccionado - 1] . ' ' . $anio_seleccionado; ?>)</h3>
-        <canvas id="pieChartVentasArea"></canvas>
+        <div class="chart-container-pie">
+            <canvas id="pieChartVentasArea"></canvas>
+        </div>
     </div>
 </div>
 
 <style>
 .dashboard-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
     gap: 2rem;
+}
+.chart-container-pie {
+    position: relative;
+    margin: auto;
+    height: 60vh;
+    width: 60vw;
+    max-width: 350px; /* Controla el tamaño máximo */
+    max-height: 350px;
 }
 </style>
 
-<!-- Incluir Chart.js -->
+<!-- Incluir Chart.js y el plugin de datalabels -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Registrar el plugin globalmente
+    Chart.register(ChartDataLabels);
+
+    // Configuración común para los datalabels de los gráficos circulares
+    const pieDatalabelsConfig = {
+        formatter: (value, ctx) => {
+            let sum = 0;
+            let dataArr = ctx.chart.data.datasets[0].data;
+            dataArr.map(data => {
+                sum += data;
+            });
+            let percentage = (value*100 / sum).toFixed(2)+"%";
+            return percentage;
+        },
+        color: '#fff',
+        font: {
+            weight: 'bold'
+        }
+    };
+
     // --- Gráfico de Barras: Ventas Mensuales ---
     const barCtx = document.getElementById('barChartVentas').getContext('2d');
     const barData = <?php echo $json_data_bar; ?>;
@@ -69,7 +102,7 @@ document.addEventListener('DOMContentLoaded', function() {
         backgroundColor: 'rgba(0, 123, 255, 0.7)',
         borderColor: 'rgba(0, 123, 255, 1)',
         borderWidth: 1
-    }]}, options: { scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } }});
+    }]}, options: { scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false }, datalabels: { display: false } } }});
 
     // --- Gráfico Circular 1: Ventas por Curso ---
     const pieCtx = document.getElementById('pieChartVentas').getContext('2d');
@@ -78,12 +111,11 @@ document.addEventListener('DOMContentLoaded', function() {
         new Chart(pieCtx, { type: 'pie', data: { labels: pieData.labels, datasets: [{
             label: 'Ventas', data: pieData.data,
             backgroundColor: ['#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1', '#fd7e14', '#20c997', '#6610f2'],
-            borderColor: '#fff', borderWidth: 2
-        }]}});
+        }]}, options: { plugins: { datalabels: pieDatalabelsConfig } }});
     } else {
         pieCtx.font = "16px Arial";
         pieCtx.textAlign = "center";
-        pieCtx.fillText("No hay datos de ventas por curso para este mes.", pieCtx.canvas.width / 2, 100);
+        pieCtx.fillText("No hay datos de ventas por curso para este mes.", pieCtx.canvas.width / 2, pieCtx.canvas.height / 2);
     }
 
     // --- Gráfico Circular 2: Ventas por Curso-Área ---
@@ -93,12 +125,11 @@ document.addEventListener('DOMContentLoaded', function() {
         new Chart(pieAreaCtx, { type: 'pie', data: { labels: pieAreaData.labels, datasets: [{
             label: 'Ventas', data: pieAreaData.data,
             backgroundColor: ['#17a2b8', '#fd7e14', '#6610f2', '#e83e8c', '#20c997', '#ffc107', '#28a745', '#dc3545'],
-            borderColor: '#fff', borderWidth: 2
-        }]}});
+        }]}, options: { plugins: { datalabels: pieDatalabelsConfig } }});
     } else {
         pieAreaCtx.font = "16px Arial";
         pieAreaCtx.textAlign = "center";
-        pieAreaCtx.fillText("No hay datos de ventas por curso-área para este mes.", pieAreaCtx.canvas.width / 2, 100);
+        pieAreaCtx.fillText("No hay datos de ventas por curso-área para este mes.", pieAreaCtx.canvas.width / 2, pieAreaCtx.canvas.height / 2);
     }
 });
 </script>
