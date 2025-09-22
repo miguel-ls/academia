@@ -20,7 +20,10 @@ BEGIN
         td.descripcion AS tipo_documento,
         c.numero_documento,
         c.email,
-        c.telefono
+        c.telefono,
+        c.direccion,
+        c.codigo_ubigeo,
+        c.estado
     FROM clientes c
     JOIN tipos_documento td ON c.id_tipo_documento = td.id_tipo_documento
     ORDER BY c.apellidos, c.nombres;
@@ -41,7 +44,8 @@ BEGIN
         td.descripcion AS tipo_documento,
         c.numero_documento,
         c.email,
-        c.telefono
+        c.telefono,
+        c.estado
     FROM clientes c
     JOIN tipos_documento td ON c.id_tipo_documento = td.id_tipo_documento
     WHERE c.nombres LIKE @termino_busqueda
@@ -65,7 +69,10 @@ BEGIN
         apellidos,
         email,
         telefono,
-        codigo_erp
+        codigo_erp,
+        direccion,
+        codigo_ubigeo,
+        estado
     FROM clientes
     WHERE id_cliente = p_id_cliente;
 END$$
@@ -82,7 +89,10 @@ CREATE PROCEDURE `sp_clientes_crear`(
     IN p_apellidos VARCHAR(100),
     IN p_email VARCHAR(100),
     IN p_telefono VARCHAR(20),
-    IN p_codigo_erp VARCHAR(20)
+    IN p_codigo_erp VARCHAR(20),
+    IN p_direccion VARCHAR(255),
+    IN p_codigo_ubigeo VARCHAR(10),
+    IN p_estado ENUM('Activado', 'Desactivado')
 )
 BEGIN
     DECLARE cliente_existente INT;
@@ -94,8 +104,8 @@ BEGIN
     IF cliente_existente > 0 THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Ya existe un cliente con el mismo tipo y número de documento.';
     ELSE
-        INSERT INTO clientes (id_tipo_documento, numero_documento, nombres, apellidos, email, telefono, codigo_erp)
-        VALUES (p_id_tipo_documento, p_numero_documento, p_nombres, p_apellidos, p_email, p_telefono, p_codigo_erp);
+        INSERT INTO clientes (id_tipo_documento, numero_documento, nombres, apellidos, email, telefono, codigo_erp, direccion, codigo_ubigeo, estado)
+        VALUES (p_id_tipo_documento, p_numero_documento, p_nombres, p_apellidos, p_email, p_telefono, p_codigo_erp, p_direccion, p_codigo_ubigeo, p_estado);
         SELECT LAST_INSERT_ID() as id_cliente;
     END IF;
 END$$
@@ -113,7 +123,10 @@ CREATE PROCEDURE `sp_clientes_actualizar`(
     IN p_apellidos VARCHAR(100),
     IN p_email VARCHAR(100),
     IN p_telefono VARCHAR(20),
-    IN p_codigo_erp VARCHAR(20)
+    IN p_codigo_erp VARCHAR(20),
+    IN p_direccion VARCHAR(255),
+    IN p_codigo_ubigeo VARCHAR(10),
+    IN p_estado ENUM('Activado', 'Desactivado')
 )
 BEGIN
     DECLARE cliente_existente INT;
@@ -133,7 +146,10 @@ BEGIN
             apellidos = p_apellidos,
             email = p_email,
             telefono = p_telefono,
-            codigo_erp = p_codigo_erp
+            codigo_erp = p_codigo_erp,
+            direccion = p_direccion,
+            codigo_ubigeo = p_codigo_ubigeo,
+            estado = p_estado
         WHERE id_cliente = p_id_cliente;
     END IF;
 END$$

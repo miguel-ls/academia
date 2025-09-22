@@ -41,6 +41,7 @@ try {
                     'email' => $_POST['email'],
                     'telefono' => $_POST['telefono'],
                     'codigo_erp' => $_POST['codigo_erp'],
+                    'estado' => $_POST['estado'],
                     'direccion' => $_POST['direccion'],
                     'codigo_ubigeo' => $_POST['codigo_ubigeo']
                 ];
@@ -68,6 +69,7 @@ try {
                     'email' => $_POST['email'],
                     'telefono' => $_POST['telefono'],
                     'codigo_erp' => $_POST['codigo_erp'],
+                    'estado' => $_POST['estado'],
                     'direccion' => $_POST['direccion'],
                     'codigo_ubigeo' => $_POST['codigo_ubigeo']
                 ];
