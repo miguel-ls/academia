@@ -32,6 +32,7 @@
             <th>Documento</th>
             <th>Email</th>
             <th>Teléfono</th>
+            <th>Estado</th>
             <th>Dirección</th>
             <th>Ubigeo</th>
             <th>Acciones</th>
@@ -50,6 +51,7 @@
                     <td><?php echo htmlspecialchars($cliente['tipo_documento']) . ': ' . htmlspecialchars($cliente['numero_documento']); ?></td>
                     <td><?php echo htmlspecialchars($cliente['email']); ?></td>
                     <td><?php echo htmlspecialchars($cliente['telefono']); ?></td>
+                    <td><span class="status-<?php echo strtolower($cliente['estado']); ?>"><?php echo htmlspecialchars($cliente['estado']); ?></span></td>
                     <td><?php echo htmlspecialchars($cliente['direccion'] ?? ''); ?></td>
                     <td><?php echo htmlspecialchars($cliente['codigo_ubigeo'] ?? ''); ?></td>
                     <td>

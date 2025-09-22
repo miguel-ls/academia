@@ -79,9 +79,18 @@ $action_url = $is_edit ? 'index.php?view=clientes&action=update' : 'index.php?vi
             </div>
         </div>
 
-        <div class="form-group">
-            <label for="codigo_erp">Código ERP:</label>
-            <input type="text" id="codigo_erp" name="codigo_erp" value="<?php echo htmlspecialchars($cliente_a_editar['codigo_erp'] ?? ''); ?>">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="estado">Estado:</label>
+                <select id="estado" name="estado" required>
+                    <option value="Activado" <?php echo (isset($cliente_a_editar) && $cliente_a_editar['estado'] == 'Activado') ? 'selected' : ''; ?>>Activado</option>
+                    <option value="Desactivado" <?php echo (isset($cliente_a_editar) && $cliente_a_editar['estado'] == 'Desactivado') ? 'selected' : ''; ?>>Desactivado</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="codigo_erp">Código ERP:</label>
+                <input type="text" id="codigo_erp" name="codigo_erp" value="<?php echo htmlspecialchars($cliente_a_editar['codigo_erp'] ?? ''); ?>">
+            </div>
         </div>
 
         <div class="form-actions">
