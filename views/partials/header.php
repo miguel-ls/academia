@@ -23,7 +23,7 @@ $base_url = defined('SITE_URL') ? SITE_URL : '';
         <ul class="sidebar-nav">
             <li><a href="<?php echo $base_url; ?>index.php?view=dashboard">Panel</a></li>
 
-            <li class="nav-dropdown">
+            <li class="nav-dropdown" data-menu="configuracion">
                 <a href="#">Configuración</a>
                 <ul class="dropdown-content">
                     <li><a href="<?php echo $base_url; ?>index.php?view=clientes">Clientes</a></li>
@@ -41,7 +41,7 @@ $base_url = defined('SITE_URL') ? SITE_URL : '';
                 </ul>
             </li>
 
-            <li class="nav-dropdown">
+            <li class="nav-dropdown" data-menu="operaciones">
                 <a href="#">Operaciones</a>
                 <ul class="dropdown-content">
                     <li><a href="<?php echo $base_url; ?>index.php?view=monitor">Monitor</a></li>
@@ -54,7 +54,7 @@ $base_url = defined('SITE_URL') ? SITE_URL : '';
                 </ul>
             </li>
 
-            <li class="nav-dropdown">
+            <li class="nav-dropdown" data-menu="seguridad">
                 <a href="#">Seguridad</a>
                 <ul class="dropdown-content">
                     <li><a href="<?php echo $base_url; ?>index.php?view=usuarios">Usuarios</a></li>

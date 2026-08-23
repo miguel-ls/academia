@@ -5,9 +5,9 @@
 // =================================================================
 
 // Configuración de la Base de Datos
-define('DB_HOST', '127.0.0.1'); // O la IP de tu servidor de BD
-define('DB_USER', 'miguel');
-define('DB_PASS', 'Miguel123!'); // Colocar la contraseña si es necesaria
+define('DB_HOST', 'localhost'); // O la IP de tu servidor de BD
+define('DB_USER', 'root');
+define('DB_PASS', '1q2w3e4r5t.'); // Colocar la contraseña si es necesaria
 define('DB_NAME', 'academia_cursos'); // Nombre de la BD
 
 // Configuración del Sitio

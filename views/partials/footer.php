@@ -16,11 +16,41 @@
 <script>
     // Script para manejar los dropdowns del menú lateral
     document.addEventListener('DOMContentLoaded', function() {
-        const dropdowns = document.querySelectorAll('.sidebar .nav-dropdown > a');
-        dropdowns.forEach(function(dropdown) {
-            dropdown.addEventListener('click', function(e) {
+        const storageKey = 'academia.sidebar.openGroups';
+        const menuGroups = document.querySelectorAll('.sidebar .nav-dropdown');
+        let openGroups = [];
+
+        try {
+            openGroups = JSON.parse(localStorage.getItem(storageKey)) || [];
+        } catch (error) {
+            openGroups = [];
+        }
+
+        const currentView = new URLSearchParams(window.location.search).get('view') || 'dashboard';
+        document.querySelectorAll('.sidebar a[href*="view="]').forEach(function(link) {
+            if (new URL(link.href).searchParams.get('view') === currentView) {
+                link.classList.add('active');
+            }
+        });
+
+        menuGroups.forEach(function(group) {
+            const toggle = group.querySelector(':scope > a');
+            const menuId = group.dataset.menu;
+
+            if (openGroups.includes(menuId) || group.querySelector('.dropdown-content a.active')) {
+                group.classList.add('open');
+            }
+
+            toggle.setAttribute('role', 'button');
+            toggle.setAttribute('aria-expanded', group.classList.contains('open') ? 'true' : 'false');
+            toggle.addEventListener('click', function(e) {
                 e.preventDefault();
-                this.parentElement.classList.toggle('open');
+                group.classList.toggle('open');
+                toggle.setAttribute('aria-expanded', group.classList.contains('open') ? 'true' : 'false');
+                openGroups = Array.from(menuGroups)
+                    .filter(function(item) { return item.classList.contains('open'); })
+                    .map(function(item) { return item.dataset.menu; });
+                localStorage.setItem(storageKey, JSON.stringify(openGroups));
             });
         });
     });
