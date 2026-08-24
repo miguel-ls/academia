@@ -17,6 +17,7 @@ $meses_nombres = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio"
 // --- Obtención de datos para los gráficos circulares (sin cambios) ---
 $ventas_por_curso_data = $dashboardModel->getVentasPorCurso($anio_seleccionado, $mes_seleccionado);
 $ventas_por_curso_area_data = $dashboardModel->getVentasPorCursoArea($anio_seleccionado, $mes_seleccionado);
+$ventas_por_profesor_data = $dashboardModel->getVentasPorProfesor($anio_seleccionado, $mes_seleccionado);
 
 $chart_data_pie = [
     'labels' => array_column($ventas_por_curso_data, 'nombre_curso'),
@@ -25,6 +26,14 @@ $chart_data_pie = [
 $chart_data_pie_area = [
     'labels' => array_column($ventas_por_curso_area_data, 'label'),
     'data' => array_column($ventas_por_curso_area_data, 'total_ventas')
+];
+$chart_data_bar_profesor = [
+    'labels' => array_column($ventas_por_profesor_data, 'nombre_profesor'),
+    'datasets' => [[
+        'label' => 'Ventas',
+        'data' => array_column($ventas_por_profesor_data, 'total_ventas'),
+        'backgroundColor' => '#20a39e'
+    ]]
 ];
 
 // --- Obtención y procesamiento de datos para el gráfico de barras apiladas ---
@@ -66,6 +75,7 @@ $chart_data_bar = [
 $json_data_pie = json_encode($chart_data_pie);
 $json_data_pie_area = json_encode($chart_data_pie_area);
 $json_data_bar = json_encode($chart_data_bar);
+$json_data_bar_profesor = json_encode($chart_data_bar_profesor);
 
 
 // Cargar la vista del dashboard

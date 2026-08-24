@@ -37,7 +37,7 @@
 }
 </style>
 
-<div class="matricula-container">
+<div class="matricula-container matricula-page">
     <h1>Nueva Matrícula</h1>
     <form id="form-matricula" action="index.php?view=matriculas" method="POST">
         <input type="hidden" name="action" value="registrar_matricula">
@@ -118,8 +118,14 @@
                 <div class="form-group">
                     <label for="id_forma_pago">Forma de Pago:</label>
                     <select id="id_forma_pago" name="id_forma_pago" required>
+                        <option value="">Seleccione una forma de pago</option>
+                        <?php foreach ($formas_pago as $forma_pago): ?>
+                            <option value="<?php echo $forma_pago['id_forma_pago']; ?>"><?php echo htmlspecialchars($forma_pago['nombre']); ?></option>
+                        <?php endforeach; ?>
+                        <?php /*
                         <option value="1">Efectivo</option>
                         <option value="2">Tarjeta de Crédito/Débito</option>
+                        <?php */ ?>
                     </select>
                 </div>
             </div>

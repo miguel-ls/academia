@@ -1,4 +1,13 @@
-<?php require_once 'views/partials/header.php'; ?>
+<?php
+$anio_seleccionado = $anio_seleccionado ?? date('Y');
+$mes_seleccionado = (int)($mes_seleccionado ?? date('m'));
+$meses = $meses ?? ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+$json_data_bar = $json_data_bar ?? '{"labels":[],"datasets":[]}';
+$json_data_bar_profesor = $json_data_bar_profesor ?? '{"labels":[],"datasets":[]}';
+$json_data_pie = $json_data_pie ?? '{"labels":[],"data":[]}';
+$json_data_pie_area = $json_data_pie_area ?? '{"labels":[],"data":[]}';
+require_once 'views/partials/header.php';
+?>
 
 <div class="page-header">
     <h1>Panel Principal</h1>
@@ -39,6 +48,10 @@
         <canvas id="barChartVentas"></canvas>
     </div>
     <div class="card">
+        <h3>Ventas por Profesor (<?php echo $meses[$mes_seleccionado - 1] . ' ' . $anio_seleccionado; ?>)</h3>
+        <canvas id="barChartVentasProfesor"></canvas>
+    </div>
+    <div class="card">
         <h3>Ventas por Curso (<?php echo $meses[$mes_seleccionado - 1] . ' ' . $anio_seleccionado; ?>)</h3>
         <div class="chart-container-pie">
             <canvas id="pieChartVentas"></canvas>
@@ -55,13 +68,21 @@
 <style>
 .dashboard-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 2rem;
+}
+.dashboard-grid > .card {
+    min-width: 0;
 }
 .chart-container-pie {
     position: relative;
     margin: auto;
     max-width: 320px;
+}
+@media (max-width: 900px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
 }
 </style>
 
@@ -116,6 +137,31 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+
+    // --- Gráfico de Barras: Ventas por Profesor ---
+    const barProfesorCtx = document.getElementById('barChartVentasProfesor').getContext('2d');
+    const barProfesorData = <?php echo $json_data_bar_profesor; ?>;
+    if (barProfesorData.labels.length > 0) {
+        new Chart(barProfesorCtx, {
+            type: 'bar',
+            data: barProfesorData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { beginAtZero: true },
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    } else {
+        barProfesorCtx.font = "16px Arial";
+        barProfesorCtx.textAlign = "center";
+        barProfesorCtx.fillText("No hay ventas por profesor para este mes.", barProfesorCtx.canvas.width / 2, barProfesorCtx.canvas.height / 2);
+    }
 
     // --- Gráfico Circular 1: Ventas por Curso ---
     const pieCtx = document.getElementById('pieChartVentas').getContext('2d');

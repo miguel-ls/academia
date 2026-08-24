@@ -73,6 +73,7 @@
             <th>Profesor</th>
             <th>Ubicación</th>
             <th>Tipo de Horario</th>
+            <th>Vacantes</th>
             <th>Fecha Inicio</th>
             <th>Fecha Fin</th>
             <th>Hora Inicio</th>
@@ -94,6 +95,7 @@
                     <td><?php echo htmlspecialchars($prog['profesor_nombre']); ?></td>
                     <td><?php echo htmlspecialchars($prog['ubicacion']); ?></td>
                     <td><?php echo htmlspecialchars($prog['tipo_horario_nombre']); ?></td>
+                    <td><?php echo htmlspecialchars($prog['vacantes']); ?></td>
                     <td><?php echo date('d/m/Y', strtotime($prog['fecha_inicio'])); ?></td>
                     <td><?php echo date('d/m/Y', strtotime($prog['fecha_fin'])); ?></td>
                     <td><?php echo date('h:i A', strtotime($prog['hora_inicio'])); ?></td>

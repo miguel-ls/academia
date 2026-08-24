@@ -8,6 +8,7 @@ require_once 'models/MatriculaModel.php';
 require_once 'models/ClienteModel.php';
 require_once 'models/MonitorModel.php';
 require_once 'models/ProgramacionModel.php';
+require_once 'models/FormasPagoModel.php';
 
 // --- Verificación de Seguridad ---
 Session::check();
@@ -17,6 +18,7 @@ $matriculaModel = new MatriculaModel();
 $clienteModel = new ClienteModel();
 $monitorModel = new MonitorModel();
 $programacionModel = new ProgramacionModel();
+$formasPagoModel = new FormasPagoModel();
 
 
 // Determinar la acción: puede venir por GET (navegación) o POST (formularios)
@@ -34,6 +36,7 @@ switch ($action) {
         require_once 'models/TiposDocumentoModel.php';
         $tiposDocumentoModel = new TiposDocumentoModel();
         $tipos_documento = $tiposDocumentoModel->obtenerTodos();
+        $formas_pago = $formasPagoModel->obtenerTodos();
 
         // Cargar la vista principal del formulario
         require_once 'views/matriculas/nueva.php';
@@ -76,7 +79,8 @@ switch ($action) {
                 $nuevos_por_curso = [];
                 $programaciones_cursos = []; // Almacenar datos de programación para reutilizar
 
-                foreach ($_POST['cursos'] as $id_curso_programado => $curso) {
+                foreach ($_POST['cursos'] as $curso) {
+                    $id_curso_programado = (int)($curso['id_curso_programado'] ?? 0);
                     if (!isset($nuevos_por_curso[$id_curso_programado])) {
                         $nuevos_por_curso[$id_curso_programado] = 0;
                     }
@@ -102,7 +106,7 @@ switch ($action) {
 
                 // --- Validación de Cruce de Horarios para Clientes (Mejorada) ---
                 $clientes_a_validar = [];
-                foreach ($_POST['cursos'] as $id_curso_programado => $curso_data) {
+                foreach ($_POST['cursos'] as $curso_data) {
                     $clientes_a_validar[$curso_data['id_cliente_asistencia']] = true;
                 }
 
@@ -112,7 +116,8 @@ switch ($action) {
 
                     // 2. Preparar la lista de cursos nuevos para este cliente
                     $cursos_nuevos = [];
-                    foreach ($_POST['cursos'] as $id_curso_programado => $curso_data) {
+                    foreach ($_POST['cursos'] as $curso_data) {
+                        $id_curso_programado = (int)($curso_data['id_curso_programado'] ?? 0);
                         if ($curso_data['id_cliente_asistencia'] == $id_cliente) {
                             $programacion = $programaciones_cursos[$id_curso_programado];
                             $cursos_nuevos[] = [
@@ -160,7 +165,8 @@ switch ($action) {
                 }
                 // --- Fin de Validación ---
 
-                foreach ($_POST['cursos'] as $id_curso_programado => $curso) {
+                foreach ($_POST['cursos'] as $curso) {
+                    $id_curso_programado = (int)($curso['id_curso_programado'] ?? 0);
                     $monto_total += (float)$curso['precio_pactado'];
                     $descuento_total += (float)$curso['descuento'];
                     $cursos_detalle[] = [
@@ -266,6 +272,7 @@ switch ($action) {
             $detalles = $matriculaModel->obtenerDetallesPorIdMatricula($id_matricula);
 
             if ($matricula) {
+                $formas_pago = $formasPagoModel->obtenerTodos();
                 // Cargar la vista de edición, que será una versión modificada de la de nueva matrícula
                 require_once 'views/matriculas/editar.php';
             } else {
@@ -300,11 +307,12 @@ switch ($action) {
                 $descuento_total = 0;
                 $cursos_detalle = [];
 
-                foreach ($_POST['cursos'] as $id_curso_programado => $curso) {
+                foreach ($_POST['cursos'] as $curso) {
+                    $id_curso_programado = (int)($curso['id_curso_programado'] ?? 0);
                     $monto_total += (float)$curso['precio_pactado'];
                     $descuento_total += (float)$curso['descuento'];
-                    // El id_matricula_detalle no viene del form, se manejará en el modelo
                     $cursos_detalle[] = [
+                        'id_matricula_detalle' => (int)($curso['id_matricula_detalle'] ?? 0),
                         'id_curso_programado' => (int)$id_curso_programado,
                         'id_cliente_asistencia' => (int)$curso['id_cliente_asistencia'],
                         'precio_pactado' => (float)$curso['precio_pactado'],

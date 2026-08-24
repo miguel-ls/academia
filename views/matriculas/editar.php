@@ -1,6 +1,20 @@
 <?php require_once 'views/partials/header.php'; ?>
+<?php
+$matricula = $matricula ?? [];
+$detalles = $detalles ?? [];
+$formas_pago = $formas_pago ?? [];
+$forma_pago_seleccionada = (string)($matricula['id_forma_pago'] ?? '');
+if ($forma_pago_seleccionada === '' && !empty($matricula['forma_pago'])) {
+    foreach ($formas_pago as $forma_pago) {
+        if (strcasecmp(trim((string)($forma_pago['nombre'] ?? '')), trim((string)$matricula['forma_pago'])) === 0) {
+            $forma_pago_seleccionada = (string)($forma_pago['id_forma_pago'] ?? '');
+            break;
+        }
+    }
+}
+?>
 
-<div class="matricula-container">
+<div class="matricula-container matricula-page">
     <h1>Editar Matrícula #<?php echo htmlspecialchars($matricula['id_matricula']); ?></h1>
     <form id="form-matricula" action="index.php?view=matriculas" method="POST">
         <input type="hidden" name="action" value="actualizar_matricula">
@@ -82,22 +96,22 @@
             <h2>3. Datos del Pago</h2>
             <div class="form-grid">
                 <!-- Las fechas se copian desde los filtros y se envían de forma oculta -->
-                <input type="hidden" id="fecha_inicio_matricula" name="fecha_inicio_matricula" value="<?php echo htmlspecialchars($matricula['fecha_inicio_clases']); ?>">
-                <input type="hidden" id="fecha_fin_matricula" name="fecha_fin_matricula" value="<?php echo htmlspecialchars($matricula['fecha_fin_clases']); ?>">
+                <input type="hidden" id="fecha_inicio_matricula" name="fecha_inicio_matricula" value="<?php echo htmlspecialchars((string)($matricula['fecha_inicio_clases'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+                <input type="hidden" id="fecha_fin_matricula" name="fecha_fin_matricula" value="<?php echo htmlspecialchars((string)($matricula['fecha_fin_clases'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
                 <div class="form-group">
                     <label for="id_forma_pago">Forma de Pago:</label>
                     <select id="id_forma_pago" name="id_forma_pago" required>
-                        <!-- Opciones cargadas desde BD, aquí se debería seleccionar la correcta -->
-                        <option value="1" <?php echo ($matricula['id_forma_pago'] == 1) ? 'selected' : ''; ?>>Efectivo</option>
-                        <option value="2" <?php echo ($matricula['id_forma_pago'] == 2) ? 'selected' : ''; ?>>Tarjeta de Crédito/Débito</option>
-                        <option value="3" <?php echo ($matricula['id_forma_pago'] == 3) ? 'selected' : ''; ?>>Transferencia Bancaria</option>
-                        <option value="4" <?php echo ($matricula['id_forma_pago'] == 4) ? 'selected' : ''; ?>>Yape/Plin</option>
+                        <option value="">Seleccione una forma de pago</option>
+                        <?php foreach ($formas_pago as $forma_pago): ?>
+                            <?php $id_forma_pago = (string)($forma_pago['id_forma_pago'] ?? ''); ?>
+                            <option value="<?php echo htmlspecialchars($id_forma_pago, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $forma_pago_seleccionada === $id_forma_pago ? 'selected' : ''; ?>><?php echo htmlspecialchars((string)($forma_pago['nombre'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
             </div>
             <div class="form-group" style="margin-top: 15px;">
                 <label for="observaciones">Observaciones:</label>
-                <textarea id="observaciones" name="observaciones" rows="3"><?php echo htmlspecialchars($matricula['observaciones']); ?></textarea>
+                <textarea id="observaciones" name="observaciones" rows="3"><?php echo htmlspecialchars((string)($matricula['observaciones'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></textarea>
             </div>
         </div>
 
@@ -123,9 +137,9 @@
 
 <!-- Embeber los datos de los detalles de la matrícula para que JS los pueda leer -->
 <script>
-    const matriculaDetalles = <?php echo json_encode($detalles); ?>;
+    const matriculaDetalles = <?php echo json_encode($detalles ?? []); ?>;
 </script>
 
-<script src="<?php echo $base_url; ?>public/assets/js/matricula_form.js"></script>
+<script src="<?php echo $base_url; ?>public/assets/js/matricula_form.js?v=<?php echo time(); ?>"></script>
 
 <?php require_once 'views/partials/footer.php'; ?>

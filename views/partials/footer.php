@@ -1,3 +1,6 @@
+<?php
+$base_url = $base_url ?? '';
+?>
 <?php if (!isset($_SESSION['user_id'])): // Cierre de divs para páginas sin login ?>
                 </div> <!-- Cierre de .login-container -->
             </div> <!-- Cierre de .login-wrapper -->
@@ -16,6 +19,24 @@
 <script>
     // Script para manejar los dropdowns del menú lateral
     document.addEventListener('DOMContentLoaded', function() {
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const appWrapper = document.querySelector('.app-wrapper');
+        const sidebarStateKey = 'academia.sidebar.collapsed';
+
+        if (sidebarToggle && appWrapper) {
+            const isCollapsed = localStorage.getItem(sidebarStateKey) === 'true';
+            appWrapper.classList.toggle('sidebar-collapsed', isCollapsed);
+            sidebarToggle.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
+            sidebarToggle.setAttribute('aria-label', isCollapsed ? 'Mostrar barra lateral' : 'Ocultar barra lateral');
+
+            sidebarToggle.addEventListener('click', function() {
+                const collapsed = appWrapper.classList.toggle('sidebar-collapsed');
+                localStorage.setItem(sidebarStateKey, collapsed ? 'true' : 'false');
+                sidebarToggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+                sidebarToggle.setAttribute('aria-label', collapsed ? 'Mostrar barra lateral' : 'Ocultar barra lateral');
+            });
+        }
+
         const storageKey = 'academia.sidebar.openGroups';
         const menuGroups = document.querySelectorAll('.sidebar .nav-dropdown');
         let openGroups = [];

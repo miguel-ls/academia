@@ -97,12 +97,15 @@ class MatriculaModel {
             $detalles_actuales_raw = $this->obtenerDetallesPorIdMatricula($id_matricula);
             $detalles_actuales = [];
             foreach ($detalles_actuales_raw as $detalle) {
-                $detalles_actuales[$detalle['id_curso_programado']] = $detalle;
+                $detalles_actuales[$detalle['id_matricula_detalle']] = $detalle;
             }
 
             $cursos_enviados = [];
             foreach ($datos['cursos'] as $curso) {
-                $cursos_enviados[$curso['id_curso_programado']] = $curso;
+                $clave = !empty($curso['id_matricula_detalle'])
+                    ? (int)$curso['id_matricula_detalle']
+                    : 'nuevo_' . count($cursos_enviados);
+                $cursos_enviados[$clave] = $curso;
             }
 
             // 2. Determinar qué hacer con cada detalle (Añadir, Actualizar, Eliminar)
@@ -111,16 +114,16 @@ class MatriculaModel {
             $a_actualizar = array_intersect_key($cursos_enviados, $detalles_actuales);
 
             // 3. Procesar eliminaciones
-            foreach ($a_eliminar as $id_curso_programado => $detalle_a_eliminar) {
+            foreach ($a_eliminar as $detalle_a_eliminar) {
                 $this->eliminarDetalle($detalle_a_eliminar['id_matricula_detalle'], $id_matricula);
             }
 
             // 4. Procesar adiciones
-            foreach ($a_anadir as $id_curso_programado => $detalle_a_anadir) {
+            foreach ($a_anadir as $detalle_a_anadir) {
                 $precio_final = (float)$detalle_a_anadir['precio_pactado'] - (float)$detalle_a_anadir['descuento'];
                 $params = [
                     $id_matricula,
-                    $id_curso_programado,
+                    $detalle_a_anadir['id_curso_programado'],
                     $detalle_a_anadir['id_cliente_asistencia'],
                     $detalle_a_anadir['precio_pactado'],
                     $detalle_a_anadir['descuento'],
@@ -135,8 +138,8 @@ class MatriculaModel {
             }
 
             // 5. Procesar actualizaciones
-            foreach ($a_actualizar as $id_curso_programado => $detalle_a_actualizar) {
-                $detalle_existente = $detalles_actuales[$id_curso_programado];
+            foreach ($a_actualizar as $id_matricula_detalle => $detalle_a_actualizar) {
+                $detalle_existente = $detalles_actuales[$id_matricula_detalle];
                 if ($detalle_existente['id_cliente_asistencia'] != $detalle_a_actualizar['id_cliente_asistencia'] ||
                     (float)$detalle_existente['precio_pactado'] != (float)$detalle_a_actualizar['precio_pactado'] ||
                     (float)$detalle_existente['descuento'] != (float)$detalle_a_actualizar['descuento']) {

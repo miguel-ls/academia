@@ -1,4 +1,8 @@
-<?php require_once 'views/partials/header.php'; ?>
+<?php
+$filter_data = $filter_data ?? ['cursos' => [], 'profesores' => [], 'ubicaciones' => []];
+$calendar_events_json = $calendar_events_json ?? '[]';
+require_once 'views/partials/header.php';
+?>
 
 <div class="page-header">
     <h1>Calendario de Cursos Programados</h1>
@@ -9,30 +13,27 @@
     <div class="filter-container">
         <div class="form-group">
             <label for="filtro_curso">Curso:</label>
-            <select id="filtro_curso" class="form-control">
-                <option value="">Todos</option>
-                <?php foreach ($filter_data['cursos'] as $id => $nombre): ?>
-                    <option value="<?php echo $id; ?>"><?php echo htmlspecialchars($nombre); ?></option>
-                <?php endforeach; ?>
-            </select>
+            <div class="filter-autocomplete" id="course-filter">
+                <input type="text" id="filtro_curso" class="form-control" autocomplete="off" placeholder="Buscar curso..." aria-autocomplete="list" aria-controls="cursos-resultados">
+                <input type="hidden" id="filtro_curso_id" value="">
+                <div id="cursos-resultados" class="filter-results" role="listbox"></div>
+            </div>
         </div>
         <div class="form-group">
             <label for="filtro_profesor">Profesor:</label>
-            <select id="filtro_profesor" class="form-control">
-                <option value="">Todos</option>
-                <?php foreach ($filter_data['profesores'] as $nombre): ?>
-                    <option value="<?php echo htmlspecialchars($nombre); ?>"><?php echo htmlspecialchars($nombre); ?></option>
-                <?php endforeach; ?>
-            </select>
+            <div class="filter-autocomplete" id="teacher-filter">
+                <input type="text" id="filtro_profesor" class="form-control" autocomplete="off" placeholder="Buscar profesor..." aria-autocomplete="list" aria-controls="profesores-resultados">
+                <input type="hidden" id="filtro_profesor_valor" value="">
+                <div id="profesores-resultados" class="filter-results" role="listbox"></div>
+            </div>
         </div>
         <div class="form-group">
             <label for="filtro_ubicacion">Ubicación:</label>
-            <select id="filtro_ubicacion" class="form-control">
-                <option value="">Todas</option>
-                <?php foreach ($filter_data['ubicaciones'] as $nombre): ?>
-                    <option value="<?php echo htmlspecialchars($nombre); ?>"><?php echo htmlspecialchars($nombre); ?></option>
-                <?php endforeach; ?>
-            </select>
+            <div class="filter-autocomplete" id="location-filter">
+                <input type="text" id="filtro_ubicacion" class="form-control" autocomplete="off" placeholder="Buscar ubicación..." aria-autocomplete="list" aria-controls="ubicaciones-resultados">
+                <input type="hidden" id="filtro_ubicacion_valor" value="">
+                <div id="ubicaciones-resultados" class="filter-results" role="listbox"></div>
+            </div>
         </div>
         <div class="form-group filter-buttons">
             <button id="btn_filtrar" type="button" class="btn btn-primary">Filtrar</button>
@@ -49,7 +50,7 @@
 <style>
     .filter-container {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
         gap: 15px;
         align-items: flex-end;
     }
@@ -63,9 +64,60 @@
     }
     .form-control {
         width: 100%;
-        padding: 8px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
+        min-height: 42px;
+        padding: 10px 12px;
+        border: 1px solid #cbd5e1;
+        border-radius: 7px;
+        background: #fff;
+        color: #1e293b;
+        box-sizing: border-box;
+    }
+    .form-control:focus {
+        outline: 3px solid rgba(37, 99, 235, .14);
+        border-color: #2563eb;
+    }
+    .filter-autocomplete {
+        position: relative;
+    }
+    .filter-results {
+        position: absolute;
+        z-index: 20;
+        top: calc(100% + 5px);
+        left: 0;
+        right: 0;
+        display: none;
+        max-height: 230px;
+        overflow-y: auto;
+        padding: 5px;
+        border: 1px solid #cbd5e1;
+        border-radius: 7px;
+        background: #fff;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, .14);
+    }
+    .filter-results.is-open {
+        display: block;
+    }
+    .filter-result {
+        display: block;
+        width: 100%;
+        padding: 10px 11px;
+        border: 0;
+        border-radius: 5px;
+        background: transparent;
+        color: #334155;
+        text-align: left;
+        cursor: pointer;
+    }
+    .filter-result:hover,
+    .filter-result:focus {
+        outline: none;
+        background: #eff6ff;
+        color: #1d4ed8;
+    }
+    .filter-empty {
+        padding: 10px 11px;
+        color: #64748b;
+        font-size: .9rem;
     }
     .filter-buttons {
         flex-direction: row;
@@ -114,6 +166,50 @@ document.addEventListener('DOMContentLoaded', function() {
     const filtroUbicacion = document.getElementById('filtro_ubicacion');
     const btnFiltrar = document.getElementById('btn_filtrar');
     const btnLimpiar = document.getElementById('btn_limpiar');
+    const filterConfigs = [
+        { input: filtroCurso, value: document.getElementById('filtro_curso_id'), results: document.getElementById('cursos-resultados'), wrapper: document.getElementById('course-filter'), items: Object.entries(<?php echo json_encode($filter_data['cursos'], JSON_UNESCAPED_UNICODE); ?>), useId: true },
+        { input: filtroProfesor, value: document.getElementById('filtro_profesor_valor'), results: document.getElementById('profesores-resultados'), wrapper: document.getElementById('teacher-filter'), items: Object.entries(<?php echo json_encode($filter_data['profesores'], JSON_UNESCAPED_UNICODE); ?>) },
+        { input: filtroUbicacion, value: document.getElementById('filtro_ubicacion_valor'), results: document.getElementById('ubicaciones-resultados'), wrapper: document.getElementById('location-filter'), items: Object.entries(<?php echo json_encode($filter_data['ubicaciones'], JSON_UNESCAPED_UNICODE); ?>) }
+    ];
+
+    function closeResults(results) {
+        results.classList.remove('is-open');
+        results.innerHTML = '';
+    }
+
+    function renderResults(config, query) {
+        const normalizedQuery = query.trim().toLocaleLowerCase('es');
+        const matches = config.items.filter(([id, name]) =>
+            String(name).toLocaleLowerCase('es').includes(normalizedQuery)
+        ).slice(0, 30);
+
+        config.results.innerHTML = matches.length
+            ? matches.map(([id, name]) => `<button type="button" class="filter-result" data-id="${id}" role="option">${name}</button>`).join('')
+            : '<div class="filter-empty">No se encontraron resultados.</div>';
+        config.results.classList.add('is-open');
+    }
+
+    filterConfigs.forEach(config => {
+        config.input.addEventListener('input', function() {
+            config.value.value = '';
+            renderResults(config, this.value);
+        });
+        config.input.addEventListener('focus', function() {
+            renderResults(config, this.value);
+        });
+        config.results.addEventListener('click', function(event) {
+            const result = event.target.closest('.filter-result');
+            if (!result) return;
+            config.input.value = result.textContent;
+            config.value.value = config.useId ? result.dataset.id : result.textContent;
+            closeResults(config.results);
+        });
+    });
+    document.addEventListener('click', function(event) {
+        filterConfigs.forEach(config => {
+            if (!config.wrapper.contains(event.target)) closeResults(config.results);
+        });
+    });
 
     // --- Función para generar colores pastel ---
     function generatePastelColor(str) {
@@ -178,9 +274,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- Lógica de los Filtros ---
     btnFiltrar.addEventListener('click', function() {
-        const cursoId = filtroCurso.value;
-        const profesorNombre = filtroProfesor.value;
-        const ubicacionNombre = filtroUbicacion.value;
+        const cursoId = document.getElementById('filtro_curso_id').value;
+        const profesorNombre = document.getElementById('filtro_profesor_valor').value;
+        const ubicacionNombre = document.getElementById('filtro_ubicacion_valor').value;
 
         const filteredEvents = allEvents.filter(function(event) {
             const props = event.extendedProps;
@@ -197,8 +293,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     btnLimpiar.addEventListener('click', function() {
         filtroCurso.value = "";
+        document.getElementById('filtro_curso_id').value = "";
         filtroProfesor.value = "";
+        document.getElementById('filtro_profesor_valor').value = "";
         filtroUbicacion.value = "";
+        document.getElementById('filtro_ubicacion_valor').value = "";
+        filterConfigs.forEach(config => closeResults(config.results));
 
         calendar.removeAllEvents();
         calendar.addEventSource(allEvents);

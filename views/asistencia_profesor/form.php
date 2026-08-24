@@ -11,25 +11,36 @@ $dias_es = [
 ];
 ?>
 
-<div class="page-header">
-    <h1>Marcar Asistencia de Profesor</h1>
+<main class="asistencia-profesor-page">
+<div class="page-header asistencia-page-header">
+    <div>
+        <p class="eyebrow">Control academico</p>
+        <h1>Marcar Asistencia de Profesor</h1>
+        <p class="page-subtitle">Registra y actualiza la asistencia de cada clase programada.</p>
+    </div>
+    <a href="index.php?view=asistencia_profesores" class="btn btn-secondary asistencia-back"><i class="bi bi-arrow-left" aria-hidden="true"></i> Volver al listado</a>
 </div>
 
 <!-- Course Details Section -->
-<div class="card">
-    <h2>Detalles del Curso Programado</h2>
+<section class="attendance-course-card">
+    <div class="attendance-card-heading"><span class="attendance-card-icon"><i class="bi bi-mortarboard-fill" aria-hidden="true"></i></span><div><p class="eyebrow">Curso programado</p><h2>Detalles de la programacion</h2></div></div>
+    <div class="attendance-details-grid">
     <p><strong>Curso:</strong> <?php echo htmlspecialchars($detalle_curso['curso_nombre']); ?></p>
     <p><strong>Profesor:</strong> <?php echo htmlspecialchars($detalle_curso['profesor_nombre']); ?></p>
     <p><strong>Periodo:</strong> <?php echo date('d/m/Y', strtotime($detalle_curso['fecha_inicio'])); ?> - <?php echo date('d/m/Y', strtotime($detalle_curso['fecha_fin'])); ?></p>
     <p><strong>Horario:</strong> <?php echo htmlspecialchars($detalle_curso['tipo_horario_nombre']); ?> (<?php echo date('h:i A', strtotime($detalle_curso['hora_inicio'])); ?> - <?php echo date('h:i A', strtotime($detalle_curso['hora_fin'])); ?>)</p>
     <p><strong>Ubicación:</strong> <?php echo htmlspecialchars($detalle_curso['ubicacion']); ?></p>
-</div>
+    </div>
+</section>
 
 <!-- Attendance Form -->
-<form action="index.php?view=asistencia_profesores&action=guardar" method="POST">
+<form class="attendance-form" action="index.php?view=asistencia_profesores&action=guardar" method="POST">
     <input type="hidden" name="id_curso_programado" value="<?php echo $id_curso_programado; ?>">
 
-    <table class="table">
+    <section class="attendance-table-card">
+        <div class="attendance-table-heading"><div><h2>Clases del periodo</h2><p>Actualiza el estado y agrega observaciones cuando sea necesario.</p></div><span class="attendance-count"><?php echo count($clases); ?> clase<?php echo count($clases) === 1 ? '' : 's'; ?> en esta pagina</span></div>
+        <div class="attendance-table-scroll">
+    <table class="table attendance-table">
         <thead>
             <tr>
                 <th>Fecha de Clase</th>
@@ -69,6 +80,8 @@ $dias_es = [
             <?php endif; ?>
         </tbody>
     </table>
+        </div>
+    </section>
 
     <!-- Paginación -->
     <?php if ($total_paginas > 1): ?>
@@ -87,10 +100,11 @@ $dias_es = [
         </div>
     <?php endif; ?>
 
-    <div class="form-actions">
+    <div class="form-actions attendance-form-actions">
         <a href="index.php?view=asistencia_profesores" class="btn btn-secondary">Cancelar</a>
         <button type="submit" class="btn btn-primary">Grabar Asistencia</button>
     </div>
 </form>
+</main>
 
 <?php require_once 'views/partials/footer.php'; ?>

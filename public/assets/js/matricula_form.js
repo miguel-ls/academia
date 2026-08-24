@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const modalErrorMessage = document.getElementById('modal-error-message');
     const modalInputDocumento = document.getElementById('modal_numero_documento');
     const modalDocumentoError = document.getElementById('modal-documento-error');
-    const modalSubmitBtn = formNuevoCliente.querySelector('button[type="submit"]');
+    const modalSubmitBtn = formNuevoCliente ? formNuevoCliente.querySelector('button[type="submit"]') : null;
     const modalTipoDocumento = document.getElementById('modal_id_tipo_documento');
     const modalLabelNombres = document.getElementById('label_modal_nombres');
     const modalGroupApellidos = document.getElementById('group_modal_apellidos');
@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // --- Lógica del Modal de Nuevo Cliente ---
-    btnNuevoCliente.addEventListener('click', function() {
+    btnNuevoCliente?.addEventListener('click', function() {
         modal.style.display = 'flex';
     });
 
@@ -91,9 +91,10 @@ document.addEventListener('DOMContentLoaded', function() {
         modalBtnSunat.style.display = 'none';
     }
 
-    btnCerrarModal.addEventListener('click', cerrarModal);
-    btnCancelarModal.addEventListener('click', cerrarModal);
+    btnCerrarModal?.addEventListener('click', cerrarModal);
+    btnCancelarModal?.addEventListener('click', cerrarModal);
 
+    if (formNuevoCliente) {
     modalTipoDocumento.addEventListener('change', function() {
         const selectedOptionText = this.options[this.selectedIndex].text.trim().toUpperCase();
         if (selectedOptionText === 'RUC') {
@@ -230,6 +231,7 @@ document.addEventListener('DOMContentLoaded', function() {
             modalErrorMessage.style.display = 'block';
         });
     });
+    }
 
     // --- Lógica de Búsqueda de Cursos y Grilla (sin cambios) ---
     const btnBuscarCursos = document.getElementById('btn-buscar-cursos');
@@ -326,34 +328,38 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
+    let filaCursoSecuencia = 0;
     function agregarCursoAGrilla(curso) {
         const precioPactado = curso.precio_pactado !== undefined ? curso.precio_pactado : curso.precio;
         const descuento = curso.descuento !== undefined ? curso.descuento : 0.00;
         const precioFinal = precioPactado - descuento;
         const newRow = document.createElement('tr');
+        const rowKey = curso.detalleId || `nuevo_${Date.now()}_${filaCursoSecuencia++}`;
         newRow.dataset.id = curso.id;
-        const uniqueId = `cliente_asistente_${curso.id}`;
+        const uniqueId = `cliente_asistente_${rowKey}`;
         newRow.innerHTML = `
             <td>
                 <div class="search-results">
                     <input type="text" id="${uniqueId}" class="cliente-asistente-search" value="${curso.clienteNombre}" placeholder="Buscar cliente...">
-                    <input type="hidden" class="id-cliente-asistente" name="cursos[${curso.id}][id_cliente_asistencia]" value="${curso.clienteId}">
+                    <input type="hidden" name="cursos[${rowKey}][id_matricula_detalle]" value="${curso.detalleId || ''}">
+                    <input type="hidden" name="cursos[${rowKey}][id_curso_programado]" value="${curso.id}">
+                    <input type="hidden" class="id-cliente-asistente" name="cursos[${rowKey}][id_cliente_asistencia]" value="${curso.clienteId}">
                     <div class="search-results-list-inline"></div>
                 </div>
             </td>
             <td>
                 ${curso.nombre}
-                <input type="hidden" name="cursos[${curso.id}][dias_semana]" value="${curso.dias_semana_raw}">
-                <input type="hidden" name="cursos[${curso.id}][fecha_inicio]" value="${curso.fecha_inicio_raw}">
-                <input type="hidden" name="cursos[${curso.id}][fecha_fin]" value="${curso.fecha_fin_raw}">
-                <input type="hidden" name="cursos[${curso.id}][hora_inicio]" value="${curso.hora_inicio_raw}">
-                <input type="hidden" name="cursos[${curso.id}][hora_fin]" value="${curso.hora_fin_raw}">
+                <input type="hidden" name="cursos[${rowKey}][dias_semana]" value="${curso.dias_semana_raw}">
+                <input type="hidden" name="cursos[${rowKey}][fecha_inicio]" value="${curso.fecha_inicio_raw}">
+                <input type="hidden" name="cursos[${rowKey}][fecha_fin]" value="${curso.fecha_fin_raw}">
+                <input type="hidden" name="cursos[${rowKey}][hora_inicio]" value="${curso.hora_inicio_raw}">
+                <input type="hidden" name="cursos[${rowKey}][hora_fin]" value="${curso.hora_fin_raw}">
             </td>
             <td>${curso.ubicacion}</td>
             <td>${curso.profesor}</td>
             <td>${curso.horario}<br><small>${curso.horas}</small></td>
-            <td><input type="number" class="recalc-trigger" name="cursos[${curso.id}][precio_pactado]" value="${parseFloat(precioPactado).toFixed(2)}" step="0.01"></td>
-            <td><input type="number" class="recalc-trigger" name="cursos[${curso.id}][descuento]" value="${parseFloat(descuento).toFixed(2)}" step="0.01"></td>
+            <td><input type="number" class="recalc-trigger" name="cursos[${rowKey}][precio_pactado]" value="${parseFloat(precioPactado).toFixed(2)}" step="0.01"></td>
+            <td><input type="number" class="recalc-trigger" name="cursos[${rowKey}][descuento]" value="${parseFloat(descuento).toFixed(2)}" step="0.01"></td>
             <td class="precio-final">${precioFinal.toFixed(2)}</td>
             <td><button type="button" class="btn btn-danger btn-eliminar-curso">Eliminar</button></td>
         `;
@@ -542,6 +548,7 @@ document.addEventListener('DOMContentLoaded', function() {
             matriculaDetalles.forEach(detalle => {
                 agregarCursoAGrilla({
                     id: detalle.id_curso_programado,
+                    detalleId: detalle.id_matricula_detalle,
                     nombre: detalle.nombre_curso,
                     precio_pactado: detalle.precio_pactado,
                     descuento: detalle.descuento,

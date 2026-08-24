@@ -13,6 +13,12 @@ Session::check();
 
 $monitorModel = new MonitorModel();
 
+if (($_GET['action'] ?? '') === 'datos') {
+	header('Content-Type: application/json; charset=utf-8');
+	echo json_encode($monitorModel->obtenerCursosDisponibles());
+	exit;
+}
+
 // --- Obtención de datos para la vista ---
 $cursos_disponibles = $monitorModel->obtenerCursosDisponibles();
 

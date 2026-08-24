@@ -42,7 +42,7 @@ try {
 
             // --- Lógica de Paginación ---
             $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-            $records_per_page = 10;
+            $records_per_page = 50;
             $offset = ($page - 1) * $records_per_page;
             $total_records = $asistenciaModel->contarClases($id);
             $total_pages = ceil($total_records / $records_per_page);

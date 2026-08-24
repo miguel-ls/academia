@@ -42,4 +42,15 @@ class DashboardModel {
         $this->db->callStoredProcedure('sp_dashboard_ventas_mes_por_curso_area', [$anio, $mes]);
         return $this->db->resultSet();
     }
+
+    /**
+     * Obtiene las ventas de un mes y año agrupadas por profesor.
+     * @param int $anio
+     * @param int $mes
+     * @return array
+     */
+    public function getVentasPorProfesor($anio, $mes) {
+        $this->db->callStoredProcedure('sp_dashboard_ventas_por_profesor', [$anio, $mes]);
+        return $this->db->resultSet();
+    }
 }
