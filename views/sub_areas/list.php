@@ -58,4 +58,6 @@
     </tbody>
 </table>
 
+<?php require_once 'views/partials/modal_error.php'; ?>
+
 <?php require_once 'views/partials/footer.php'; ?>

@@ -36,6 +36,27 @@ $chart_data_bar_profesor = [
     ]]
 ];
 
+// --- Obtención de datos para los gráficos de barras por sub área (mes seleccionado) ---
+$ventas_por_sub_area_data = $dashboardModel->getVentasPorSubArea($anio_seleccionado, $mes_seleccionado);
+$matriculados_por_sub_area_data = $dashboardModel->getMatriculadosPorSubArea($anio_seleccionado, $mes_seleccionado);
+
+$chart_data_bar_sub_area_ventas = [
+    'labels' => array_column($ventas_por_sub_area_data, 'label'),
+    'datasets' => [[
+        'label' => 'Ventas',
+        'data' => array_column($ventas_por_sub_area_data, 'total_ventas'),
+        'backgroundColor' => '#fd7e14'
+    ]]
+];
+$chart_data_bar_sub_area_matriculados = [
+    'labels' => array_column($matriculados_por_sub_area_data, 'label'),
+    'datasets' => [[
+        'label' => 'Alumnos Matriculados',
+        'data' => array_column($matriculados_por_sub_area_data, 'cantidad_matriculados'),
+        'backgroundColor' => '#6f42c1'
+    ]]
+];
+
 // --- Obtención y procesamiento de datos para el gráfico de barras apiladas ---
 $ventas_anuales_raw = $dashboardModel->getVentasAnualesPorCurso($anio_seleccionado);
 
@@ -76,6 +97,8 @@ $json_data_pie = json_encode($chart_data_pie);
 $json_data_pie_area = json_encode($chart_data_pie_area);
 $json_data_bar = json_encode($chart_data_bar);
 $json_data_bar_profesor = json_encode($chart_data_bar_profesor);
+$json_data_bar_sub_area_ventas = json_encode($chart_data_bar_sub_area_ventas);
+$json_data_bar_sub_area_matriculados = json_encode($chart_data_bar_sub_area_matriculados);
 
 
 // Cargar la vista del dashboard

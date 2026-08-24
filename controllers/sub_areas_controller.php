@@ -19,7 +19,9 @@ $id = (int)($_GET['id'] ?? 0);
 $feedback_message = $_SESSION['feedback_message'] ?? null;
 unset($_SESSION['feedback_message']);
 
-$error_message = '';
+$error_message = $_SESSION['error_message'] ?? '';
+unset($_SESSION['error_message']);
+
 $sub_areas = [];
 $item_a_editar = null;
 $areas = [];
@@ -101,17 +103,17 @@ try {
             if ($id > 0) {
                 $dependencias = $subAreasModel->verificarDependencias($id);
                 if ($dependencias > 0) {
-                    $_SESSION['feedback_message'] = "Error: No se puede eliminar la sub área porque tiene {$dependencias} horario(s) programado(s).";
+                    $_SESSION['error_message'] = "No se puede eliminar la sub área porque tiene {$dependencias} horario(s) programado(s) asociados.";
                 } else {
                     $resultado = $subAreasModel->eliminar($id);
                     if ($resultado['success']) {
                         $_SESSION['feedback_message'] = "Sub Área eliminada exitosamente.";
                     } else {
-                        $_SESSION['feedback_message'] = "Error: No se pudo eliminar la sub área. " . ($resultado['error'] ?? '');
+                        $_SESSION['error_message'] = "No se pudo eliminar la sub área. " . ($resultado['error'] ?? '');
                     }
                 }
             } else {
-                $_SESSION['feedback_message'] = "Error: ID de sub área no válido.";
+                $_SESSION['error_message'] = "ID de sub área no válido.";
             }
             header('Location: index.php?view=sub_areas');
             exit();

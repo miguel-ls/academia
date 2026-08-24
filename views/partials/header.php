@@ -54,6 +54,7 @@ $base_url = defined('SITE_URL') ? SITE_URL : '';
                     <li><a href="<?php echo $base_url; ?>index.php?view=tipos_precio"><i class="bi bi-tag nav-icon" aria-hidden="true"></i>Tipos de Precio</a></li>
                     <li><a href="<?php echo $base_url; ?>index.php?view=tipos_horario"><i class="bi bi-clock nav-icon" aria-hidden="true"></i>Tipos de Horario</a></li>
                     <li><a href="<?php echo $base_url; ?>index.php?view=lista_precios"><i class="bi bi-cash-stack nav-icon" aria-hidden="true"></i>Lista de Precios</a></li>
+                    <li><a href="<?php echo $base_url; ?>index.php?view=programar_horarios"><i class="bi bi-calendar2-week nav-icon" aria-hidden="true"></i>Programar Horarios</a></li>                    
                 </ul>
             </li>
 
@@ -62,11 +63,16 @@ $base_url = defined('SITE_URL') ? SITE_URL : '';
                 <ul class="dropdown-content">
                     <li><a href="<?php echo $base_url; ?>index.php?view=monitor"><i class="bi bi-display nav-icon" aria-hidden="true"></i>Monitor</a></li>
                     <li><a href="<?php echo $base_url; ?>index.php?view=matriculas"><i class="bi bi-clipboard-check nav-icon" aria-hidden="true"></i>Matriculas</a></li>
-                    <li><a href="<?php echo $base_url; ?>index.php?view=programar_horarios"><i class="bi bi-calendar2-week nav-icon" aria-hidden="true"></i>Programar Horarios</a></li>
-                    <li><a href="<?php echo $base_url; ?>index.php?view=asistencia_profesores"><i class="bi bi-person-check nav-icon" aria-hidden="true"></i>Asistencia Profesores</a></li>
-                    <li><a href="<?php echo $base_url; ?>index.php?view=asistencia_clientes"><i class="bi bi-people-fill nav-icon" aria-hidden="true"></i>Asistencia Clientes</a></li>
                     <li><a href="<?php echo $base_url; ?>index.php?view=calendario"><i class="bi bi-calendar3 nav-icon" aria-hidden="true"></i>Calendario</a></li>
                     <li><a href="<?php echo $base_url; ?>index.php?view=calendario_cursos"><i class="bi bi-calendar-event nav-icon" aria-hidden="true"></i>Calendario de Cursos</a></li>
+                </ul>
+            </li>
+
+            <li class="nav-dropdown" data-menu="asistencia">
+                <a href="#"><i class="bi bi-bookmark-check nav-icon" aria-hidden="true"></i>Asistencia</a>
+                <ul class="dropdown-content">
+                    <li><a href="<?php echo $base_url; ?>index.php?view=asistencia_profesores"><i class="bi bi-person-check nav-icon" aria-hidden="true"></i>Asistencia Profesores</a></li>
+                    <li><a href="<?php echo $base_url; ?>index.php?view=asistencia_clientes"><i class="bi bi-people-fill nav-icon" aria-hidden="true"></i>Asistencia Clientes</a></li>
                 </ul>
             </li>
 

@@ -42,4 +42,20 @@ class AsistenciaProfesorModel {
         $this->db->callStoredProcedure('sp_asistencia_profesor_actualizar_asistencia', [$id_asistencia, $estado, $observaciones]);
         return $this->db->rowCount() > 0;
     }
+
+    public function agregarDiasHasta($id_curso_programado, $fecha_fin) {
+        $this->db->callStoredProcedure('sp_asistencia_profesor_agregar_dias', [$id_curso_programado, $fecha_fin]);
+        $result = $this->db->single();
+        return $result ? (int)$result['dias_agregados'] : 0;
+    }
+
+    public function eliminarDia($id_asistencia_profesor) {
+        $this->db->callStoredProcedure('sp_asistencia_profesor_eliminar_dia', [$id_asistencia_profesor]);
+        return $this->db->rowCount() > 0;
+    }
+
+    public function actualizarEstado($id_asistencia_profesor, $estado) {
+        $this->db->callStoredProcedure('sp_asistencia_profesor_actualizar_estado', [$id_asistencia_profesor, $estado]);
+        return $this->db->rowCount() > 0;
+    }
 }

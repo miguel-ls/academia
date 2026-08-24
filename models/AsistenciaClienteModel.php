@@ -43,4 +43,20 @@ class AsistenciaClienteModel {
         $this->db->callStoredProcedure('sp_asistencia_cliente_actualizar_asistencia', [$id_asistencia, $estado, $observaciones]);
         return $this->db->rowCount() > 0;
     }
+
+    public function agregarDiasHasta($id_matricula_detalle, $fecha_fin) {
+        $this->db->callStoredProcedure('sp_asistencia_cliente_agregar_dias', [$id_matricula_detalle, $fecha_fin]);
+        $result = $this->db->single();
+        return $result ? (int)$result['dias_agregados'] : 0;
+    }
+
+    public function eliminarProgramado($id_asistencia) {
+        $this->db->callStoredProcedure('sp_asistencia_cliente_eliminar_programado', [$id_asistencia]);
+        return $this->db->rowCount() > 0;
+    }
+
+    public function actualizarEstado($id_asistencia, $estado) {
+        $this->db->callStoredProcedure('sp_asistencia_cliente_actualizar_estado', [$id_asistencia, $estado]);
+        return $this->db->rowCount() > 0;
+    }
 }

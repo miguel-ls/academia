@@ -32,16 +32,8 @@ try {
     switch ($action) {
         case 'marcar':
             if ($id_curso_programado > 0) {
-                // Lógica de Paginación
-                $limit = 10;
-                $pagina_actual = (int)($_GET['page'] ?? 1);
-                $offset = ($pagina_actual - 1) * $limit;
-
-                $total_clases = $asistenciaModel->contarClases($id_curso_programado);
-                $total_paginas = ceil($total_clases / $limit);
-
                 $detalle_curso = $asistenciaModel->obtenerDetalleCurso($id_curso_programado);
-                $clases = $asistenciaModel->obtenerClases($id_curso_programado, $limit, $offset);
+                $clases = $asistenciaModel->obtenerClases($id_curso_programado, PHP_INT_MAX, 0);
 
                 if (!$detalle_curso) {
                     $_SESSION['feedback_message'] = "Error: El curso programado no fue encontrado.";
@@ -80,8 +72,80 @@ try {
             } else {
                  $_SESSION['feedback_message'] = "No se recibieron datos para guardar.";
             }
-            header('Location: index.php?view=asistencia_profesores');
+            $id_curso_guardado = (int)($_POST['id_curso_programado'] ?? 0);
+            header('Location: index.php?view=asistencia_profesores&action=marcar&id=' . $id_curso_guardado);
             exit();
+
+        case 'agregar_dias':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $fecha_fin = $_POST['fecha_fin_nuevas'] ?? '';
+                if ($id_curso_programado <= 0 || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $fecha_fin)) {
+                    throw new Exception('Seleccione una fecha final válida.');
+                }
+                $dias_agregados = $asistenciaModel->agregarDiasHasta($id_curso_programado, $fecha_fin);
+                $_SESSION['feedback_message'] = "Se agregaron {$dias_agregados} días de clase nuevos.";
+                header('Location: index.php?view=asistencia_profesores&action=marcar&id=' . $id_curso_programado);
+                exit();
+            }
+            break;
+
+        case 'eliminar_dia':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $id_asistencia = (int)($_POST['id_asistencia_profesor'] ?? 0);
+                if ($id_curso_programado <= 0 || $id_asistencia <= 0) {
+                    throw new Exception('Registro de asistencia no válido.');
+                }
+                if (!$asistenciaModel->eliminarDia($id_asistencia)) {
+                    throw new Exception('No se puede eliminar un día con estado Asistió.');
+                }
+                $_SESSION['feedback_message'] = 'Día de clase eliminado correctamente.';
+                header('Location: index.php?view=asistencia_profesores&action=marcar&id=' . $id_curso_programado);
+                exit();
+            }
+            break;
+
+        case 'eliminar_dias_masivo':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $ids_asistencia = $_POST['ids_asistencia_profesor'] ?? [];
+                if ($id_curso_programado <= 0 || empty($ids_asistencia)) {
+                    throw new Exception('Seleccione al menos un día para eliminar.');
+                }
+                $eliminados = 0;
+                foreach ($ids_asistencia as $id_asistencia) {
+                    if ($asistenciaModel->eliminarDia((int)$id_asistencia)) {
+                        $eliminados++;
+                    }
+                }
+                $_SESSION['feedback_message'] = "Se eliminaron {$eliminados} días de clase.";
+                header('Location: index.php?view=asistencia_profesores&action=marcar&id=' . $id_curso_programado);
+                exit();
+            }
+            break;
+
+        case 'cambiar_estado_masivo':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $ids_asistencia = $_POST['ids_asistencia_profesor'] ?? [];
+                $nuevo_estado = $_POST['nuevo_estado'] ?? '';
+                $estados_validos = ['Programado', 'Asistió', 'Faltó', 'Reprogramado'];
+
+                if ($id_curso_programado <= 0 || empty($ids_asistencia)) {
+                    throw new Exception('Seleccione al menos un día para cambiar de estado.');
+                }
+                if (!in_array($nuevo_estado, $estados_validos, true)) {
+                    throw new Exception('Estado no válido.');
+                }
+
+                $actualizados = 0;
+                foreach ($ids_asistencia as $id_asistencia) {
+                    if ($asistenciaModel->actualizarEstado((int)$id_asistencia, $nuevo_estado)) {
+                        $actualizados++;
+                    }
+                }
+                $_SESSION['feedback_message'] = "Se actualizó el estado de {$actualizados} días.";
+                header('Location: index.php?view=asistencia_profesores&action=marcar&id=' . $id_curso_programado);
+                exit();
+            }
+            break;
 
         case 'list':
         default:

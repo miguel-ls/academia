@@ -53,4 +53,26 @@ class DashboardModel {
         $this->db->callStoredProcedure('sp_dashboard_ventas_por_profesor', [$anio, $mes]);
         return $this->db->resultSet();
     }
+
+    /**
+     * Obtiene las ventas de un mes y año agrupadas por sub área.
+     * @param int $anio
+     * @param int $mes
+     * @return array
+     */
+    public function getVentasPorSubArea($anio, $mes) {
+        $this->db->callStoredProcedure('sp_dashboard_ventas_por_sub_area', [$anio, $mes]);
+        return $this->db->resultSet();
+    }
+
+    /**
+     * Obtiene la cantidad de alumnos matriculados de un mes y año agrupados por sub área.
+     * @param int $anio
+     * @param int $mes
+     * @return array
+     */
+    public function getMatriculadosPorSubArea($anio, $mes) {
+        $this->db->callStoredProcedure('sp_dashboard_matriculados_por_sub_area', [$anio, $mes]);
+        return $this->db->resultSet();
+    }
 }

@@ -54,6 +54,7 @@ try {
             foreach ($clases as &$clase) {
                 $clase['dia_semana_es'] = get_day_name_es(date('N', strtotime($clase['fecha_clase'])));
             }
+            unset($clase); // Evita que la referencia sobrescriba el último elemento al reiterar en la vista
 
             require_once 'views/asistencia_clientes/form.php';
             break;
@@ -75,12 +76,83 @@ try {
                 }
 
                 $_SESSION['feedback_message'] = "Se actualizaron {$updated_count} registros de asistencia.";
-                header('Location: index.php?view=asistencia_clientes');
+                header('Location: index.php?view=asistencia_clientes&action=marcar&id=' . $id_matricula_detalle);
                 exit();
             }
             // Si no es POST, redirigir
             header('Location: index.php?view=asistencia_clientes');
             exit();
+
+        case 'agregar_dias':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $fecha_fin = $_POST['fecha_fin_nuevas'] ?? '';
+                if ($id <= 0 || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $fecha_fin)) {
+                    throw new Exception('Seleccione una fecha final válida.');
+                }
+                $dias_agregados = $asistenciaModel->agregarDiasHasta($id, $fecha_fin);
+                $_SESSION['feedback_message'] = "Se agregaron {$dias_agregados} días de clase nuevos.";
+                header('Location: index.php?view=asistencia_clientes&action=marcar&id=' . $id);
+                exit();
+            }
+            break;
+
+        case 'eliminar_dia':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $id_asistencia = (int)($_POST['id_asistencia_cliente'] ?? 0);
+                if ($id <= 0 || $id_asistencia <= 0) {
+                    throw new Exception('Registro de asistencia no válido.');
+                }
+                if (!$asistenciaModel->eliminarProgramado($id_asistencia)) {
+                    throw new Exception('Solo se pueden eliminar días con estado Programado.');
+                }
+                $_SESSION['feedback_message'] = 'Día de clase eliminado correctamente.';
+                header('Location: index.php?view=asistencia_clientes&action=marcar&id=' . $id);
+                exit();
+            }
+            break;
+
+        case 'eliminar_dias_masivo':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $ids_asistencia = $_POST['ids_asistencia_cliente'] ?? [];
+                if ($id <= 0 || empty($ids_asistencia)) {
+                    throw new Exception('Seleccione al menos un día para eliminar.');
+                }
+                $eliminados = 0;
+                foreach ($ids_asistencia as $id_asistencia) {
+                    if ($asistenciaModel->eliminarProgramado((int)$id_asistencia)) {
+                        $eliminados++;
+                    }
+                }
+                $_SESSION['feedback_message'] = "Se eliminaron {$eliminados} días de clase.";
+                header('Location: index.php?view=asistencia_clientes&action=marcar&id=' . $id);
+                exit();
+            }
+            break;
+
+        case 'cambiar_estado_masivo':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $ids_asistencia = $_POST['ids_asistencia_cliente'] ?? [];
+                $nuevo_estado = $_POST['nuevo_estado'] ?? '';
+                $estados_validos = ['Programado', 'Asistió', 'Faltó', 'Justificado', 'Postergado'];
+
+                if ($id <= 0 || empty($ids_asistencia)) {
+                    throw new Exception('Seleccione al menos un día para cambiar de estado.');
+                }
+                if (!in_array($nuevo_estado, $estados_validos, true)) {
+                    throw new Exception('Estado no válido.');
+                }
+
+                $actualizados = 0;
+                foreach ($ids_asistencia as $id_asistencia) {
+                    if ($asistenciaModel->actualizarEstado((int)$id_asistencia, $nuevo_estado)) {
+                        $actualizados++;
+                    }
+                }
+                $_SESSION['feedback_message'] = "Se actualizó el estado de {$actualizados} días.";
+                header('Location: index.php?view=asistencia_clientes&action=marcar&id=' . $id);
+                exit();
+            }
+            break;
 
         case 'list':
         default:

@@ -4,6 +4,8 @@ $mes_seleccionado = (int)($mes_seleccionado ?? date('m'));
 $meses = $meses ?? ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 $json_data_bar = $json_data_bar ?? '{"labels":[],"datasets":[]}';
 $json_data_bar_profesor = $json_data_bar_profesor ?? '{"labels":[],"datasets":[]}';
+$json_data_bar_sub_area_ventas = $json_data_bar_sub_area_ventas ?? '{"labels":[],"datasets":[]}';
+$json_data_bar_sub_area_matriculados = $json_data_bar_sub_area_matriculados ?? '{"labels":[],"datasets":[]}';
 $json_data_pie = $json_data_pie ?? '{"labels":[],"data":[]}';
 $json_data_pie_area = $json_data_pie_area ?? '{"labels":[],"data":[]}';
 require_once 'views/partials/header.php';
@@ -50,6 +52,14 @@ require_once 'views/partials/header.php';
     <div class="card">
         <h3>Ventas por Profesor (<?php echo $meses[$mes_seleccionado - 1] . ' ' . $anio_seleccionado; ?>)</h3>
         <canvas id="barChartVentasProfesor"></canvas>
+    </div>
+    <div class="card">
+        <h3>Ventas por Sub Área (<?php echo $meses[$mes_seleccionado - 1] . ' ' . $anio_seleccionado; ?>)</h3>
+        <canvas id="barChartVentasSubArea"></canvas>
+    </div>
+    <div class="card">
+        <h3>Alumnos Matriculados por Sub Área (<?php echo $meses[$mes_seleccionado - 1] . ' ' . $anio_seleccionado; ?>)</h3>
+        <canvas id="barChartMatriculadosSubArea"></canvas>
     </div>
     <div class="card">
         <h3>Ventas por Curso (<?php echo $meses[$mes_seleccionado - 1] . ' ' . $anio_seleccionado; ?>)</h3>
@@ -173,6 +183,68 @@ document.addEventListener('DOMContentLoaded', function() {
         barProfesorCtx.font = "16px Arial";
         barProfesorCtx.textAlign = "center";
         barProfesorCtx.fillText("No hay ventas por profesor para este mes.", barProfesorCtx.canvas.width / 2, barProfesorCtx.canvas.height / 2);
+    }
+
+    // --- Gráfico de Barras: Ventas por Sub Área ---
+    const barSubAreaCtx = document.getElementById('barChartVentasSubArea').getContext('2d');
+    const barSubAreaData = <?php echo $json_data_bar_sub_area_ventas; ?>;
+    if (barSubAreaData.labels.length > 0) {
+        new Chart(barSubAreaCtx, {
+            type: 'bar',
+            data: barSubAreaData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: false },
+                    datalabels: {
+                        color: '#fff',
+                        anchor: 'center',
+                        align: 'center',
+                        formatter: value => value > 0 ? Number(value).toFixed(2) : ''
+                    }
+                },
+                scales: {
+                    x: { beginAtZero: true },
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    } else {
+        barSubAreaCtx.font = "16px Arial";
+        barSubAreaCtx.textAlign = "center";
+        barSubAreaCtx.fillText("No hay ventas por sub área para este mes.", barSubAreaCtx.canvas.width / 2, barSubAreaCtx.canvas.height / 2);
+    }
+
+    // --- Gráfico de Barras: Alumnos Matriculados por Sub Área ---
+    const barMatriculadosSubAreaCtx = document.getElementById('barChartMatriculadosSubArea').getContext('2d');
+    const barMatriculadosSubAreaData = <?php echo $json_data_bar_sub_area_matriculados; ?>;
+    if (barMatriculadosSubAreaData.labels.length > 0) {
+        new Chart(barMatriculadosSubAreaCtx, {
+            type: 'bar',
+            data: barMatriculadosSubAreaData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: false },
+                    datalabels: {
+                        color: '#fff',
+                        anchor: 'center',
+                        align: 'center',
+                        formatter: value => value > 0 ? Number(value).toFixed(0) : ''
+                    }
+                },
+                scales: {
+                    x: { beginAtZero: true },
+                    y: { beginAtZero: true, ticks: { precision: 0 } }
+                }
+            }
+        });
+    } else {
+        barMatriculadosSubAreaCtx.font = "16px Arial";
+        barMatriculadosSubAreaCtx.textAlign = "center";
+        barMatriculadosSubAreaCtx.fillText("No hay alumnos matriculados por sub área para este mes.", barMatriculadosSubAreaCtx.canvas.width / 2, barMatriculadosSubAreaCtx.canvas.height / 2);
     }
 
     // --- Gráfico Circular 1: Ventas por Curso ---
