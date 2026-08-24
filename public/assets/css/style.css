@@ -37,6 +37,39 @@ body {
     min-height: 100vh;
 }
 
+@media (min-width: 801px) {
+    html,
+    body {
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .app-wrapper {
+        height: 100vh;
+        min-height: 0;
+        overflow: hidden;
+    }
+
+    .sidebar {
+        height: 100vh;
+        min-height: 0;
+        flex: 0 0 272px;
+        overflow: hidden;
+    }
+
+    .sidebar-nav {
+        min-height: 0;
+        overflow-y: auto;
+    }
+
+    .main-content {
+        min-width: 0;
+        height: 100vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+}
+
 .main-content {
     flex: 1;
     display: flex;
@@ -188,18 +221,52 @@ body {
 }
 
 .app-wrapper.sidebar-collapsed .sidebar {
-    width: 0;
-    min-width: 0;
+    width: 64px;
+    min-width: 64px;
+    flex-basis: 64px;
     overflow: hidden;
     box-shadow: none;
 }
 
+.app-wrapper.sidebar-collapsed .sidebar-header {
+    min-height: 64px;
+    padding: 0;
+}
+
+.app-wrapper.sidebar-collapsed .sidebar-header a {
+    display: none;
+}
+
 .app-wrapper.sidebar-collapsed .sidebar-toggle {
-    position: fixed;
+    position: absolute;
     top: 1rem;
-    right: auto;
-    left: 1rem;
+    right: 0.7rem;
+    left: auto;
     transform: none;
+}
+
+.app-wrapper.sidebar-collapsed .sidebar-nav {
+    padding: 1rem 0.65rem;
+}
+
+.app-wrapper.sidebar-collapsed .sidebar-nav li a {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+    font-size: 0;
+}
+
+.app-wrapper.sidebar-collapsed .sidebar-nav .nav-icon {
+    margin-right: 0;
+    font-size: 1rem;
+}
+
+.app-wrapper.sidebar-collapsed .sidebar-nav .nav-dropdown > a::after {
+    display: none;
+}
+
+.app-wrapper.sidebar-collapsed .sidebar-user {
+    display: none;
 }
 
 .sidebar-header {
@@ -349,9 +416,36 @@ body {
     .sidebar { width: 100%; min-height: auto; }
     .sidebar-toggle { top: 1rem; right: .75rem; }
     .app-wrapper.sidebar-collapsed .sidebar-toggle { top: .75rem; right: .75rem; left: auto; }
-    .app-wrapper.sidebar-collapsed .sidebar { width: 0; min-height: 0; }
+    .app-wrapper.sidebar-collapsed .sidebar { width: 64px; min-width: 64px; min-height: 100vh; }
     .sidebar-nav { max-height: 45vh; }
     .content-body { padding: 1.25rem; }
+}
+
+/* Estado compacto: mantener el control dentro de la franja lateral. */
+.app-wrapper.sidebar-collapsed .sidebar {
+    width: 64px;
+    min-width: 64px;
+    flex-basis: 64px;
+    overflow: hidden;
+}
+
+.app-wrapper.sidebar-collapsed .sidebar-header {
+    position: relative;
+    min-height: 64px;
+    padding: 0;
+}
+
+.app-wrapper.sidebar-collapsed .sidebar-header a {
+    display: none;
+}
+
+.app-wrapper.sidebar-collapsed .sidebar-toggle {
+    position: absolute;
+    top: 1rem;
+    right: 0.7rem;
+    left: auto;
+    display: inline-flex;
+    transform: none;
 }
 
 /* =================================================================

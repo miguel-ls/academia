@@ -128,7 +128,13 @@ document.addEventListener('DOMContentLoaded', function() {
         options: {
             plugins: {
                 title: { display: false },
-                legend: { display: true, position: 'top' }
+                legend: { display: true, position: 'top' },
+                datalabels: {
+                    color: '#fff',
+                    anchor: 'center',
+                    align: 'center',
+                    formatter: value => value > 0 ? Number(value).toFixed(2) : ''
+                }
             },
             responsive: true,
             scales: {
@@ -149,7 +155,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 responsive: true,
                 maintainAspectRatio: true,
                 plugins: {
-                    legend: { display: false }
+                    legend: { display: false },
+                    datalabels: {
+                        color: '#fff',
+                        anchor: 'center',
+                        align: 'center',
+                        formatter: value => value > 0 ? Number(value).toFixed(2) : ''
+                    }
                 },
                 scales: {
                     x: { beginAtZero: true },
