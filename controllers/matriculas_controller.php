@@ -28,6 +28,19 @@ $action = $_REQUEST['action'] ?? 'list';
 switch ($action) {
     case 'list':
         $matriculas = $matriculaModel->obtenerTodas();
+        $clientes_filtro = $clienteModel->obtenerTodos();
+        $filtro_cliente_id = (int)($_GET['cliente_id'] ?? 0);
+        $filtro_fecha_inicio = $_GET['fecha_inicio'] ?? '';
+        $filtro_fecha_fin = $_GET['fecha_fin'] ?? '';
+        $filtro_estado = $_GET['estado'] ?? '';
+
+        $matriculas = array_values(array_filter($matriculas, function ($matricula) use ($filtro_cliente_id, $filtro_fecha_inicio, $filtro_fecha_fin, $filtro_estado) {
+            $fecha_matricula = date('Y-m-d', strtotime($matricula['fecha_matricula']));
+            return (!$filtro_cliente_id || (int)$matricula['id_cliente'] === $filtro_cliente_id)
+                && (!$filtro_fecha_inicio || $fecha_matricula >= $filtro_fecha_inicio)
+                && (!$filtro_fecha_fin || $fecha_matricula <= $filtro_fecha_fin)
+                && (!$filtro_estado || $matricula['estado'] === $filtro_estado);
+        }));
         require_once 'views/matriculas/list.php';
         break;
 
@@ -197,8 +210,43 @@ switch ($action) {
                 exit;
 
             } catch (Exception $e) {
-                // Redirigir de vuelta al formulario con un mensaje de error
-                header('Location: index.php?view=matriculas&action=nueva&error=' . urlencode($e->getMessage()));
+                // Volver a mostrar el formulario con todos los datos enviados.
+                require_once 'models/TiposDocumentoModel.php';
+                $tiposDocumentoModel = new TiposDocumentoModel();
+                $tipos_documento = $tiposDocumentoModel->obtenerTodos();
+                $formas_pago = $formasPagoModel->obtenerTodos();
+                $error_message = $e->getMessage();
+                $id_cliente = (int)($_POST['id_cliente'] ?? 0);
+                $cliente_principal = $id_cliente > 0 ? $clienteModel->obtenerPorId($id_cliente) : null;
+                $form_data = $_POST;
+                $matriculaDetalles = [];
+
+                foreach (($_POST['cursos'] ?? []) as $curso) {
+                    $id_curso_programado = (int)($curso['id_curso_programado'] ?? 0);
+                    $matriculaDetalles[] = [
+                        'id_curso_programado' => $id_curso_programado,
+                        'nombre_curso' => $curso['nombre_curso'] ?? '',
+                        'ubicacion' => $curso['ubicacion'] ?? '',
+                        'profesor' => $curso['profesor'] ?? '',
+                        'horario_dias' => $curso['horario_dias'] ?? '',
+                        'dias_semana' => $curso['dias_semana'] ?? '',
+                        'fecha_inicio' => $curso['fecha_inicio'] ?? '',
+                        'fecha_fin' => $curso['fecha_fin'] ?? '',
+                        'hora_inicio' => $curso['hora_inicio'] ?? '',
+                        'hora_fin' => $curso['hora_fin'] ?? '',
+                        'id_cliente_asistencia' => (int)($curso['id_cliente_asistencia'] ?? 0),
+                        'nombre_cliente_asistencia' => $curso['cliente_nombre'] ?? '',
+                        'horas' => $curso['horas'] ?? '',
+                        'precio_pactado' => (float)($curso['precio_pactado'] ?? 0),
+                        'descuento' => (float)($curso['descuento'] ?? 0)
+                    ];
+                    $cliente_asistente = $clienteModel->obtenerPorId((int)($curso['id_cliente_asistencia'] ?? 0));
+                    if ($cliente_asistente && empty($matriculaDetalles[array_key_last($matriculaDetalles)]['nombre_cliente_asistencia'])) {
+                        $matriculaDetalles[array_key_last($matriculaDetalles)]['nombre_cliente_asistencia'] = trim($cliente_asistente['nombres'] . ' ' . $cliente_asistente['apellidos']);
+                    }
+                }
+
+                require_once 'views/matriculas/nueva.php';
                 exit;
             }
         }

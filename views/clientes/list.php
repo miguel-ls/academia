@@ -1,4 +1,5 @@
 <?php require_once 'views/partials/header.php'; ?>
+<?php $clientes = $clientes ?? []; ?>
 
 <main class="clientes-page">
 <div class="page-header clientes-page-header">

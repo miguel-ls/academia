@@ -340,9 +340,15 @@ document.addEventListener('DOMContentLoaded', function() {
         newRow.innerHTML = `
             <td>
                 <div class="search-results">
-                    <input type="text" id="${uniqueId}" class="cliente-asistente-search" value="${curso.clienteNombre}" placeholder="Buscar cliente...">
+                    <input type="text" id="${uniqueId}" class="form-control cliente-asistente-search" value="${curso.clienteNombre}" placeholder="Buscar cliente...">
                     <input type="hidden" name="cursos[${rowKey}][id_matricula_detalle]" value="${curso.detalleId || ''}">
                     <input type="hidden" name="cursos[${rowKey}][id_curso_programado]" value="${curso.id}">
+                    <input type="hidden" name="cursos[${rowKey}][nombre_curso]" value="${curso.nombre}">
+                    <input type="hidden" name="cursos[${rowKey}][ubicacion]" value="${curso.ubicacion}">
+                    <input type="hidden" name="cursos[${rowKey}][profesor]" value="${curso.profesor}">
+                    <input type="hidden" name="cursos[${rowKey}][horario_dias]" value="${curso.horario}">
+                    <input type="hidden" name="cursos[${rowKey}][horas]" value="${curso.horas}">
+                    <input type="hidden" name="cursos[${rowKey}][cliente_nombre]" value="${curso.clienteNombre}">
                     <input type="hidden" class="id-cliente-asistente" name="cursos[${rowKey}][id_cliente_asistencia]" value="${curso.clienteId}">
                     <div class="search-results-list-inline"></div>
                 </div>
@@ -358,8 +364,8 @@ document.addEventListener('DOMContentLoaded', function() {
             <td>${curso.ubicacion}</td>
             <td>${curso.profesor}</td>
             <td>${curso.horario}<br><small>${curso.horas}</small></td>
-            <td><input type="number" class="recalc-trigger" name="cursos[${rowKey}][precio_pactado]" value="${parseFloat(precioPactado).toFixed(2)}" step="0.01"></td>
-            <td><input type="number" class="recalc-trigger" name="cursos[${rowKey}][descuento]" value="${parseFloat(descuento).toFixed(2)}" step="0.01"></td>
+            <td><input type="number" class="form-control recalc-trigger matricula-number-input" name="cursos[${rowKey}][precio_pactado]" value="${parseFloat(precioPactado).toFixed(2)}" step="0.01"></td>
+            <td><input type="number" class="form-control recalc-trigger matricula-number-input" name="cursos[${rowKey}][descuento]" value="${parseFloat(descuento).toFixed(2)}" step="0.01"></td>
             <td class="precio-final">${precioFinal.toFixed(2)}</td>
             <td><button type="button" class="btn btn-danger btn-eliminar-curso">Eliminar</button></td>
         `;

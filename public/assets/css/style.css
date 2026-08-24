@@ -535,6 +535,33 @@ footer {
 .table th { background-color: var(--light-color); font-weight: 600; }
 .table tr:nth-child(even) { background-color: var(--light-color); }
 
+/* Controles editables de la grilla de matrículas */
+.matricula-page .cliente-asistente-search,
+.matricula-page .matricula-number-input {
+    min-height: 36px;
+    padding: 7px 9px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    background: #fff;
+    color: #243b53;
+    font: inherit;
+    box-sizing: border-box;
+}
+.matricula-page .cliente-asistente-search {
+    width: 100%;
+}
+.matricula-page .matricula-number-input {
+    width: 100%;
+    min-width: 78px;
+    text-align: right;
+}
+.matricula-page .cliente-asistente-search:focus,
+.matricula-page .matricula-number-input:focus {
+    outline: 0;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, .14);
+}
+
 /* Mantenimiento de clientes */
 .clientes-page { max-width: 1540px; margin: 0 auto; }
 .clientes-page-header { align-items: flex-end; margin-bottom: 1.5rem; }

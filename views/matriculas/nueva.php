@@ -1,4 +1,12 @@
-<?php require_once 'views/partials/header.php'; ?>
+<?php
+$form_data = $form_data ?? [];
+$cliente_principal = $cliente_principal ?? null;
+$matriculaDetalles = $matriculaDetalles ?? [];
+$error_message = $error_message ?? '';
+$formas_pago = $formas_pago ?? [];
+$tipos_documento = $tipos_documento ?? [];
+require_once 'views/partials/header.php';
+?>
 
 <!-- Estilos para el Modal -->
 <style>
@@ -47,9 +55,9 @@
             <h2>1. Datos del Cliente</h2>
             <div class="form-group">
                 <label for="buscar-cliente">Buscar Cliente (por nombre, apellidos o documento):</label>
-                <input type="text" id="buscar-cliente" placeholder="Escriba para buscar..." autocomplete="off">
+                <input type="text" id="buscar-cliente" placeholder="Escriba para buscar..." autocomplete="off" value="<?php echo htmlspecialchars($cliente_principal ? trim($cliente_principal['nombres'] . ' ' . $cliente_principal['apellidos']) : '', ENT_QUOTES, 'UTF-8'); ?>">
                 <div id="cliente-search-results" class="search-results"></div>
-                <input type="hidden" id="id_cliente" name="id_cliente" required>
+                <input type="hidden" id="id_cliente" name="id_cliente" value="<?php echo (int)($form_data['id_cliente'] ?? 0) ?: ''; ?>" required>
                 <div id="cliente-seleccionado-info" style="margin-top:10px; font-weight:bold;"></div>
                 <button type="button" id="btn-nuevo-cliente" class="btn btn-success" style="display: none; margin-top: 10px;">Nuevo Cliente</button>
             </div>
@@ -113,14 +121,14 @@
         <div class="section">
             <h2>3. Datos del Pago</h2>
             <div class="form-grid">
-                <input type="hidden" id="fecha_inicio_matricula" name="fecha_inicio_matricula">
-                <input type="hidden" id="fecha_fin_matricula" name="fecha_fin_matricula">
+                <input type="hidden" id="fecha_inicio_matricula" name="fecha_inicio_matricula" value="<?php echo htmlspecialchars($form_data['fecha_inicio_matricula'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                <input type="hidden" id="fecha_fin_matricula" name="fecha_fin_matricula" value="<?php echo htmlspecialchars($form_data['fecha_fin_matricula'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                 <div class="form-group">
                     <label for="id_forma_pago">Forma de Pago:</label>
                     <select id="id_forma_pago" name="id_forma_pago" required>
                         <option value="">Seleccione una forma de pago</option>
                         <?php foreach ($formas_pago as $forma_pago): ?>
-                            <option value="<?php echo $forma_pago['id_forma_pago']; ?>"><?php echo htmlspecialchars($forma_pago['nombre']); ?></option>
+                            <option value="<?php echo $forma_pago['id_forma_pago']; ?>" <?php echo (int)($form_data['id_forma_pago'] ?? 0) === (int)$forma_pago['id_forma_pago'] ? 'selected' : ''; ?>><?php echo htmlspecialchars($forma_pago['nombre']); ?></option>
                         <?php endforeach; ?>
                         <?php /*
                         <option value="1">Efectivo</option>
@@ -131,7 +139,7 @@
             </div>
             <div class="form-group" style="margin-top: 15px;">
                 <label for="observaciones">Observaciones:</label>
-                <textarea id="observaciones" name="observaciones" rows="3"></textarea>
+                <textarea id="observaciones" name="observaciones" rows="3"><?php echo htmlspecialchars($form_data['observaciones'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
             </div>
         </div>
 
@@ -210,8 +218,10 @@
     </div>
 </div>
 
+<?php require_once 'views/partials/modal_error.php'; ?>
+
 <script>
-    const matriculaDetalles = [];
+    const matriculaDetalles = <?php echo json_encode($matriculaDetalles, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
 </script>
 <script src="<?php echo $base_url; ?>public/assets/js/matricula_form.js?v=<?php echo time(); ?>"></script>
 

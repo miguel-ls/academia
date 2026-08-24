@@ -16,6 +16,15 @@ $base_url = defined('SITE_URL') ? SITE_URL : '';
 <body>
 
 <div class="app-wrapper">
+<script>
+(function() {
+    try {
+        if (localStorage.getItem('academia.sidebar.collapsed') === 'true') {
+            document.currentScript.parentElement.classList.add('sidebar-collapsed');
+        }
+    } catch (error) {}
+})();
+</script>
     <?php if (isset($_SESSION['user_id'])): // Solo mostrar sidebar si hay sesión activa ?>
     <aside id="sidebar" class="sidebar">
         <div class="sidebar-header">
@@ -78,6 +87,33 @@ $base_url = defined('SITE_URL') ? SITE_URL : '';
             </div>
         </div>
     </aside>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION['user_id'])): ?>
+    <script>
+    (function() {
+        const menuGroups = document.querySelectorAll('.sidebar .nav-dropdown');
+        const storageKey = 'academia.sidebar.openGroups';
+        const currentView = new URLSearchParams(window.location.search).get('view') || 'dashboard';
+        let openGroups = [];
+
+        try {
+            openGroups = JSON.parse(localStorage.getItem(storageKey)) || [];
+        } catch (error) {}
+
+        document.querySelectorAll('.sidebar a[href*="view="]').forEach(function(link) {
+            if (new URL(link.href).searchParams.get('view') === currentView) {
+                link.classList.add('active');
+            }
+        });
+
+        menuGroups.forEach(function(group) {
+            if (openGroups.includes(group.dataset.menu) || group.querySelector('.dropdown-content a.active')) {
+                group.classList.add('open');
+            }
+        });
+    })();
+    </script>
     <?php endif; ?>
 
     <div class="main-content">

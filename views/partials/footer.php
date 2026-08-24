@@ -7,7 +7,7 @@ $base_url = $base_url ?? '';
         <?php else: ?>
             </div> <!-- Cierre de .content-body -->
             <footer>
-                <p>&copy; <?php echo date('Y'); ?> <?php echo defined('SITE_NAME') ? SITE_NAME : ''; ?>. Todos los derechos reservados.</p>
+                <p>&copy; <?php echo date('Y'); ?> <?php echo defined('CORP_NAME') ? CORP_NAME : ''; ?>. Todos los derechos reservados.</p>
             </footer>
         <?php endif; ?>
     </div> <!-- Cierre de .main-content -->

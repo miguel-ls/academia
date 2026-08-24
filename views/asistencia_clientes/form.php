@@ -1,4 +1,11 @@
-<?php require_once 'views/partials/header.php'; ?>
+<?php
+$detalle_matricula = $detalle_matricula ?? [];
+$clases = $clases ?? [];
+$id = (int)($id ?? 0);
+$page = (int)($page ?? 1);
+$total_pages = (int)($total_pages ?? 0);
+require_once 'views/partials/header.php';
+?>
 
 <div class="page-header">
     <h1>Marcar Asistencia de Cliente</h1>
@@ -45,7 +52,7 @@
                             <span class="badge status-<?php echo strtolower(htmlspecialchars($clase['estado'])); ?> view-mode">
                                 <?php echo htmlspecialchars($clase['estado']); ?>
                             </span>
-                            <select name="asistencias[<?php echo $clase['id_asistencia_cliente']; ?>][estado]" required class="edit-mode" style="display:none;">
+                            <select name="asistencias[<?php echo $clase['id_asistencia_cliente']; ?>][estado]" required class="form-control attendance-select edit-mode" style="display:none;">
                                 <option value="Programado" <?php echo ($clase['estado'] == 'Programado') ? 'selected' : ''; ?>>Programado</option>
                                 <option value="Asistió" <?php echo ($clase['estado'] == 'Asistió') ? 'selected' : ''; ?>>Asistió</option>
                                 <option value="Faltó" <?php echo ($clase['estado'] == 'Faltó') ? 'selected' : ''; ?>>Faltó</option>
@@ -56,7 +63,7 @@
                         </td>
                         <td class="cell-observaciones">
                             <span class="view-mode"><?php echo htmlspecialchars($clase['observaciones']); ?></span>
-                            <input type="text" name="asistencias[<?php echo $clase['id_asistencia_cliente']; ?>][observaciones]" value="<?php echo htmlspecialchars($clase['observaciones']); ?>" style="width: 100%; display:none;" class="edit-mode">
+                            <input type="text" name="asistencias[<?php echo $clase['id_asistencia_cliente']; ?>][observaciones]" value="<?php echo htmlspecialchars($clase['observaciones']); ?>" class="form-control attendance-input edit-mode" style="display:none;">
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -102,6 +109,28 @@
 .status-justificado { background-color: #ffc107; color: #212529; } /* Warning */
 .status-postergado { background-color: #6c757d; } /* Secondary */
 .status-cancelado { background-color: #343a40; } /* Dark */
+.attendance-select,
+.attendance-input {
+    width: 100%;
+    min-height: 40px;
+    padding: 9px 11px;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    background: #fff;
+    color: #243b53;
+    font: inherit;
+    box-sizing: border-box;
+    transition: border-color .2s ease, box-shadow .2s ease;
+}
+.attendance-select:focus,
+.attendance-input:focus {
+    outline: 0;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, .14);
+}
+.attendance-input::placeholder {
+    color: #94a3b8;
+}
 </style>
 
 <script>
