@@ -822,6 +822,293 @@ footer {
     margin-bottom: 2rem;
 }
 
+.cobros-page {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+}
+
+.cobros-page .page-header {
+    align-items: flex-end;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e1e8f0;
+}
+
+.cobros-page .page-header h1 {
+    color: #172b4d;
+    font-size: clamp(1.6rem, 2.5vw, 2.15rem);
+    letter-spacing: -0.02em;
+}
+
+.cobros-page .page-header-right .btn {
+    border-radius: 8px;
+    box-shadow: 0 6px 14px rgba(0, 123, 255, 0.18);
+}
+
+.cobros-filters {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(190px, 1fr));
+    gap: 14px;
+    align-items: end;
+    margin-bottom: 22px;
+    padding: 18px;
+    border: 1px solid #dfe7ef;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 8px 20px rgba(29, 54, 84, 0.05);
+}
+
+.cobros-filters .filter-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.cobros-filters .filter-field label {
+    color: #53657b;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.cobros-filters .filter-autocomplete {
+    position: relative;
+}
+
+.cobros-filters .filter-results {
+    position: absolute;
+    z-index: 30;
+    top: calc(100% + 5px);
+    left: 0;
+    right: 0;
+    display: none;
+    max-height: 230px;
+    overflow-y: auto;
+    padding: 5px;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    background: #fff;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, .14);
+}
+
+.cobros-filters .filter-results.is-open { display: block; }
+
+.cobros-filters .filter-result {
+    display: block;
+    width: 100%;
+    padding: 9px 10px;
+    border: 0;
+    border-radius: 5px;
+    background: transparent;
+    color: #334155;
+    text-align: left;
+    cursor: pointer;
+}
+
+.cobros-filters .filter-result:hover,
+.cobros-filters .filter-result:focus {
+    outline: none;
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+.cobros-filters .filter-empty {
+    padding: 9px 10px;
+    color: #64748b;
+    font-size: .9rem;
+}
+
+.cobros-filters .form-control,
+.cobros-form-panel .form-control,
+.cobros-form-panel textarea {
+    width: 100%;
+    min-height: 40px;
+    padding: 0.68rem 0.8rem;
+    border: 1px solid #cbd6e2;
+    border-radius: 8px;
+    background: #fff;
+    color: #243b53;
+    font-size: 0.92rem;
+    transition: border-color .2s, box-shadow .2s;
+}
+
+.cobros-filters .form-control:focus,
+.cobros-form-panel .form-control:focus,
+.cobros-form-panel textarea:focus {
+    border-color: #2185d5;
+    outline: 0;
+    box-shadow: 0 0 0 3px rgba(33, 133, 213, 0.12);
+}
+
+.cobros-filters .filter-actions {
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.cobros-filters .btn,
+.cobros-form-panel .btn,
+.cobros-form-panel button,
+.cobros-form-panel a.btn {
+    border-radius: 8px;
+}
+
+.cobros-table {
+    margin: 0;
+    border: 1px solid #e1e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 22px rgba(29, 54, 84, 0.06);
+}
+
+.cobros-table th {
+    padding: .82rem 1rem;
+    border: 0;
+    border-bottom: 1px solid #dfe7ef;
+    background: #f7f9fc;
+    color: #637389;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .045em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.cobros-table td {
+    padding: .92rem 1rem;
+    border: 0;
+    border-bottom: 1px solid #edf1f5;
+    color: #4b5b70;
+    font-size: .88rem;
+    vertical-align: middle;
+}
+
+.cobros-table tbody tr:nth-child(even) { background: #fbfcfe; }
+.cobros-table tbody tr:hover { background: #f0f7ff; }
+.cobros-table td:last-child { white-space: nowrap; }
+.cobros-table .btn { padding: .42rem .65rem; border-radius: 6px; font-size: .75rem; }
+.cobros-table .cobros-alumnos-cursos { min-width: 480px; line-height: 1.6; white-space: normal; }
+
+.cobros-form-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 1.35rem;
+    border: 1px solid #e2eaf2;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 8px 22px rgba(29, 54, 84, 0.055);
+}
+
+.cobros-form-panel .panel {
+    padding: 1.2rem;
+    border: 1px solid #e2eaf2;
+    border-radius: 10px;
+    background: #fff;
+}
+
+.cobros-form-panel .panel-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.cobros-form-panel .panel-header-row h3 {
+    margin: 0;
+    color: #253858;
+    font-size: 1.05rem;
+}
+
+.cobros-form-panel .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    color: #334a63;
+    font-size: 0.9rem;
+}
+
+.cobros-form-panel .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 18px;
+}
+
+.cobros-form-panel .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.cobros-form-panel .form-field label {
+    color: #53657b;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.cobros-form-panel .form-field-full {
+    grid-column: 1 / -1;
+}
+
+.cobros-form-panel textarea {
+    resize: vertical;
+    min-height: 90px;
+}
+
+.cobros-form-panel .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 0;
+    padding-top: 1rem;
+    border-top: 1px solid #e1e8f0;
+}
+
+.cobros-form-panel .modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 23, 42, .55);
+}
+
+.cobros-form-panel .modal-content {
+    width: min(900px, 90vw);
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, .25);
+}
+
+@media (max-width: 980px) {
+    .cobros-filters {
+        grid-template-columns: repeat(2, minmax(180px, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .cobros-filters {
+        grid-template-columns: 1fr;
+    }
+    .cobros-filters .filter-actions {
+        justify-content: stretch;
+    }
+    .cobros-filters .filter-actions .btn {
+        width: 100%;
+        text-align: center;
+    }
+    .cobros-form-panel .form-actions {
+        flex-direction: column-reverse;
+    }
+    .cobros-form-panel .form-actions .btn {
+        width: 100%;
+        text-align: center;
+    }
+}
+
 /* =================================================================
    UTILITIES & MESSAGES
    ================================================================= */

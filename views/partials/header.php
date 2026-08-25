@@ -63,8 +63,15 @@ $base_url = defined('SITE_URL') ? SITE_URL : '';
                 <ul class="dropdown-content">
                     <li><a href="<?php echo $base_url; ?>index.php?view=monitor"><i class="bi bi-display nav-icon" aria-hidden="true"></i>Monitor</a></li>
                     <li><a href="<?php echo $base_url; ?>index.php?view=matriculas"><i class="bi bi-clipboard-check nav-icon" aria-hidden="true"></i>Matriculas</a></li>
-                    <li><a href="<?php echo $base_url; ?>index.php?view=calendario"><i class="bi bi-calendar3 nav-icon" aria-hidden="true"></i>Calendario</a></li>
-                    <li><a href="<?php echo $base_url; ?>index.php?view=calendario_cursos"><i class="bi bi-calendar-event nav-icon" aria-hidden="true"></i>Calendario de Cursos</a></li>
+                    <li><a href="<?php echo $base_url; ?>index.php?view=cobros"><i class="bi bi-cash-coin nav-icon" aria-hidden="true"></i>Cobros</a></li>
+                </ul>
+            </li>
+
+            <li class="nav-dropdown" data-menu="calendario">
+                <a href="#"><i class="bi bi-calendar3 nav-icon" aria-hidden="true"></i>Calendario</a>
+                <ul class="dropdown-content">
+                    <li><a href="<?php echo $base_url; ?>index.php?view=calendario"><i class="bi bi-calendar-event nav-icon" aria-hidden="true"></i>Clases Alumnos</a></li>
+                    <li><a href="<?php echo $base_url; ?>index.php?view=calendario_cursos"><i class="bi bi-calendar-event nav-icon" aria-hidden="true"></i>Cursos Programados</a></li>
                 </ul>
             </li>
 

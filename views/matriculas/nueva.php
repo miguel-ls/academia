@@ -125,7 +125,7 @@ require_once 'views/partials/header.php';
                 <input type="hidden" id="fecha_fin_matricula" name="fecha_fin_matricula" value="<?php echo htmlspecialchars($form_data['fecha_fin_matricula'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                 <div class="form-group">
                     <label for="id_forma_pago">Forma de Pago:</label>
-                    <select id="id_forma_pago" name="id_forma_pago" required>
+                    <select id="id_forma_pago" name="id_forma_pago">
                         <option value="">Seleccione una forma de pago</option>
                         <?php foreach ($formas_pago as $forma_pago): ?>
                             <option value="<?php echo $forma_pago['id_forma_pago']; ?>" <?php echo (int)($form_data['id_forma_pago'] ?? 0) === (int)$forma_pago['id_forma_pago'] ? 'selected' : ''; ?>><?php echo htmlspecialchars($forma_pago['nombre']); ?></option>

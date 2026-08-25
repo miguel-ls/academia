@@ -9,6 +9,9 @@ require_once 'models/ClienteModel.php';
 require_once 'models/MonitorModel.php';
 require_once 'models/ProgramacionModel.php';
 require_once 'models/FormasPagoModel.php';
+require_once 'models/CursosModel.php';
+require_once 'models/SubAreasModel.php';
+require_once 'models/ProfesorModel.php';
 
 // --- Verificación de Seguridad ---
 Session::check();
@@ -19,6 +22,9 @@ $clienteModel = new ClienteModel();
 $monitorModel = new MonitorModel();
 $programacionModel = new ProgramacionModel();
 $formasPagoModel = new FormasPagoModel();
+$cursosModel = new CursosModel();
+$subAreasModel = new SubAreasModel();
+$profesorModel = new ProfesorModel();
 
 
 // Determinar la acción: puede venir por GET (navegación) o POST (formularios)
@@ -28,15 +34,27 @@ $action = $_REQUEST['action'] ?? 'list';
 switch ($action) {
     case 'list':
         $matriculas = $matriculaModel->obtenerTodas();
-        $clientes_filtro = $clienteModel->obtenerTodos();
         $filtro_cliente_id = (int)($_GET['cliente_id'] ?? 0);
+        $filtro_curso_id = (int)($_GET['curso_id'] ?? 0);
+        $filtro_ubicacion_id = (int)($_GET['ubicacion_id'] ?? 0);
+        $filtro_profesor_id = (int)($_GET['profesor_id'] ?? 0);
+        $filtro_horario_id = (int)($_GET['horario_id'] ?? 0);
         $filtro_fecha_inicio = $_GET['fecha_inicio'] ?? '';
         $filtro_fecha_fin = $_GET['fecha_fin'] ?? '';
         $filtro_estado = $_GET['estado'] ?? '';
 
-        $matriculas = array_values(array_filter($matriculas, function ($matricula) use ($filtro_cliente_id, $filtro_fecha_inicio, $filtro_fecha_fin, $filtro_estado) {
+        $matriculas = array_values(array_filter($matriculas, function ($matricula) use ($filtro_cliente_id, $filtro_curso_id, $filtro_ubicacion_id, $filtro_profesor_id, $filtro_horario_id, $filtro_fecha_inicio, $filtro_fecha_fin, $filtro_estado) {
             $fecha_matricula = date('Y-m-d', strtotime($matricula['fecha_matricula']));
-            return (!$filtro_cliente_id || (int)$matricula['id_cliente'] === $filtro_cliente_id)
+            $clientes_matricula = array_filter(explode(',', (string)($matricula['clientes_asistencia_ids'] ?? '')));
+            $cursos_matricula = array_filter(explode(',', (string)($matricula['cursos_ids'] ?? '')));
+            $ubicaciones_matricula = array_filter(explode(',', (string)($matricula['ubicaciones_ids'] ?? '')));
+            $profesores_matricula = array_filter(explode(',', (string)($matricula['profesores_ids'] ?? '')));
+            $horarios_matricula = array_filter(explode(',', (string)($matricula['horarios_ids'] ?? '')));
+            return (!$filtro_cliente_id || in_array((string)$filtro_cliente_id, $clientes_matricula, true))
+                && (!$filtro_curso_id || in_array((string)$filtro_curso_id, $cursos_matricula, true))
+                && (!$filtro_ubicacion_id || in_array((string)$filtro_ubicacion_id, $ubicaciones_matricula, true))
+                && (!$filtro_profesor_id || in_array((string)$filtro_profesor_id, $profesores_matricula, true))
+                && (!$filtro_horario_id || in_array((string)$filtro_horario_id, $horarios_matricula, true))
                 && (!$filtro_fecha_inicio || $fecha_matricula >= $filtro_fecha_inicio)
                 && (!$filtro_fecha_fin || $fecha_matricula <= $filtro_fecha_fin)
                 && (!$filtro_estado || $matricula['estado'] === $filtro_estado);
@@ -61,6 +79,27 @@ switch ($action) {
         $query = $_GET['q'] ?? '';
         $clientes = $clienteModel->buscar($query);
         echo json_encode($clientes);
+        exit;
+
+    case 'buscar_curso_filtro':
+        header('Content-Type: application/json');
+        $query = $_GET['q'] ?? '';
+        echo json_encode($cursosModel->buscar($query));
+        exit;
+
+    case 'buscar_ubicacion_filtro':
+        header('Content-Type: application/json');
+        echo json_encode($subAreasModel->buscar($_GET['q'] ?? ''));
+        exit;
+
+    case 'buscar_profesor_filtro':
+        header('Content-Type: application/json');
+        echo json_encode($profesorModel->buscar($_GET['q'] ?? ''));
+        exit;
+
+    case 'buscar_horario_filtro':
+        header('Content-Type: application/json');
+        echo json_encode($matriculaModel->buscarHorarios($_GET['q'] ?? ''));
         exit;
 
     case 'buscar_cursos':
@@ -381,9 +420,13 @@ switch ($action) {
                     'cursos' => $cursos_detalle
                 ];
 
-                $matriculaModel->actualizarMatricula($id_matricula, $datos_matricula);
+                $resultado_actualizacion = $matriculaModel->actualizarMatricula($id_matricula, $datos_matricula);
+                $mensaje = '';
+                if (!$resultado_actualizacion['cobro_generado'] && $resultado_actualizacion['saldo_pendiente'] > 0.0001) {
+                    $mensaje = 'La matrícula se actualizó. El saldo pendiente debe cobrarse desde Gestión de Cobros.';
+                }
 
-                header('Location: index.php?view=matriculas&action=detalle&id=' . $id_matricula . '&success_update=1');
+                header('Location: index.php?view=matriculas&action=detalle&id=' . $id_matricula . '&success_update=1' . ($mensaje !== '' ? '&message=' . urlencode($mensaje) : ''));
                 exit;
 
             } catch (Exception $e) {

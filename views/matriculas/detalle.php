@@ -1,4 +1,7 @@
-<?php require_once 'views/partials/header.php'; ?>
+<?php
+$feedback_message = $_GET['message'] ?? '';
+require_once 'views/partials/header.php';
+?>
 
 <div class="page-header">
     <h1>Detalle de Matrícula #<?php echo htmlspecialchars($matricula['id_matricula']); ?></h1>
@@ -63,8 +66,14 @@
     </table>
 </div>
 
+<?php require_once 'views/partials/modal_error.php'; ?>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    <?php if ($feedback_message !== ''): ?>
+    window.showMessageModal(<?php echo json_encode($feedback_message, JSON_UNESCAPED_UNICODE); ?>, { title: 'Información' });
+    <?php endif; ?>
+
     document.querySelectorAll('.form-quitar-curso').forEach(form => {
         form.addEventListener('submit', function(e) {
             const confirmacion = confirm('¿Está seguro de que desea QUITAR este curso de la matrícula? Esta acción recalculará el monto total.');

@@ -19,6 +19,11 @@ class MatriculaModel {
         return $this->db->resultSet();
     }
 
+    public function buscarHorarios($termino) {
+        $this->db->callStoredProcedure('sp_matriculas_horarios_buscar', [$termino]);
+        return $this->db->resultSet();
+    }
+
     /**
      * Registra una matrícula completa con su detalle en una transacción.
      * @param array $datos Cabecera y detalle de la matrícula.
@@ -28,11 +33,12 @@ class MatriculaModel {
         $this->db->beginTransaction();
 
         try {
+            $id_forma_pago = (int)($datos['id_forma_pago'] ?? 0);
             // 1. Registrar cabecera
             $params_cabecera = [
                 $datos['id_cliente'],
                 $_SESSION['user_id'], // El usuario que registra
-                $datos['id_forma_pago'],
+                $id_forma_pago > 0 ? $id_forma_pago : null,
                 $datos['fecha_inicio_matricula'],
                 $datos['fecha_fin_matricula'],
                 $datos['monto_total'],
@@ -72,6 +78,18 @@ class MatriculaModel {
                 $this->db->callStoredProcedure('sp_asistencia_cliente_generar_cronograma', [$id_matricula_detalle]);
             }
 
+            if ($id_forma_pago > 0) {
+                $this->db->callStoredProcedure('sp_cobros_crear', [
+                    $id_matricula,
+                    $id_forma_pago,
+                    date('Y-m-d'),
+                    'AUTO-MAT-' . $id_matricula,
+                    $datos['monto_final'],
+                    'Cobro automático generado al registrar la matrícula.',
+                    $_SESSION['user_id'] ?? 0,
+                ]);
+            }
+
             // 4. Si todo fue bien, confirmar la transacción
             $this->db->commit();
             return true;
@@ -91,8 +109,20 @@ class MatriculaModel {
      * @return bool True si fue exitoso.
      */
     public function actualizarMatricula($id_matricula, $datos) {
+        $matricula_actual = $this->obtenerCabeceraPorId($id_matricula);
+        if (!$matricula_actual) {
+            throw new Exception('No se encontró la matrícula a actualizar.');
+        }
+
+        $saldo_actual = $this->obtenerSaldoCobros($id_matricula);
+        $total_cobros = (float)$matricula_actual['monto_final'] - $saldo_actual;
+        if ((float)$datos['monto_final'] + 0.0001 < $total_cobros) {
+            throw new Exception('No se puede grabar la matrícula porque el importe es menor a los cobros asociados.');
+        }
+
         $this->db->beginTransaction();
         try {
+            $id_forma_pago = (int)($datos['id_forma_pago'] ?? 0);
             // 1. Obtener el estado actual de la matrícula desde la BD
             $detalles_actuales_raw = $this->obtenerDetallesPorIdMatricula($id_matricula);
             $detalles_actuales = [];
@@ -157,7 +187,7 @@ class MatriculaModel {
             // 6. Actualizar la cabecera de la matrícula
             $params_cabecera = [
                 $id_matricula,
-                $datos['id_forma_pago'],
+                $id_forma_pago > 0 ? $id_forma_pago : null,
                 $datos['observaciones']
             ];
             $this->db->callStoredProcedure('sp_matricula_cabecera_actualizar', $params_cabecera);
@@ -165,8 +195,23 @@ class MatriculaModel {
             // 7. Recalcular totales finales
             $this->db->callStoredProcedure('sp_matricula_cabecera_recalcular', [$id_matricula]);
 
+            if ($total_cobros <= 0.0001 && $id_forma_pago > 0) {
+                $this->db->callStoredProcedure('sp_cobros_crear', [
+                    $id_matricula,
+                    $id_forma_pago,
+                    date('Y-m-d'),
+                    'AUTO-MAT-' . $id_matricula,
+                    $datos['monto_final'],
+                    'Cobro automático generado al asignar una forma de pago.',
+                    $_SESSION['user_id'] ?? 0,
+                ]);
+            }
+
             $this->db->commit();
-            return true;
+            return [
+                'cobro_generado' => $total_cobros <= 0.0001 && $id_forma_pago > 0,
+                'saldo_pendiente' => max(0, (float)$datos['monto_final'] - $total_cobros),
+            ];
         } catch (Exception $e) {
             $this->db->rollBack();
             throw $e;
@@ -258,6 +303,12 @@ class MatriculaModel {
     public function obtenerDetallesPorIdMatricula($id_matricula) {
         $this->db->callStoredProcedure('sp_matricula_obtener_detalles_por_id_matricula', [$id_matricula]);
         return $this->db->resultSet();
+    }
+
+    private function obtenerSaldoCobros($id_matricula) {
+        $this->db->callStoredProcedure('sp_cobros_saldo_matricula', [$id_matricula, 0]);
+        $resultado = $this->db->single();
+        return (float)($resultado['saldo_pendiente'] ?? 0.00);
     }
 
     /**

@@ -40,11 +40,58 @@
             <p id="error-modal-message"></p>
         </div>
         <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="modal-cancel-button" style="display: none;">Cancelar</button>
             <button type="button" class="btn btn-primary" id="modal-accept-button">Aceptar</button>
         </div>
     </div>
 </div>
 <script>
+window.showMessageModal = function(message, options) {
+    options = options || {};
+    const modal = document.getElementById('error-modal');
+    if (!modal) return false;
+
+    const title = modal.querySelector('#error-modal-title');
+    const messageNode = modal.querySelector('#error-modal-message');
+    const acceptButton = modal.querySelector('#modal-accept-button');
+    const cancelButton = modal.querySelector('#modal-cancel-button');
+    const closeButton = modal.querySelector('.modal-close');
+
+    title.textContent = options.title || 'Mensaje';
+    messageNode.textContent = message;
+    acceptButton.textContent = options.acceptLabel || 'Aceptar';
+    cancelButton.textContent = options.cancelLabel || 'Cancelar';
+    cancelButton.style.display = typeof options.onCancel === 'function' ? '' : 'none';
+
+    const closeModal = function(cancelled) {
+        modal.style.display = 'none';
+        if (cancelled && typeof options.onCancel === 'function') {
+            options.onCancel();
+        } else if (typeof options.onClose === 'function') {
+            options.onClose();
+        }
+    };
+
+    const handleAccept = function() {
+        closeModal(false);
+        if (typeof options.onAccept === 'function') {
+            options.onAccept();
+        }
+    };
+
+    acceptButton.onclick = handleAccept;
+    cancelButton.onclick = function() { closeModal(true); };
+    closeButton.onclick = function() { closeModal(true); };
+    modal.onclick = function(event) {
+        if (event.target === modal) {
+            closeModal(true);
+        }
+    };
+
+    modal.style.display = 'flex';
+    return true;
+};
+
 document.addEventListener('DOMContentLoaded', function() {
     const errorModal = document.getElementById('error-modal');
     if (!errorModal) return;

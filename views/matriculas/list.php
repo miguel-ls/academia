@@ -1,6 +1,9 @@
 <?php
-$clientes_filtro = $clientes_filtro ?? [];
 $filtro_cliente_id = (int)($filtro_cliente_id ?? 0);
+$filtro_curso_id = (int)($filtro_curso_id ?? 0);
+$filtro_ubicacion_id = (int)($filtro_ubicacion_id ?? 0);
+$filtro_profesor_id = (int)($filtro_profesor_id ?? 0);
+$filtro_horario_id = (int)($filtro_horario_id ?? 0);
 $filtro_fecha_inicio = $filtro_fecha_inicio ?? '';
 $filtro_fecha_fin = $filtro_fecha_fin ?? '';
 $filtro_estado = $filtro_estado ?? '';
@@ -17,16 +20,41 @@ require_once 'views/partials/header.php';
     <div class="filter-field client-filter-field">
         <label for="filtro_cliente">Cliente</label>
         <div class="filter-autocomplete">
-            <input type="text" id="filtro_cliente" class="form-control" autocomplete="off" placeholder="Buscar cliente..." aria-autocomplete="list" aria-controls="clientes-filtro-resultados" value="<?php
-                foreach ($clientes_filtro as $cliente) {
-                    if ((int)$cliente['id_cliente'] === $filtro_cliente_id) {
-                        echo htmlspecialchars(trim($cliente['nombres'] . ' ' . $cliente['apellidos']), ENT_QUOTES, 'UTF-8');
-                        break;
-                    }
-                }
-            ?>">
+            <input type="text" id="filtro_cliente" class="form-control" autocomplete="off" placeholder="Escriba para buscar cliente..." aria-autocomplete="list" aria-controls="clientes-filtro-resultados">
             <input type="hidden" id="filtro_cliente_id" name="cliente_id" value="<?php echo $filtro_cliente_id ?: ''; ?>">
             <div id="clientes-filtro-resultados" class="filter-results" role="listbox"></div>
+        </div>
+    </div>
+    <div class="filter-field course-filter-field">
+        <label for="filtro_curso">Curso</label>
+        <div class="filter-autocomplete">
+            <input type="text" id="filtro_curso" class="form-control" autocomplete="off" placeholder="Escriba para buscar curso..." aria-autocomplete="list" aria-controls="cursos-filtro-resultados">
+            <input type="hidden" id="filtro_curso_id" name="curso_id" value="<?php echo $filtro_curso_id ?: ''; ?>">
+            <div id="cursos-filtro-resultados" class="filter-results" role="listbox"></div>
+        </div>
+    </div>
+    <div class="filter-field location-filter-field">
+        <label for="filtro_ubicacion">Ubicación</label>
+        <div class="filter-autocomplete">
+            <input type="text" id="filtro_ubicacion" class="form-control" autocomplete="off" placeholder="Escriba para buscar ubicación..." aria-autocomplete="list" aria-controls="ubicaciones-filtro-resultados">
+            <input type="hidden" id="filtro_ubicacion_id" name="ubicacion_id" value="<?php echo $filtro_ubicacion_id ?: ''; ?>">
+            <div id="ubicaciones-filtro-resultados" class="filter-results" role="listbox"></div>
+        </div>
+    </div>
+    <div class="filter-field professor-filter-field">
+        <label for="filtro_profesor">Profesor</label>
+        <div class="filter-autocomplete">
+            <input type="text" id="filtro_profesor" class="form-control" autocomplete="off" placeholder="Escriba para buscar profesor..." aria-autocomplete="list" aria-controls="profesores-filtro-resultados">
+            <input type="hidden" id="filtro_profesor_id" name="profesor_id" value="<?php echo $filtro_profesor_id ?: ''; ?>">
+            <div id="profesores-filtro-resultados" class="filter-results" role="listbox"></div>
+        </div>
+    </div>
+    <div class="filter-field schedule-filter-field">
+        <label for="filtro_horario">Horarios y horas</label>
+        <div class="filter-autocomplete">
+            <input type="text" id="filtro_horario" class="form-control" autocomplete="off" placeholder="Escriba para buscar horario..." aria-autocomplete="list" aria-controls="horarios-filtro-resultados">
+            <input type="hidden" id="filtro_horario_id" name="horario_id" value="<?php echo $filtro_horario_id ?: ''; ?>">
+            <div id="horarios-filtro-resultados" class="filter-results" role="listbox"></div>
         </div>
     </div>
     <div class="filter-field">
@@ -73,7 +101,7 @@ require_once 'views/partials/header.php';
             <?php foreach ($matriculas as $matricula): ?>
                 <tr>
                     <td><?php echo $matricula['id_matricula']; ?></td>
-                    <td><?php echo htmlspecialchars($matricula['nombre_cliente']); ?></td>
+                    <td class="matricula-alumnos-cursos"><?php echo nl2br(htmlspecialchars($matricula['alumnos_cursos'] ?? '', ENT_QUOTES, 'UTF-8')); ?></td>
                     <td><?php echo date('d/m/Y H:i', strtotime($matricula['fecha_matricula'])); ?></td>
                     <td>S/ <?php echo number_format($matricula['monto_final'], 2); ?></td>
                     <td>
@@ -162,7 +190,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <style>
 .matricula-filters {
     display: grid;
-    grid-template-columns: minmax(230px, 1.5fr) repeat(3, minmax(150px, 1fr)) auto;
+    grid-template-columns: repeat(5, minmax(190px, 1fr));
     gap: 14px;
     align-items: end;
     margin-bottom: 22px;
@@ -277,6 +305,10 @@ document.addEventListener('DOMContentLoaded', function() {
 .status-completada {
     background-color: #007bff; /* Azul */
 }
+.matricula-alumnos-cursos {
+    line-height: 1.6;
+    white-space: normal;
+}
 </style>
 
 <script>
@@ -285,54 +317,90 @@ document.addEventListener('DOMContentLoaded', function() {
     const clientIdInput = document.getElementById('filtro_cliente_id');
     const clientResults = document.getElementById('clientes-filtro-resultados');
     const clientFilter = document.querySelector('.client-filter-field');
-    const clients = <?php echo json_encode(array_map(function ($cliente) {
-        return [
-            'id' => (int)$cliente['id_cliente'],
-            'nombre' => trim($cliente['nombres'] . ' ' . $cliente['apellidos'])
-        ];
-    }, $clientes_filtro), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
+    const courseInput = document.getElementById('filtro_curso');
+    const courseIdInput = document.getElementById('filtro_curso_id');
+    const courseResults = document.getElementById('cursos-filtro-resultados');
+    const courseFilter = document.querySelector('.course-filter-field');
+    const locationInput = document.getElementById('filtro_ubicacion');
+    const locationIdInput = document.getElementById('filtro_ubicacion_id');
+    const locationResults = document.getElementById('ubicaciones-filtro-resultados');
+    const locationFilter = document.querySelector('.location-filter-field');
+    const professorInput = document.getElementById('filtro_profesor');
+    const professorIdInput = document.getElementById('filtro_profesor_id');
+    const professorResults = document.getElementById('profesores-filtro-resultados');
+    const professorFilter = document.querySelector('.professor-filter-field');
+    const scheduleInput = document.getElementById('filtro_horario');
+    const scheduleIdInput = document.getElementById('filtro_horario_id');
+    const scheduleResults = document.getElementById('horarios-filtro-resultados');
+    const scheduleFilter = document.querySelector('.schedule-filter-field');
 
-    function closeClientResults() {
-        clientResults.classList.remove('is-open');
-        clientResults.innerHTML = '';
+    function configurarAutocompletado(input, hiddenInput, results, container, url, renderLabel, idField) {
+        let searchTimeout;
+
+        const closeResults = function() {
+            results.classList.remove('is-open');
+            results.innerHTML = '';
+        };
+
+        const buscar = function() {
+            const query = input.value.trim();
+            if (query.length < 2) {
+                closeResults();
+                return;
+            }
+            fetch(url + encodeURIComponent(query))
+                .then(function(response) { return response.json(); })
+                .then(function(items) {
+                    results.innerHTML = '';
+                    if (!items.length) {
+                        results.innerHTML = '<div class="filter-empty">No se encontraron resultados.</div>';
+                    } else {
+                        items.slice(0, 20).forEach(function(item) {
+                            const result = document.createElement('button');
+                            result.type = 'button';
+                            result.className = 'filter-result';
+                            result.dataset.id = item[idField];
+                            result.textContent = renderLabel(item);
+                            results.appendChild(result);
+                        });
+                    }
+                    results.classList.add('is-open');
+                })
+                .catch(closeResults);
+        };
+
+        input.addEventListener('input', function() {
+            hiddenInput.value = '';
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(buscar, 300);
+        });
+        results.addEventListener('click', function(event) {
+            const result = event.target.closest('.filter-result');
+            if (!result) return;
+            input.value = result.textContent;
+            hiddenInput.value = result.dataset.id;
+            closeResults();
+        });
+        document.addEventListener('click', function(event) {
+            if (!container.contains(event.target)) closeResults();
+        });
     }
 
-    function renderClientResults(query) {
-        const normalizedQuery = query.trim().toLocaleLowerCase('es');
-        const matches = clients.filter(client => client.nombre.toLocaleLowerCase('es').includes(normalizedQuery)).slice(0, 30);
-        clientResults.innerHTML = '';
-        if (matches.length === 0) {
-            clientResults.innerHTML = '<div class="filter-empty">No se encontraron clientes.</div>';
-        } else {
-            matches.forEach(client => {
-                const result = document.createElement('button');
-                result.type = 'button';
-                result.className = 'filter-result';
-                result.dataset.id = client.id;
-                result.textContent = client.nombre;
-                clientResults.appendChild(result);
-            });
-        }
-        clientResults.classList.add('is-open');
-    }
-
-    clientInput.addEventListener('input', function() {
-        clientIdInput.value = '';
-        renderClientResults(this.value);
-    });
-    clientInput.addEventListener('focus', function() {
-        renderClientResults(this.value);
-    });
-    clientResults.addEventListener('click', function(event) {
-        const result = event.target.closest('.filter-result');
-        if (!result) return;
-        clientInput.value = result.textContent;
-        clientIdInput.value = result.dataset.id;
-        closeClientResults();
-    });
-    document.addEventListener('click', function(event) {
-        if (!clientFilter.contains(event.target)) closeClientResults();
-    });
+    configurarAutocompletado(clientInput, clientIdInput, clientResults, clientFilter, 'index.php?view=matriculas&action=buscar_cliente&q=', function(cliente) {
+        return (cliente.nombres || '') + ' ' + (cliente.apellidos || '');
+    }, 'id_cliente');
+    configurarAutocompletado(courseInput, courseIdInput, courseResults, courseFilter, 'index.php?view=matriculas&action=buscar_curso_filtro&q=', function(curso) {
+        return curso.nombre || '';
+    }, 'id_curso');
+    configurarAutocompletado(locationInput, locationIdInput, locationResults, locationFilter, 'index.php?view=matriculas&action=buscar_ubicacion_filtro&q=', function(ubicacion) {
+        return (ubicacion.area_nombre || '') + ' - ' + (ubicacion.descripcion || '') + ' ' + (ubicacion.numero_sub_area || '');
+    }, 'id_sub_area');
+    configurarAutocompletado(professorInput, professorIdInput, professorResults, professorFilter, 'index.php?view=matriculas&action=buscar_profesor_filtro&q=', function(profesor) {
+        return profesor.nombre_completo || '';
+    }, 'id_profesor');
+    configurarAutocompletado(scheduleInput, scheduleIdInput, scheduleResults, scheduleFilter, 'index.php?view=matriculas&action=buscar_horario_filtro&q=', function(horario) {
+        return horario.horario || '';
+    }, 'id_curso_programado');
 });
 </script>
 

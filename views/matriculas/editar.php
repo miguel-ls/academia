@@ -3,6 +3,7 @@
 $matricula = $matricula ?? [];
 $detalles = $detalles ?? [];
 $formas_pago = $formas_pago ?? [];
+$error_message = $_GET['error'] ?? '';
 $forma_pago_seleccionada = (string)($matricula['id_forma_pago'] ?? '');
 if ($forma_pago_seleccionada === '' && !empty($matricula['forma_pago'])) {
     foreach ($formas_pago as $forma_pago) {
@@ -100,7 +101,7 @@ if ($forma_pago_seleccionada === '' && !empty($matricula['forma_pago'])) {
                 <input type="hidden" id="fecha_fin_matricula" name="fecha_fin_matricula" value="<?php echo htmlspecialchars((string)($matricula['fecha_fin_clases'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
                 <div class="form-group">
                     <label for="id_forma_pago">Forma de Pago:</label>
-                    <select id="id_forma_pago" name="id_forma_pago" required>
+                    <select id="id_forma_pago" name="id_forma_pago">
                         <option value="">Seleccione una forma de pago</option>
                         <?php foreach ($formas_pago as $forma_pago): ?>
                             <?php $id_forma_pago = (string)($forma_pago['id_forma_pago'] ?? ''); ?>
@@ -134,6 +135,8 @@ if ($forma_pago_seleccionada === '' && !empty($matricula['forma_pago'])) {
     font-size: 1em;
 }
 </style>
+
+<?php require_once 'views/partials/modal_error.php'; ?>
 
 <!-- Embeber los datos de los detalles de la matrícula para que JS los pueda leer -->
 <script>

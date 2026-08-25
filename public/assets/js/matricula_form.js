@@ -493,6 +493,23 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             return;
         }
+
+        const formaPago = document.getElementById('id_forma_pago');
+        if (formaPago && !formaPago.value && !formMatricula.dataset.pagoConfirmado) {
+            e.preventDefault();
+            window.showMessageModal('No se seleccionó una forma de pago. ¿Desea continuar sin registrar un cobro automático?', {
+                title: 'Confirmar matrícula',
+                acceptLabel: 'Continuar',
+                cancelLabel: 'Cancelar',
+                onAccept: function() {
+                    formMatricula.dataset.pagoConfirmado = '1';
+                    formMatricula.requestSubmit();
+                },
+                onCancel: function() {
+                    formaPago.focus();
+                }
+            });
+        }
     });
     function validarCruceHorariosCliente() {
         const cursosPorCliente = {};

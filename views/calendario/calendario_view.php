@@ -10,7 +10,7 @@ require_once 'views/partials/header.php';
 ?>
 
 <div class="page-header">
-    <h1>Calendario de Clases</h1>
+    <h1>Calendario de Clases por Alumnos</h1>
 </div>
 
 <!-- Filtros del Calendario -->
