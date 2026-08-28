@@ -9,6 +9,9 @@
         <p class="page-subtitle">Administra la informacion y datos de contacto de tus clientes.</p>
     </div>
     <div class="page-header-right">
+        <form action="index.php?view=clientes&amp;action=migrate" method="POST" style="display: inline;">
+            <button type="submit" class="btn" onclick="return confirm('¿Desea migrar los clientes desde el sistema origen?');">Migrar Clientes</button>
+        </form>
         <a href="index.php?view=clientes&action=new" class="btn btn-primary clientes-create-button"><span aria-hidden="true">+</span> Nuevo Cliente</a>
     </div>
 </div>

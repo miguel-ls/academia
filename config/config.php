@@ -23,6 +23,11 @@ define('SMTP_PORT', 465); // O 465 para SSL
 define('SMTP_FROM_EMAIL', 'ventas.sistemas@codesicorp.com');
 define('SMTP_FROM_NAME', 'ERPPLUS - Academy');
 
+define('URL_NODE_RED', 'http://localhost:1880');
+define('TOKEN_NODE_RED', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c');
+
+define('EMP_CCODIGO', '087');
+
 // Otras configuraciones
 session_start();
 date_default_timezone_set('America/Lima'); // Ajusta a tu zona horaria

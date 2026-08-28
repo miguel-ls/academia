@@ -5,6 +5,9 @@
         <h1>Mantenimiento de Cursos</h1>
     </div>
     <div class="page-header-right">
+        <form action="index.php?view=cursos&amp;action=migrate" method="POST" style="display: inline;">
+            <button type="submit" class="btn" onclick="return confirm('¿Desea migrar los cursos desde el sistema origen?');">Migrar Cursos</button>
+        </form>
         <a href="index.php?view=cursos&action=new" class="btn btn-primary">Nuevo Curso</a>
     </div>
 </div>

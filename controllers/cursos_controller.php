@@ -4,6 +4,7 @@
 // =================================================================
 
 require_once 'models/CursosModel.php';
+require_once 'utils/NodeRedClient.php';
 
 // --- Verificación de Seguridad ---
 Session::check();
@@ -28,6 +29,27 @@ $search_term = '';
 
 try {
     switch ($action) {
+        case 'migrate':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                header('Location: index.php?view=cursos');
+                exit();
+            }
+
+            $nodeRedClient = new NodeRedClient();
+            $resultado = $nodeRedClient->request('POST', '/maestros/migrarcursos', [
+                'Emp_cCodigo' => EMP_CCODIGO
+            ]);
+
+            if ($resultado['success']) {
+                $mensajeApi = is_array($resultado['data']) ? ($resultado['data']['message'] ?? '') : '';
+                $_SESSION['feedback_message'] = 'Cursos migrados exitosamente.' . ($mensajeApi ? ' ' . $mensajeApi : '');
+            } else {
+                $_SESSION['feedback_message'] = 'Error al migrar cursos: ' . $resultado['error'];
+            }
+
+            header('Location: index.php?view=cursos');
+            exit();
+
         case 'create':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $datos = [

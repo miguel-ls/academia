@@ -6,6 +6,7 @@
 
 require_once 'models/ClienteModel.php';
 require_once 'models/TiposDocumentoModel.php';
+require_once 'utils/NodeRedClient.php';
 
 // --- NO LLAMAR A Session::check() globalmente ---
 // Se llamará dentro de cada case que renderice una página completa.
@@ -30,6 +31,28 @@ $search_term = '';
 
 try {
     switch ($action) {
+        case 'migrate':
+            Session::check();
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                header('Location: index.php?view=clientes');
+                exit();
+            }
+
+            $nodeRedClient = new NodeRedClient();
+            $resultado = $nodeRedClient->request('POST', '/maestros/migrarclientes', [
+                'Emp_cCodigo' => EMP_CCODIGO
+            ]);
+
+            if ($resultado['success']) {
+                $mensajeApi = is_array($resultado['data']) ? ($resultado['data']['message'] ?? '') : '';
+                $_SESSION['feedback_message'] = 'Clientes migrados exitosamente.' . ($mensajeApi ? ' ' . $mensajeApi : '');
+            } else {
+                $_SESSION['feedback_message'] = 'Error al migrar clientes: ' . $resultado['error'];
+            }
+
+            header('Location: index.php?view=clientes');
+            exit();
+
         case 'create':
             Session::check(); // Proteger la acción
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
