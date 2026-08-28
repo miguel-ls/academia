@@ -105,6 +105,26 @@ $base_url = defined('SITE_URL') ? SITE_URL : '';
     <?php if (isset($_SESSION['user_id'])): ?>
     <script>
     (function() {
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const appWrapper = document.querySelector('.app-wrapper');
+        const sidebarStateKey = 'academia.sidebar.collapsed';
+
+        if (sidebarToggle && appWrapper) {
+            const isCollapsed = appWrapper.classList.contains('sidebar-collapsed');
+            sidebarToggle.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
+            sidebarToggle.setAttribute('aria-label', isCollapsed ? 'Mostrar barra lateral' : 'Ocultar barra lateral');
+
+            sidebarToggle.addEventListener('click', function() {
+                const collapsed = appWrapper.classList.toggle('sidebar-collapsed');
+                sidebarToggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+                sidebarToggle.setAttribute('aria-label', collapsed ? 'Mostrar barra lateral' : 'Ocultar barra lateral');
+
+                try {
+                    localStorage.setItem(sidebarStateKey, collapsed ? 'true' : 'false');
+                } catch (error) {}
+            });
+        }
+
         const menuGroups = document.querySelectorAll('.sidebar .nav-dropdown');
         const storageKey = 'academia.sidebar.openGroups';
         const currentView = new URLSearchParams(window.location.search).get('view') || 'dashboard';

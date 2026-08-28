@@ -83,7 +83,7 @@ class MatriculaModel {
                     $id_matricula,
                     $id_forma_pago,
                     date('Y-m-d'),
-                    'AUTO-MAT-' . $id_matricula,
+                    'AUTO-' . $id_matricula,
                     $datos['monto_final'],
                     'Cobro automático generado al registrar la matrícula.',
                     $_SESSION['user_id'] ?? 0,
@@ -200,9 +200,9 @@ class MatriculaModel {
                     $id_matricula,
                     $id_forma_pago,
                     date('Y-m-d'),
-                    'AUTO-MAT-' . $id_matricula,
+                    'AUTO-' . $id_matricula,
                     $datos['monto_final'],
-                    'Cobro automático generado al asignar una forma de pago.',
+                    '',
                     $_SESSION['user_id'] ?? 0,
                 ]);
             }

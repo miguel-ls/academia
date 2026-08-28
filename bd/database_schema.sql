@@ -1789,6 +1789,7 @@ CREATE TABLE clientes (
   estado enum ('Activado', 'Desactivado') NOT NULL DEFAULT 'Activado' COMMENT 'Estado del cliente: Activado o Desactivado',
   direccion varchar(255) DEFAULT NULL,
   codigo_ubigeo varchar(10) DEFAULT NULL,
+  observaciones text DEFAULT NULL,
   fecha_creacion timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP(),
   PRIMARY KEY (id_cliente)
 )
@@ -1852,6 +1853,7 @@ BEGIN
     codigo_erp,
     direccion,
     codigo_ubigeo,
+    observaciones,
     estado
   FROM clientes
   WHERE id_cliente = p_id_cliente;
@@ -1875,6 +1877,7 @@ BEGIN
     c.telefono,
     c.direccion,
     c.codigo_ubigeo,
+    c.observaciones,
     c.estado
   FROM clientes c
     JOIN tipos_documento td
@@ -1910,7 +1913,8 @@ IN p_telefono varchar(20),
 IN p_codigo_erp varchar(20),
 IN p_direccion varchar(255),
 IN p_codigo_ubigeo varchar(10),
-IN p_estado enum ('Activado', 'Desactivado'))
+IN p_estado enum ('Activado', 'Desactivado'),
+IN p_observaciones text)
 BEGIN
   DECLARE cliente_existente int;
 
@@ -1923,8 +1927,8 @@ BEGIN
   IF cliente_existente > 0 THEN
     SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Ya existe un cliente con el mismo tipo y número de documento.';
   ELSE
-    INSERT INTO clientes (id_tipo_documento, numero_documento, nombres, apellidos, email, telefono, codigo_erp, direccion, codigo_ubigeo, estado)
-      VALUES (p_id_tipo_documento, p_numero_documento, p_nombres, p_apellidos, p_email, p_telefono, p_codigo_erp, p_direccion, p_codigo_ubigeo, p_estado);
+    INSERT INTO clientes (id_tipo_documento, numero_documento, nombres, apellidos, email, telefono, codigo_erp, direccion, codigo_ubigeo, observaciones, estado)
+      VALUES (p_id_tipo_documento, p_numero_documento, p_nombres, p_apellidos, p_email, p_telefono, p_codigo_erp, p_direccion, p_codigo_ubigeo, p_observaciones, p_estado);
     SELECT
       LAST_INSERT_ID() AS id_cliente;
   END IF;
@@ -1947,6 +1951,9 @@ BEGIN
     c.numero_documento,
     c.email,
     c.telefono,
+    c.direccion,
+    c.codigo_ubigeo,
+    c.observaciones,
     c.estado
   FROM clientes c
     JOIN tipos_documento td
@@ -1973,7 +1980,8 @@ IN p_telefono varchar(20),
 IN p_codigo_erp varchar(20),
 IN p_direccion varchar(255),
 IN p_codigo_ubigeo varchar(10),
-IN p_estado enum ('Activado', 'Desactivado'))
+IN p_estado enum ('Activado', 'Desactivado'),
+IN p_observaciones text)
 BEGIN
   DECLARE cliente_existente int;
   SELECT
@@ -1996,6 +2004,7 @@ BEGIN
         codigo_erp = p_codigo_erp,
         direccion = p_direccion,
         codigo_ubigeo = p_codigo_ubigeo,
+        observaciones = p_observaciones,
         estado = p_estado
     WHERE id_cliente = p_id_cliente;
   END IF;

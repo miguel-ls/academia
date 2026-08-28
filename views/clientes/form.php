@@ -93,6 +93,13 @@ $action_url = $is_edit ? 'index.php?view=clientes&action=update' : 'index.php?vi
             </div>
         </div>
 
+        <div class="form-row">
+            <div class="form-group" style="flex-basis: 100%;">
+                <label for="observaciones">Observaciones:</label>
+                <textarea id="observaciones" name="observaciones" rows="4"><?php echo htmlspecialchars($cliente_a_editar['observaciones'] ?? ''); ?></textarea>
+            </div>
+        </div>
+
         <div class="form-actions">
             <a href="index.php?view=clientes" class="btn btn-secondary">Cancelar</a>
             <button type="submit" id="submit-btn" class="btn btn-primary"><?php echo $is_edit ? 'Actualizar Cliente' : 'Crear Cliente'; ?></button>

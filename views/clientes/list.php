@@ -47,6 +47,9 @@
     <thead>
         <tr>
             <th>ID</th>
+
+            <th>ERP</th>
+
             <th>Nombres y Apellidos</th>
             <th>Documento</th>
             <th>Email</th>
@@ -54,25 +57,32 @@
             <th>Estado</th>
             <th>Dirección</th>
             <th>Ubigeo</th>
+            <th>Observaciones</th>
+            
             <th>Acciones</th>
         </tr>
     </thead>
     <tbody>
         <?php if (empty($clientes)): ?>
             <tr>
-                <td colspan="9">No se encontraron clientes.</td>
+                <td colspan="10">No se encontraron clientes.</td>
             </tr>
         <?php else: ?>
             <?php foreach ($clientes as $cliente): ?>
                 <tr>
                     <td class="cliente-id">#<?php echo $cliente['id_cliente']; ?></td>
-                    <td class="cliente-name"><strong><?php echo htmlspecialchars($cliente['apellidos'] . ', ' . $cliente['nombres']); ?></strong></td>
+
+                    <td><?php echo htmlspecialchars($cliente['codigo_erp'] ?? ''); ?></td>
+
+                    <td class="cliente-name"><strong><?php echo htmlspecialchars( $cliente['nombres']); ?></strong></td>
                     <td><span class="document-type"><?php echo htmlspecialchars($cliente['tipo_documento']); ?></span><span class="document-number"><?php echo htmlspecialchars($cliente['numero_documento']); ?></span></td>
                     <td><?php echo htmlspecialchars($cliente['email']); ?></td>
                     <td><?php echo htmlspecialchars($cliente['telefono']); ?></td>
                     <td><span class="status-badge status-<?php echo strtolower($cliente['estado']); ?>"><?php echo htmlspecialchars($cliente['estado']); ?></span></td>
                     <td><?php echo htmlspecialchars($cliente['direccion'] ?? ''); ?></td>
                     <td><?php echo htmlspecialchars($cliente['codigo_ubigeo'] ?? ''); ?></td>
+                    <td class="cliente-observaciones"><?php echo nl2br(htmlspecialchars($cliente['observaciones'] ?? '')); ?></td>
+                    
                     <td class="cliente-actions">
                         <a href="index.php?view=clientes&action=edit&id=<?php echo $cliente['id_cliente']; ?>" class="btn btn-warning">Editar</a>
                         <a href="index.php?view=clientes&action=delete&id=<?php echo $cliente['id_cliente']; ?>" class="btn btn-danger" onclick="return confirm('¿Está seguro de que desea eliminar este cliente?');">Eliminar</a>

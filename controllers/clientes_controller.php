@@ -43,7 +43,8 @@ try {
                     'codigo_erp' => $_POST['codigo_erp'],
                     'estado' => $_POST['estado'],
                     'direccion' => $_POST['direccion'],
-                    'codigo_ubigeo' => $_POST['codigo_ubigeo']
+                    'codigo_ubigeo' => $_POST['codigo_ubigeo'],
+                    'observaciones' => $_POST['observaciones'] ?? null
                 ];
                 $resultado = $clienteModel->crear($datos);
                 if ($resultado['success']) {
@@ -71,7 +72,8 @@ try {
                     'codigo_erp' => $_POST['codigo_erp'],
                     'estado' => $_POST['estado'],
                     'direccion' => $_POST['direccion'],
-                    'codigo_ubigeo' => $_POST['codigo_ubigeo']
+                    'codigo_ubigeo' => $_POST['codigo_ubigeo'],
+                    'observaciones' => $_POST['observaciones'] ?? null
                 ];
                 $resultado = $clienteModel->actualizar($datos);
 

@@ -2,6 +2,7 @@
 $feedback_message = $_GET['message'] ?? '';
 require_once 'views/partials/header.php';
 ?>
+<?php $matricula = $matricula ?? []; ?>
 
 <div class="page-header">
     <h1>Detalle de Matrícula #<?php echo htmlspecialchars($matricula['id_matricula']); ?></h1>

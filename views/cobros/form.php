@@ -27,9 +27,9 @@ require_once 'views/partials/header.php';
         <div class="page-header-left">
             <h1><?php echo $readonly ? 'Ver Cobro' : ($is_edit ? 'Editar Cobro' : 'Nuevo Cobro'); ?></h1>
         </div>
-        <div class="page-header-right">
+        <!-- <div class="page-header-right">
             <a href="index.php?view=cobros" class="btn btn-secondary">Volver</a>
-        </div>
+        </div> -->
     </div>
 
 <form method="POST" action="index.php?view=cobros" class="cobros-form-panel">
@@ -43,7 +43,7 @@ require_once 'views/partials/header.php';
         <div class="panel-header-row">
             <h3>Matrícula asociada</h3>
             <?php if (!$readonly): ?>
-                <button type="button" class="btn btn-secondary" id="btn-buscar-matricula">Buscar matrícula</button>
+                <button type="button" class="btn btn-success" id="btn-buscar-matricula">Buscar matrícula</button>
             <?php endif; ?>
         </div>
 
