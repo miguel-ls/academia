@@ -1954,6 +1954,7 @@ BEGIN
     c.numero_documento,
     c.email,
     c.telefono,
+    c.codigo_erp,
     c.direccion,
     c.codigo_ubigeo,
     c.observaciones,
@@ -2038,9 +2039,18 @@ BEGIN
   FROM clientes c
     JOIN tipos_documento td
       ON c.id_tipo_documento = td.id_tipo_documento
-  WHERE c.nombres LIKE @termino_busqueda
+  WHERE CAST(c.id_cliente AS CHAR) LIKE @termino_busqueda
+  OR c.codigo_erp LIKE @termino_busqueda
+  OR c.nombres LIKE @termino_busqueda
   OR c.apellidos LIKE @termino_busqueda
+  OR td.descripcion LIKE @termino_busqueda
   OR c.numero_documento LIKE @termino_busqueda
+  OR c.email LIKE @termino_busqueda
+  OR c.telefono LIKE @termino_busqueda
+  OR c.estado LIKE @termino_busqueda
+  OR c.direccion LIKE @termino_busqueda
+  OR c.codigo_ubigeo LIKE @termino_busqueda
+  OR c.observaciones LIKE @termino_busqueda
   ORDER BY c.apellidos, c.nombres;
 END
 $$
@@ -2396,9 +2406,11 @@ BEGIN
   FROM cursos c
     JOIN tipos_curso tc
       ON c.id_tipo_curso = tc.id_tipo_curso
-  WHERE c.nombre LIKE CONCAT('%', p_term, '%')
-  OR c.descripcion LIKE CONCAT('%', p_term, '%')
+  WHERE CAST(c.id_curso AS CHAR) LIKE CONCAT('%', p_term, '%')
   OR c.codigo_erp LIKE CONCAT('%', p_term, '%')
+  OR c.nombre LIKE CONCAT('%', p_term, '%')
+  OR tc.nombre LIKE CONCAT('%', p_term, '%')
+  OR c.descripcion LIKE CONCAT('%', p_term, '%')
   ORDER BY c.nombre;
 END
 $$

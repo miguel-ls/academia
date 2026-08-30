@@ -34,7 +34,7 @@
     <thead>
         <tr>
             <th>ID</th>
-            <th>Código ERP</th>
+            <th>Codigo ERP</th>
             <th>Nombre</th>
             <th>Tipo de Curso</th>
             <th>Descripción</th>

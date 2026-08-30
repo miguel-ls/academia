@@ -23,7 +23,7 @@
 <div class="search-container">
     <form action="index.php?view=clientes" method="GET">
         <input type="hidden" name="view" value="clientes">
-        <input type="text" name="search" placeholder="Buscar por nombre, apellidos o documento..." value="<?php echo htmlspecialchars($search_term ?? ''); ?>">
+        <input type="text" name="search" placeholder="Buscar en todos los campos..." value="<?php echo htmlspecialchars($search_term ?? ''); ?>">
         <button type="submit" class="btn">Buscar</button>
         <?php if (!empty($search_term)): ?>
             <a href="index.php?view=clientes" class="btn btn-secondary">Limpiar</a>

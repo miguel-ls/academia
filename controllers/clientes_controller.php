@@ -28,6 +28,22 @@ $cliente_a_editar = null;
 $tipos_documento = [];
 $search_term = '';
 
+function sincronizarClienteConErp(array $datos) {
+    $nodeRedClient = new NodeRedClient();
+    return $nodeRedClient->request('POST', '/maestros/upsertcliente', [
+        'Emp_cCodigo' => EMP_CCODIGO,
+        'nombres' => trim((string) $datos['nombres']),
+        'numero_documento' => trim((string) $datos['numero_documento']),
+        'id_tipo_documento' => str_pad((string) $datos['id_tipo_documento'], 2, '0', STR_PAD_LEFT),
+        'email' => trim((string) ($datos['email'] ?? '')),
+        'telefono' => trim((string) ($datos['telefono'] ?? '')),
+        'direccion' => trim((string) ($datos['direccion'] ?? '')),
+        'estado' => trim((string) ($datos['estado'] ?? 'Activado')),
+        'codigo_erp' => trim((string) ($datos['codigo_erp'] ?? '')),
+        'usuario_modificacion' => $_SESSION['user_name'] ?? 'sistema'
+    ]);
+}
+
 
 try {
     switch ($action) {
@@ -71,7 +87,12 @@ try {
                 ];
                 $resultado = $clienteModel->crear($datos);
                 if ($resultado['success']) {
-                    $_SESSION['feedback_message'] = "Cliente creado exitosamente.";
+                    $sincronizacion = sincronizarClienteConErp($datos);
+                    if ($sincronizacion['success']) {
+                        $_SESSION['feedback_message'] = 'Cliente creado y sincronizado exitosamente.';
+                    } else {
+                        $_SESSION['feedback_message'] = 'Cliente creado correctamente, pero no se pudo sincronizar con ERP: ' . $sincronizacion['error'];
+                    }
                 } else {
                     $_SESSION['feedback_message'] = "Error al crear el cliente: " . $resultado['error'];
                 }
@@ -101,7 +122,12 @@ try {
                 $resultado = $clienteModel->actualizar($datos);
 
                 if ($resultado['success']) {
-                    $_SESSION['feedback_message'] = "Cliente actualizado exitosamente.";
+                    $sincronizacion = sincronizarClienteConErp($datos);
+                    if ($sincronizacion['success']) {
+                        $_SESSION['feedback_message'] = 'Cliente actualizado y sincronizado exitosamente.';
+                    } else {
+                        $_SESSION['feedback_message'] = 'Cliente actualizado correctamente, pero no se pudo sincronizar con ERP: ' . $sincronizacion['error'];
+                    }
                     header('Location: index.php?view=clientes');
                     exit();
                 } else {
@@ -140,7 +166,9 @@ try {
                     'telefono' => $_POST['telefono'] ?? null,
                     'codigo_erp' => $_POST['codigo_erp'] ?? null,
                     'direccion' => $_POST['direccion'] ?? null,
-                    'codigo_ubigeo' => $_POST['codigo_ubigeo'] ?? null
+                    'codigo_ubigeo' => $_POST['codigo_ubigeo'] ?? null,
+                    'estado' => $_POST['estado'] ?? 'Activado',
+                    'observaciones' => $_POST['observaciones'] ?? null
                 ];
 
                 if (empty($datos['nombres']) || empty($datos['numero_documento'])) {
@@ -153,7 +181,13 @@ try {
 
                 if ($resultado['success']) {
                     $nuevo_cliente = $clienteModel->obtenerPorId($resultado['id']);
-                    echo json_encode(['success' => true, 'cliente' => $nuevo_cliente]);
+                    $sincronizacion = sincronizarClienteConErp($datos);
+                    echo json_encode([
+                        'success' => true,
+                        'cliente' => $nuevo_cliente,
+                        'sincronizado' => $sincronizacion['success'],
+                        'advertencia_sincronizacion' => $sincronizacion['success'] ? null : ($sincronizacion['error'] ?? 'No se pudo sincronizar con ERP.')
+                    ]);
                 } else {
                     http_response_code(400);
                     echo json_encode(

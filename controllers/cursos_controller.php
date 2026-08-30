@@ -30,6 +30,20 @@ $clases = [];
 $familias = [];
 $search_term = '';
 
+function sincronizarCursoConErp(array $datos) {
+    $nodeRedClient = new NodeRedClient();
+    return $nodeRedClient->request('POST', '/maestros/upsertcurso', [
+        'Emp_cCodigo' => EMP_CCODIGO,
+        'codigo_erp' => trim((string) $datos['codigo_erp']),
+        'nombre' => trim((string) $datos['nombre']),
+        'categoria_erp' => trim((string) $datos['categoria_erp']),
+        'grupo_erp' => trim((string) $datos['grupo_erp']),
+        'clase_erp' => trim((string) $datos['clase_erp']),
+        'familia_erp' => trim((string) $datos['familia_erp']),
+        'usuario_modificacion' => $_SESSION['user_name'] ?? 'sistema'
+    ]);
+}
+
 
 try {
     switch ($action) {
@@ -125,7 +139,12 @@ try {
 
                 $resultado = $cursosModel->crear($datos);
                 if ($resultado['success']) {
-                    $_SESSION['feedback_message'] = "Curso creado exitosamente.";
+                    $sincronizacion = sincronizarCursoConErp($datos);
+                    if ($sincronizacion['success']) {
+                        $_SESSION['feedback_message'] = 'Curso creado y sincronizado exitosamente.';
+                    } else {
+                        $_SESSION['feedback_message'] = 'Curso creado correctamente, pero no se pudo sincronizar con ERP: ' . $sincronizacion['error'];
+                    }
                 } else {
                     $_SESSION['feedback_message'] = "Error al crear el curso: " . $resultado['error'];
                 }
@@ -164,7 +183,12 @@ try {
                 $resultado = $cursosModel->actualizar($datos);
 
                 if ($resultado['success']) {
-                    $_SESSION['feedback_message'] = "Curso actualizado exitosamente.";
+                    $sincronizacion = sincronizarCursoConErp($datos);
+                    if ($sincronizacion['success']) {
+                        $_SESSION['feedback_message'] = 'Curso actualizado y sincronizado exitosamente.';
+                    } else {
+                        $_SESSION['feedback_message'] = 'Curso actualizado correctamente, pero no se pudo sincronizar con ERP: ' . $sincronizacion['error'];
+                    }
                     header('Location: index.php?view=cursos');
                     exit();
                 } else {
