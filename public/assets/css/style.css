@@ -519,7 +519,7 @@ footer {
 .btn-primary:hover, button[type="submit"]:hover { background-color: var(--primary-color-hover); }
 .btn-secondary { background-color: var(--secondary-color); }
 .btn-danger { background-color: #dc3545; }
-.btn-success { background-color: #28a745; }
+.btn-success, .btn.btn-success, button.btn-success { background-color: #28a745; color: #fff; }
 .btn-warning { background-color: #ffc107; }
 .btn-info { background-color: #17a2b8; }
 

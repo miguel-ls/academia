@@ -24,11 +24,59 @@ $error_message = '';
 $cursos = [];
 $curso_a_editar = null;
 $tipos_curso = [];
+$categorias = [];
+$grupos = [];
+$clases = [];
+$familias = [];
 $search_term = '';
 
 
 try {
     switch ($action) {
+        case 'obtener_grupos':
+        case 'obtener_clases':
+        case 'obtener_familias':
+            header('Content-Type: application/json; charset=utf-8');
+            try {
+                $categoria = trim($_GET['categoria'] ?? '');
+                $grupo = trim($_GET['grupo'] ?? '');
+                $clase = trim($_GET['clase'] ?? '');
+
+                if ($action === 'obtener_grupos') {
+                    $datos = $categoria === '' ? [] : $cursosModel->obtenerGrupos($categoria);
+                } elseif ($action === 'obtener_clases') {
+                    $datos = ($categoria === '' || $grupo === '') ? [] : $cursosModel->obtenerClases($categoria, $grupo);
+                } else {
+                    $datos = ($categoria === '' || $grupo === '' || $clase === '') ? [] : $cursosModel->obtenerFamilias($categoria, $grupo, $clase);
+                }
+                echo json_encode(['success' => true, 'data' => $datos], JSON_UNESCAPED_UNICODE);
+            } catch (Exception $e) {
+                http_response_code(500);
+                echo json_encode(['success' => false, 'error' => 'No se pudo obtener la clasificación.'], JSON_UNESCAPED_UNICODE);
+            }
+            exit();
+
+        case 'migrate_classification':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                header('Location: index.php?view=cursos');
+                exit();
+            }
+
+            $nodeRedClient = new NodeRedClient();
+            $resultado = $nodeRedClient->request('POST', '/maestros/migrarclasificacion', [
+                'Emp_cCodigo' => EMP_CCODIGO
+            ]);
+
+            if ($resultado['success']) {
+                $mensajeApi = is_array($resultado['data']) ? ($resultado['data']['message'] ?? '') : '';
+                $_SESSION['feedback_message'] = 'Clasificación migrada exitosamente.' . ($mensajeApi ? ' ' . $mensajeApi : '');
+            } else {
+                $_SESSION['feedback_message'] = 'Error al migrar clasificación: ' . $resultado['error'];
+            }
+
+            header('Location: index.php?view=cursos');
+            exit();
+
         case 'migrate':
             if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
                 header('Location: index.php?view=cursos');
@@ -54,10 +102,27 @@ try {
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $datos = [
                     'id_tipo_curso' => $_POST['id_tipo_curso'],
+                    'categoria_erp' => trim($_POST['categoria_erp'] ?? ''),
+                    'grupo_erp' => trim($_POST['grupo_erp'] ?? ''),
+                    'clase_erp' => trim($_POST['clase_erp'] ?? ''),
+                    'familia_erp' => trim($_POST['familia_erp'] ?? ''),
                     'nombre' => $_POST['nombre'],
                     'descripcion' => $_POST['descripcion'],
                     'codigo_erp' => $_POST['codigo_erp']
                 ];
+
+                if (!$cursosModel->clasificacionExiste($datos['categoria_erp'], $datos['grupo_erp'], $datos['clase_erp'], $datos['familia_erp'])) {
+                    $error_message = 'Seleccione una categoría, grupo, clase y familia válidos.';
+                    $curso_a_editar = $datos;
+                    $tipos_curso = $cursosModel->obtenerTiposDeCurso();
+                    $categorias = $cursosModel->obtenerCategorias();
+                    $grupos = $cursosModel->obtenerGrupos($datos['categoria_erp']);
+                    $clases = $cursosModel->obtenerClases($datos['categoria_erp'], $datos['grupo_erp']);
+                    $familias = $cursosModel->obtenerFamilias($datos['categoria_erp'], $datos['grupo_erp'], $datos['clase_erp']);
+                    require_once 'views/cursos/form.php';
+                    break;
+                }
+
                 $resultado = $cursosModel->crear($datos);
                 if ($resultado['success']) {
                     $_SESSION['feedback_message'] = "Curso creado exitosamente.";
@@ -75,10 +140,27 @@ try {
                 $datos = [
                     'id_curso' => $_POST['id_curso'],
                     'id_tipo_curso' => $_POST['id_tipo_curso'],
+                    'categoria_erp' => trim($_POST['categoria_erp'] ?? ''),
+                    'grupo_erp' => trim($_POST['grupo_erp'] ?? ''),
+                    'clase_erp' => trim($_POST['clase_erp'] ?? ''),
+                    'familia_erp' => trim($_POST['familia_erp'] ?? ''),
                     'nombre' => $_POST['nombre'],
                     'descripcion' => $_POST['descripcion'],
                     'codigo_erp' => $_POST['codigo_erp']
                 ];
+
+                if (!$cursosModel->clasificacionExiste($datos['categoria_erp'], $datos['grupo_erp'], $datos['clase_erp'], $datos['familia_erp'])) {
+                    $error_message = 'Seleccione una categoría, grupo, clase y familia válidos.';
+                    $curso_a_editar = $datos;
+                    $tipos_curso = $cursosModel->obtenerTiposDeCurso();
+                    $categorias = $cursosModel->obtenerCategorias();
+                    $grupos = $cursosModel->obtenerGrupos($datos['categoria_erp']);
+                    $clases = $cursosModel->obtenerClases($datos['categoria_erp'], $datos['grupo_erp']);
+                    $familias = $cursosModel->obtenerFamilias($datos['categoria_erp'], $datos['grupo_erp'], $datos['clase_erp']);
+                    require_once 'views/cursos/form.php';
+                    break;
+                }
+
                 $resultado = $cursosModel->actualizar($datos);
 
                 if ($resultado['success']) {
@@ -89,6 +171,10 @@ try {
                     $error_message = "Error al actualizar: " . ($resultado['error'] ?? 'No se realizaron cambios.');
                     $curso_a_editar = $datos;
                     $tipos_curso = $cursosModel->obtenerTiposDeCurso();
+                    $categorias = $cursosModel->obtenerCategorias();
+                    $grupos = $cursosModel->obtenerGrupos($datos['categoria_erp']);
+                    $clases = $cursosModel->obtenerClases($datos['categoria_erp'], $datos['grupo_erp']);
+                    $familias = $cursosModel->obtenerFamilias($datos['categoria_erp'], $datos['grupo_erp'], $datos['clase_erp']);
                     require_once 'views/cursos/form.php';
                 }
             } else {
@@ -118,6 +204,7 @@ try {
 
         case 'new':
             $tipos_curso = $cursosModel->obtenerTiposDeCurso();
+            $categorias = $cursosModel->obtenerCategorias();
             require_once 'views/cursos/form.php';
             break;
 
@@ -125,11 +212,15 @@ try {
             if ($id > 0) {
                 $curso_a_editar = $cursosModel->obtenerPorId($id);
                 $tipos_curso = $cursosModel->obtenerTiposDeCurso();
+                $categorias = $cursosModel->obtenerCategorias();
                 if (!$curso_a_editar) {
                     $_SESSION['feedback_message'] = "Error: Curso no encontrado.";
                     header('Location: index.php?view=cursos');
                     exit();
                 }
+                $grupos = $cursosModel->obtenerGrupos($curso_a_editar['categoria_erp']);
+                $clases = $cursosModel->obtenerClases($curso_a_editar['categoria_erp'], $curso_a_editar['grupo_erp']);
+                $familias = $cursosModel->obtenerFamilias($curso_a_editar['categoria_erp'], $curso_a_editar['grupo_erp'], $curso_a_editar['clase_erp']);
                 require_once 'views/cursos/form.php';
             } else {
                  $_SESSION['feedback_message'] = "Error: ID de curso no válido.";

@@ -26,6 +26,10 @@ class CursosModel {
         try {
             $params = [
                 $datos['id_tipo_curso'],
+                $datos['categoria_erp'],
+                $datos['grupo_erp'],
+                $datos['clase_erp'],
+                $datos['familia_erp'],
                 $datos['nombre'],
                 $datos['descripcion'],
                 $datos['codigo_erp']
@@ -42,6 +46,10 @@ class CursosModel {
             $params = [
                 $datos['id_curso'],
                 $datos['id_tipo_curso'],
+                $datos['categoria_erp'],
+                $datos['grupo_erp'],
+                $datos['clase_erp'],
+                $datos['familia_erp'],
                 $datos['nombre'],
                 $datos['descripcion'],
                 $datos['codigo_erp']
@@ -79,5 +87,34 @@ class CursosModel {
     public function obtenerTiposDeCurso() {
         $this->db->callStoredProcedure('sp_tipos_curso_listar');
         return $this->db->resultSet();
+    }
+
+    public function obtenerCategorias() {
+        $this->db->callStoredProcedure('sp_categorias_listar');
+        return $this->db->resultSet();
+    }
+
+    public function obtenerGrupos($categoria) {
+        $this->db->callStoredProcedure('sp_grupos_listar_por_categoria', [$categoria]);
+        return $this->db->resultSet();
+    }
+
+    public function obtenerClases($categoria, $grupo) {
+        $this->db->callStoredProcedure('sp_clases_listar_por_categoria_grupo', [$categoria, $grupo]);
+        return $this->db->resultSet();
+    }
+
+    public function obtenerFamilias($categoria, $grupo, $clase) {
+        $this->db->callStoredProcedure('sp_familias_listar_por_categoria_grupo_clase', [$categoria, $grupo, $clase]);
+        return $this->db->resultSet();
+    }
+
+    public function clasificacionExiste($categoria, $grupo, $clase, $familia) {
+        foreach ($this->obtenerFamilias($categoria, $grupo, $clase) as $item) {
+            if ($item['codigo'] === $familia) {
+                return true;
+            }
+        }
+        return false;
     }
 }
