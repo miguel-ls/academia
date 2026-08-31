@@ -45,11 +45,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         const list = document.createElement('div');
                         list.className = 'search-results-list';
                         data.forEach(cliente => {
+                            const nombreCompleto = [cliente.nombres, cliente.apellidos].filter(Boolean).join(' ');
                             const item = document.createElement('div');
                             item.className = 'search-results-item';
-                            item.textContent = `${cliente.nombres} ${cliente.apellidos} (${cliente.tipo_documento}: ${cliente.numero_documento})`;
+                            item.textContent = `${nombreCompleto} (${cliente.tipo_documento}: ${cliente.numero_documento})`;
                             item.dataset.id = cliente.id_cliente;
-                            item.dataset.nombre = `${cliente.nombres} ${cliente.apellidos}`;
+                            item.dataset.nombre = nombreCompleto;
                             item.addEventListener('click', function() {
                                 hiddenIdCliente.value = this.dataset.id;
                                 infoCliente.textContent = `Cliente Seleccionado: ${this.dataset.nombre}`;
@@ -214,7 +215,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.success && data.cliente) {
                 const cliente = data.cliente;
                 hiddenIdCliente.value = cliente.id_cliente;
-                const nombreCompleto = (cliente.apellidos) ? `${cliente.nombres} ${cliente.apellidos}` : cliente.nombres;
+                const nombreCompleto = [cliente.nombres, cliente.apellidos].filter(Boolean).join(' ');
                 infoCliente.textContent = `Cliente Seleccionado: ${nombreCompleto}`;
                 inputBuscarCliente.value = nombreCompleto;
                 resultsContainer.innerHTML = '';
@@ -333,6 +334,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const precioPactado = curso.precio_pactado !== undefined ? curso.precio_pactado : curso.precio;
         const descuento = curso.descuento !== undefined ? curso.descuento : 0.00;
         const precioFinal = precioPactado - descuento;
+        const fechaInicioClases = curso.fecha_inicio_clases || curso.fecha_inicio_raw || '';
+        const fechaFinClases = curso.fecha_fin_clases || curso.fecha_fin_raw || '';
         const newRow = document.createElement('tr');
         const rowKey = curso.detalleId || `nuevo_${Date.now()}_${filaCursoSecuencia++}`;
         newRow.dataset.id = curso.id;
@@ -364,6 +367,8 @@ document.addEventListener('DOMContentLoaded', function() {
             <td>${curso.ubicacion}</td>
             <td>${curso.profesor}</td>
             <td>${curso.horario}<br><small>${curso.horas}</small></td>
+            <td><input type="date" class="form-control matricula-date-input" name="cursos[${rowKey}][fecha_inicio_clases]" value="${fechaInicioClases}" required></td>
+            <td><input type="date" class="form-control matricula-date-input" name="cursos[${rowKey}][fecha_fin_clases]" value="${fechaFinClases}" required></td>
             <td><input type="number" class="form-control recalc-trigger matricula-number-input" name="cursos[${rowKey}][precio_pactado]" value="${parseFloat(precioPactado).toFixed(2)}" step="0.01"></td>
             <td><input type="number" class="form-control recalc-trigger matricula-number-input" name="cursos[${rowKey}][descuento]" value="${parseFloat(descuento).toFixed(2)}" step="0.01"></td>
             <td class="precio-final">${precioFinal.toFixed(2)}</td>
@@ -392,9 +397,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         resultsList.innerHTML = '';
                         if (data.length > 0) {
                             data.forEach(cliente => {
+                            const nombreCompleto = [cliente.nombres, cliente.apellidos].filter(Boolean).join(' ');
                                 const item = document.createElement('div');
                                 item.className = 'search-results-item';
-                                item.textContent = `${cliente.nombres} ${cliente.apellidos}`;
+                            item.textContent = nombreCompleto;
                                 item.dataset.id = cliente.id_cliente;
                                 item.addEventListener('click', function() {
                                     input.value = this.textContent;
@@ -436,12 +442,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         document.getElementById('total-matricula').textContent = `S/ ${total.toFixed(2)}`;
     }
-    document.getElementById('filtro-fecha-inicio').addEventListener('change', function(){
-        document.getElementById('fecha_inicio_matricula').value = this.value;
-    });
-    document.getElementById('filtro-fecha-fin').addEventListener('change', function(){
-        document.getElementById('fecha_fin_matricula').value = this.value;
-    });
     const inputBuscarProfesor = document.getElementById('filtro-profesor');
     const hiddenProfesorId = document.getElementById('filtro-profesor-id');
     const profesorResultsContainer = document.getElementById('profesor-search-results');
@@ -582,6 +582,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     clienteId: detalle.id_cliente_asistencia,
                     clienteNombre: detalle.nombre_cliente_asistencia,
                     dias_semana_raw: detalle.dias_semana,
+                    fecha_inicio_clases: detalle.fecha_inicio_clases,
+                    fecha_fin_clases: detalle.fecha_fin_clases,
                     fecha_inicio_raw: detalle.fecha_inicio,
                     fecha_fin_raw: detalle.fecha_fin,
                     hora_inicio_raw: detalle.hora_inicio,

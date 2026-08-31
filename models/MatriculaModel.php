@@ -34,13 +34,16 @@ class MatriculaModel {
 
         try {
             $id_forma_pago = (int)($datos['id_forma_pago'] ?? 0);
+            $fechas_inicio = array_column($datos['cursos'], 'fecha_inicio_clases');
+            $fechas_fin = array_column($datos['cursos'], 'fecha_fin_clases');
             // 1. Registrar cabecera
             $params_cabecera = [
                 $datos['id_cliente'],
                 $_SESSION['user_id'], // El usuario que registra
                 $id_forma_pago > 0 ? $id_forma_pago : null,
-                $datos['fecha_inicio_matricula'],
-                $datos['fecha_fin_matricula'],
+                $datos['fecha_matricula'],
+                min($fechas_inicio),
+                max($fechas_fin),
                 $datos['monto_total'],
                 $datos['descuento_total'],
                 $datos['monto_final'],
@@ -63,7 +66,9 @@ class MatriculaModel {
                     $curso_detalle['id_cliente_asistencia'],
                     $curso_detalle['precio_pactado'],
                     $curso_detalle['descuento'],
-                    $precio_final
+                    $precio_final,
+                    $curso_detalle['fecha_inicio_clases'],
+                    $curso_detalle['fecha_fin_clases']
                 ];
                 $stmt_detalle = $this->db->callStoredProcedure('sp_matricula_registrar_detalle', $params_detalle);
                 $result_detalle = $this->db->single();
@@ -157,7 +162,9 @@ class MatriculaModel {
                     $detalle_a_anadir['id_cliente_asistencia'],
                     $detalle_a_anadir['precio_pactado'],
                     $detalle_a_anadir['descuento'],
-                    $precio_final
+                    $precio_final,
+                    $detalle_a_anadir['fecha_inicio_clases'],
+                    $detalle_a_anadir['fecha_fin_clases']
                 ];
                 $this->db->callStoredProcedure('sp_matricula_registrar_detalle', $params);
                 $result = $this->db->single();
@@ -172,13 +179,17 @@ class MatriculaModel {
                 $detalle_existente = $detalles_actuales[$id_matricula_detalle];
                 if ($detalle_existente['id_cliente_asistencia'] != $detalle_a_actualizar['id_cliente_asistencia'] ||
                     (float)$detalle_existente['precio_pactado'] != (float)$detalle_a_actualizar['precio_pactado'] ||
-                    (float)$detalle_existente['descuento'] != (float)$detalle_a_actualizar['descuento']) {
+                    (float)$detalle_existente['descuento'] != (float)$detalle_a_actualizar['descuento'] ||
+                    $detalle_existente['fecha_inicio_clases'] != $detalle_a_actualizar['fecha_inicio_clases'] ||
+                    $detalle_existente['fecha_fin_clases'] != $detalle_a_actualizar['fecha_fin_clases']) {
 
                     $params_detalle = [
                         $detalle_existente['id_matricula_detalle'],
                         $detalle_a_actualizar['id_cliente_asistencia'],
                         $detalle_a_actualizar['precio_pactado'],
-                        $detalle_a_actualizar['descuento']
+                        $detalle_a_actualizar['descuento'],
+                        $detalle_a_actualizar['fecha_inicio_clases'],
+                        $detalle_a_actualizar['fecha_fin_clases']
                     ];
                     $this->db->callStoredProcedure('sp_matricula_detalle_actualizar', $params_detalle);
                 }
@@ -188,6 +199,7 @@ class MatriculaModel {
             $params_cabecera = [
                 $id_matricula,
                 $id_forma_pago > 0 ? $id_forma_pago : null,
+                $datos['fecha_matricula'],
                 $datos['observaciones']
             ];
             $this->db->callStoredProcedure('sp_matricula_cabecera_actualizar', $params_cabecera);

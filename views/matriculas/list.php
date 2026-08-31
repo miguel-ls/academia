@@ -102,7 +102,7 @@ require_once 'views/partials/header.php';
                 <tr>
                     <td><?php echo $matricula['id_matricula']; ?></td>
                     <td class="matricula-alumnos-cursos"><?php echo nl2br(htmlspecialchars($matricula['alumnos_cursos'] ?? '', ENT_QUOTES, 'UTF-8')); ?></td>
-                    <td><?php echo date('d/m/Y H:i', strtotime($matricula['fecha_matricula'])); ?></td>
+                    <td><?php echo date('d/m/Y', strtotime($matricula['fecha_matricula'])); ?></td>
                     <td>S/ <?php echo number_format($matricula['monto_final'], 2); ?></td>
                     <td>
                         <span class="badge status-<?php echo strtolower($matricula['estado']); ?>">

@@ -30,6 +30,14 @@ $profesorModel = new ProfesorModel();
 // Determinar la acción: puede venir por GET (navegación) o POST (formularios)
 $action = $_REQUEST['action'] ?? 'list';
 
+function validarFechaMatricula($fecha, $campo) {
+    $date = DateTime::createFromFormat('Y-m-d', (string)$fecha);
+    if (!$date || $date->format('Y-m-d') !== $fecha) {
+        throw new Exception("La {$campo} no es válida.");
+    }
+    return $fecha;
+}
+
 
 switch ($action) {
     case 'list':
@@ -174,8 +182,8 @@ switch ($action) {
                             $programacion = $programaciones_cursos[$id_curso_programado];
                             $cursos_nuevos[] = [
                                 'id_sub_area'   => $programacion['id_sub_area'],
-                                'fecha_inicio'  => $curso_data['fecha_inicio'],
-                                'fecha_fin'     => $curso_data['fecha_fin'],
+                                'fecha_inicio'  => $curso_data['fecha_inicio_clases'],
+                                'fecha_fin'     => $curso_data['fecha_fin_clases'],
                                 'hora_inicio'   => $curso_data['hora_inicio'],
                                 'hora_fin'      => $curso_data['hora_fin'],
                                 'dias_semana'   => $curso_data['dias_semana'],
@@ -219,11 +227,18 @@ switch ($action) {
 
                 foreach ($_POST['cursos'] as $curso) {
                     $id_curso_programado = (int)($curso['id_curso_programado'] ?? 0);
+                    $fecha_inicio_clases = validarFechaMatricula($curso['fecha_inicio_clases'] ?? '', 'fecha inicial de clases');
+                    $fecha_fin_clases = validarFechaMatricula($curso['fecha_fin_clases'] ?? '', 'fecha final de clases');
+                    if ($fecha_inicio_clases > $fecha_fin_clases) {
+                        throw new Exception('La fecha inicial de clases no puede ser posterior a la fecha final.');
+                    }
                     $monto_total += (float)$curso['precio_pactado'];
                     $descuento_total += (float)$curso['descuento'];
                     $cursos_detalle[] = [
                         'id_curso_programado' => (int)$id_curso_programado,
                         'id_cliente_asistencia' => (int)$curso['id_cliente_asistencia'],
+                        'fecha_inicio_clases' => $fecha_inicio_clases,
+                        'fecha_fin_clases' => $fecha_fin_clases,
                         'precio_pactado' => (float)$curso['precio_pactado'],
                         'descuento' => (float)$curso['descuento']
                     ];
@@ -233,8 +248,7 @@ switch ($action) {
                 $datos_matricula = [
                     'id_cliente' => (int)$_POST['id_cliente'],
                     'id_forma_pago' => (int)$_POST['id_forma_pago'],
-                    'fecha_inicio_matricula' => $_POST['fecha_inicio_matricula'],
-                    'fecha_fin_matricula' => $_POST['fecha_fin_matricula'],
+                    'fecha_matricula' => validarFechaMatricula($_POST['fecha_matricula'] ?? '', 'fecha de matrícula'),
                     'observaciones' => $_POST['observaciones'],
                     'monto_total' => $monto_total,
                     'descuento_total' => $descuento_total,
@@ -271,6 +285,8 @@ switch ($action) {
                         'dias_semana' => $curso['dias_semana'] ?? '',
                         'fecha_inicio' => $curso['fecha_inicio'] ?? '',
                         'fecha_fin' => $curso['fecha_fin'] ?? '',
+                        'fecha_inicio_clases' => $curso['fecha_inicio_clases'] ?? '',
+                        'fecha_fin_clases' => $curso['fecha_fin_clases'] ?? '',
                         'hora_inicio' => $curso['hora_inicio'] ?? '',
                         'hora_fin' => $curso['hora_fin'] ?? '',
                         'id_cliente_asistencia' => (int)($curso['id_cliente_asistencia'] ?? 0),
@@ -396,12 +412,19 @@ switch ($action) {
 
                 foreach ($_POST['cursos'] as $curso) {
                     $id_curso_programado = (int)($curso['id_curso_programado'] ?? 0);
+                    $fecha_inicio_clases = validarFechaMatricula($curso['fecha_inicio_clases'] ?? '', 'fecha inicial de clases');
+                    $fecha_fin_clases = validarFechaMatricula($curso['fecha_fin_clases'] ?? '', 'fecha final de clases');
+                    if ($fecha_inicio_clases > $fecha_fin_clases) {
+                        throw new Exception('La fecha inicial de clases no puede ser posterior a la fecha final.');
+                    }
                     $monto_total += (float)$curso['precio_pactado'];
                     $descuento_total += (float)$curso['descuento'];
                     $cursos_detalle[] = [
                         'id_matricula_detalle' => (int)($curso['id_matricula_detalle'] ?? 0),
                         'id_curso_programado' => (int)$id_curso_programado,
                         'id_cliente_asistencia' => (int)$curso['id_cliente_asistencia'],
+                        'fecha_inicio_clases' => $fecha_inicio_clases,
+                        'fecha_fin_clases' => $fecha_fin_clases,
                         'precio_pactado' => (float)$curso['precio_pactado'],
                         'descuento' => (float)$curso['descuento']
                     ];
@@ -411,8 +434,7 @@ switch ($action) {
                 $datos_matricula = [
                     'id_cliente' => (int)$_POST['id_cliente'],
                     'id_forma_pago' => (int)$_POST['id_forma_pago'],
-                    'fecha_inicio_matricula' => $_POST['fecha_inicio_matricula'],
-                    'fecha_fin_matricula' => $_POST['fecha_fin_matricula'],
+                    'fecha_matricula' => validarFechaMatricula($_POST['fecha_matricula'] ?? '', 'fecha de matrícula'),
                     'observaciones' => $_POST['observaciones'],
                     'monto_total' => $monto_total,
                     'descuento_total' => $descuento_total,

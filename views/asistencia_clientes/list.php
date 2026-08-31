@@ -2,7 +2,7 @@
 
 <div class="page-header">
     <div class="page-header-left">
-        <h1>Asistencia de Clientes</h1>
+        <h1>Asistencia de Alumnos</h1>
     </div>
 </div>
 

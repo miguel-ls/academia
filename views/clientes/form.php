@@ -2,7 +2,7 @@
 
 <?php
 $is_edit = isset($cliente_a_editar);
-$page_title = $is_edit ? 'Editar Cliente' : 'Nuevo Cliente';
+$page_title = $is_edit ? 'Editar Alumno' : 'Nuevo Alumno';
 $action_url = $is_edit ? 'index.php?view=clientes&action=update' : 'index.php?view=clientes&action=create';
 ?>
 
@@ -51,10 +51,10 @@ $action_url = $is_edit ? 'index.php?view=clientes&action=update' : 'index.php?vi
                 <label for="nombres" id="label_nombres">Nombres:</label>
                 <input type="text" id="nombres" name="nombres" value="<?php echo htmlspecialchars($cliente_a_editar['nombres'] ?? ''); ?>" required>
             </div>
-            <div class="form-group" id="group_apellidos">
+            <!-- <div class="form-group" id="group_apellidos">
                 <label for="apellidos">Apellidos:</label>
                 <input type="text" id="apellidos" name="apellidos" value="<?php echo htmlspecialchars($cliente_a_editar['apellidos'] ?? ''); ?>">
-            </div>
+            </div> -->
         </div>
 
         <div class="form-row">

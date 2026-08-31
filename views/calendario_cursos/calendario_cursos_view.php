@@ -126,11 +126,28 @@ require_once 'views/partials/header.php';
 
     /* Estilos para los eventos del calendario */
     .fc-event-main-frame {
+        box-sizing: border-box;
+        width: 100%;
+        height: 100%;
         padding: 5px;
         font-size: 12px;
         line-height: 1.3;
         cursor: pointer;
         overflow: hidden;
+    }
+    .fc .fc-daygrid-day-events {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+    .fc .fc-daygrid-event-harness {
+        flex: 1 1 min(100%, 150px);
+        min-width: 0;
+        margin-top: 0;
+    }
+    .fc .fc-daygrid-event {
+        height: 100%;
+        margin-top: 0;
     }
     .fc-event-title, .event-details p, .event-time {
         white-space: nowrap;

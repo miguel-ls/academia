@@ -9,7 +9,7 @@ require_once 'views/partials/header.php';
 ?>
 
 <div class="page-header">
-    <h1>Marcar Asistencia de Cliente</h1>
+    <h1>Marcar Asistencia de Alumnos</h1>
     <div>
         <a href="index.php?view=asistencia_clientes" class="btn btn-secondary">&laquo; Volver a la lista</a>
         <button type="button" id="btn-agregar-dias" class="btn btn-primary">Agregar días</button>
@@ -22,9 +22,10 @@ require_once 'views/partials/header.php';
     <p><strong>Curso:</strong> <?php echo htmlspecialchars($detalle_matricula['curso_nombre']); ?></p>
     <p><strong>Cliente:</strong> <?php echo htmlspecialchars($detalle_matricula['cliente_nombre']); ?></p>
     <p><strong>Profesor:</strong> <?php echo htmlspecialchars($detalle_matricula['profesor_nombre']); ?></p>
-    <p><strong>Periodo:</strong> <?php echo date('d/m/Y', strtotime($detalle_matricula['fecha_inicio'])); ?> - <?php echo date('d/m/Y', strtotime($detalle_matricula['fecha_fin'])); ?></p>
+    <p><strong>Periodo:</strong> <?php echo date('d/m/Y', strtotime($detalle_matricula['fecha_inicio_clases'])); ?> - <?php echo date('d/m/Y', strtotime($detalle_matricula['fecha_fin_actual'])); ?></p>
     <p><strong>Horario:</strong> <?php echo htmlspecialchars($detalle_matricula['tipo_horario_nombre']); ?> (<?php echo date('h:i A', strtotime($detalle_matricula['hora_inicio'])); ?> - <?php echo date('h:i A', strtotime($detalle_matricula['hora_fin'])); ?>)</p>
     <p><strong>Ubicación:</strong> <?php echo htmlspecialchars($detalle_matricula['ubicacion']); ?></p>
+    <p><strong>Fecha de matrícula:</strong> <?php echo date('d/m/Y', strtotime($detalle_matricula['fecha_inicio_clases'])); ?> - <?php echo date('d/m/Y', strtotime($detalle_matricula['fecha_fin_clases'])); ?></p>
 </div>
 
 <div class="page-header-right">
@@ -122,7 +123,7 @@ require_once 'views/partials/header.php';
         <p>Seleccione la fecha final. Solo se agregarán los días correspondientes al horario del curso que aún no existan.</p>
         <form action="index.php?view=asistencia_clientes&action=agregar_dias&id=<?php echo $id; ?>" method="POST">
             <label for="fecha_fin_nuevas">Fecha final</label>
-            <input type="date" id="fecha_fin_nuevas" name="fecha_fin_nuevas" required min="<?php echo date('Y-m-d'); ?>">
+            <input type="date" id="fecha_fin_nuevas" name="fecha_fin_nuevas" required min="<?php echo htmlspecialchars(date('Y-m-d', strtotime($detalle_matricula['fecha_fin_actual'] . ' +1 day'))); ?>">
             <div class="attendance-modal-actions">
                 <button type="button" class="btn btn-secondary attendance-modal-cancel">Cancelar</button>
                 <button type="submit" class="btn btn-primary">Generar</button>

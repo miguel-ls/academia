@@ -3,7 +3,7 @@
 
 <div class="page-header">
     <div class="page-header-left">
-        <h1>Mantenimiento de Clientes</h1>
+        <h1>Mantenimiento de Alumnos</h1>
     </div>
     <div class="page-header-right">
         <form action="index.php?view=clientes&amp;action=migrate" method="POST" style="display: inline;">

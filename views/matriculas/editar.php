@@ -23,12 +23,18 @@ if ($forma_pago_seleccionada === '' && !empty($matricula['forma_pago'])) {
 
         <!-- SECCIÓN 1: CLIENTE -->
         <div class="section">
-            <h2>1. Datos del Cliente</h2>
-            <div class="form-group">
-                <label for="buscar-cliente">Cliente Principal:</label>
-                <input type="text" id="buscar-cliente" value="<?php echo htmlspecialchars($matricula['nombre_cliente']); ?>" disabled>
-                <input type="hidden" id="id_cliente" name="id_cliente" value="<?php echo htmlspecialchars($matricula['id_cliente']); ?>" required>
-                <div id="cliente-seleccionado-info" style="margin-top:10px; font-weight:bold;">Cliente seleccionado. No se puede cambiar en modo de edición.</div>
+            <h2>1. Datos de la Matrícula</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="buscar-cliente">Cliente Principal:</label>
+                    <input type="text" id="buscar-cliente" value="<?php echo htmlspecialchars($matricula['nombre_cliente']); ?>" disabled>
+                    <input type="hidden" id="id_cliente" name="id_cliente" value="<?php echo htmlspecialchars($matricula['id_cliente']); ?>" required>
+                    <div id="cliente-seleccionado-info" style="margin-top:10px; font-weight:bold;">Cliente seleccionado. No se puede cambiar en modo de edición.</div>
+                </div>
+                <div class="form-group">
+                    <label for="fecha_matricula">Fecha de Matrícula:</label>
+                    <input type="date" id="fecha_matricula" name="fecha_matricula" value="<?php echo htmlspecialchars(substr((string)($matricula['fecha_matricula'] ?? ''), 0, 10), ENT_QUOTES, 'UTF-8'); ?>" required>
+                </div>
             </div>
         </div>
 
@@ -72,6 +78,8 @@ if ($forma_pago_seleccionada === '' && !empty($matricula['forma_pago'])) {
                             <th>Ubicación</th>
                             <th>Profesor</th>
                             <th>Horario y Horas</th>
+                            <th>Fecha Inicial de Clases</th>
+                            <th>Fecha Final de Clases</th>
                             <th>Precio Pactado</th>
                             <th>Descuento</th>
                             <th>Precio Final</th>
@@ -83,7 +91,7 @@ if ($forma_pago_seleccionada === '' && !empty($matricula['forma_pago'])) {
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colspan="7" class="total-row">TOTAL:</td>
+                            <td colspan="9" class="total-row">TOTAL:</td>
                             <td id="total-matricula" class="total-row">S/ 0.00</td>
                             <td></td>
                         </tr>
@@ -97,8 +105,6 @@ if ($forma_pago_seleccionada === '' && !empty($matricula['forma_pago'])) {
             <h2>3. Datos del Pago</h2>
             <div class="form-grid">
                 <!-- Las fechas se copian desde los filtros y se envían de forma oculta -->
-                <input type="hidden" id="fecha_inicio_matricula" name="fecha_inicio_matricula" value="<?php echo htmlspecialchars((string)($matricula['fecha_inicio_clases'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
-                <input type="hidden" id="fecha_fin_matricula" name="fecha_fin_matricula" value="<?php echo htmlspecialchars((string)($matricula['fecha_fin_clases'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
                 <div class="form-group">
                     <label for="id_forma_pago">Forma de Pago:</label>
                     <select id="id_forma_pago" name="id_forma_pago">

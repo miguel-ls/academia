@@ -31,6 +31,8 @@ require_once 'views/partials/header.php';
                 <th>ID Detalle</th>
                 <th>Curso</th>
                 <th>Alumno Asistente</th>
+                <th>Fecha Inicial de Clases</th>
+                <th>Fecha Final de Clases</th>
                 <th>Precio Pactado</th>
                 <th>Descuento</th>
                 <th>Precio Final</th>
@@ -48,6 +50,8 @@ require_once 'views/partials/header.php';
                         <td><?php echo $detalle['id_matricula_detalle']; ?></td>
                         <td><?php echo htmlspecialchars($detalle['nombre_curso']); ?></td>
                         <td><?php echo htmlspecialchars($detalle['nombre_cliente_asistencia']); ?></td>
+                        <td><?php echo !empty($detalle['fecha_inicio_clases']) ? date('d/m/Y', strtotime($detalle['fecha_inicio_clases'])) : ''; ?></td>
+                        <td><?php echo !empty($detalle['fecha_fin_clases']) ? date('d/m/Y', strtotime($detalle['fecha_fin_clases'])) : ''; ?></td>
                         <td>S/ <?php echo number_format($detalle['precio_pactado'], 2); ?></td>
                         <td>S/ <?php echo number_format($detalle['descuento'], 2); ?></td>
                         <td>S/ <?php echo number_format($detalle['precio_final'], 2); ?></td>

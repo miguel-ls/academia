@@ -139,11 +139,28 @@ require_once 'views/partials/header.php';
 
     /* Estilos para los eventos del calendario */
     .fc-event-main-frame {
+        box-sizing: border-box;
+        width: 100%;
+        height: 100%;
         padding: 5px;
         font-size: 12px;
         line-height: 1.3;
         cursor: pointer;
         overflow: hidden;
+    }
+    .fc .fc-daygrid-day-events {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+    .fc .fc-daygrid-event-harness {
+        flex: 1 1 min(100%, 150px);
+        min-width: 0;
+        margin-top: 0;
+    }
+    .fc .fc-daygrid-event {
+        height: 100%;
+        margin-top: 0;
     }
     .fc-event-title, .event-details p, .event-time {
         white-space: nowrap;
@@ -238,16 +255,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // --- Función para generar colores pastel ---
-    function generatePastelColor(str) {
-        let hash = 0x811c9dc5;
-        for (let i = 0; i < str.length; i++) {
-            hash ^= str.charCodeAt(i);
-            hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
-        }
-        const h = (hash >>> 0) % 360;
-        return `hsl(${h}, 70%, 85%)`;
-    }
+    const studentColorById = new Map(
+        [...new Set(allEvents.map(event => String(event.extendedProps.id_cliente)))]
+            .sort((firstId, secondId) => Number(firstId) - Number(secondId))
+            .map((studentId, index) => [
+                studentId,
+                `hsl(${(index * 137.508) % 360}, 65%, 84%)`
+            ])
+    );
 
     // --- Formateador de hora ---
     const timeFormatter = new Intl.DateTimeFormat('es-ES', {
@@ -269,8 +284,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         eventContent: function(arg) {
             const props = arg.event.extendedProps;
-            const key = `${props.id_curso}-${props.id_area}-${props.id_sub_area}-${props.id_cliente}`;
-            const color = generatePastelColor(key);
+            const key = String(props.id_cliente);
+            const color = studentColorById.get(key);
 
             const startTime = timeFormatter.format(arg.event.start);
             const endTime = timeFormatter.format(arg.event.end);

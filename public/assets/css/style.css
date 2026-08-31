@@ -537,7 +537,8 @@ footer {
 
 /* Controles editables de la grilla de matrículas */
 .matricula-page .cliente-asistente-search,
-.matricula-page .matricula-number-input {
+.matricula-page .matricula-number-input,
+.matricula-page .matricula-date-input {
     min-height: 36px;
     padding: 7px 9px;
     border: 1px solid #cbd5e1;
@@ -555,8 +556,13 @@ footer {
     min-width: 78px;
     text-align: right;
 }
+.matricula-page .matricula-date-input {
+    width: 100%;
+    min-width: 142px;
+}
 .matricula-page .cliente-asistente-search:focus,
-.matricula-page .matricula-number-input:focus {
+.matricula-page .matricula-number-input:focus,
+.matricula-page .matricula-date-input:focus {
     outline: 0;
     border-color: #2563eb;
     box-shadow: 0 0 0 3px rgba(37, 99, 235, .14);
@@ -1141,6 +1147,12 @@ footer {
 .matricula-container {
     max-width: 1200px;
     margin: 0 auto;
+}
+
+.matricula-container.matricula-page {
+    width: 100%;
+    max-width: none;
+    margin: 0;
 }
 
 .section {

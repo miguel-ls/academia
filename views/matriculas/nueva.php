@@ -52,7 +52,8 @@ require_once 'views/partials/header.php';
 
         <!-- SECCIÓN 1: CLIENTE -->
         <div class="section">
-            <h2>1. Datos del Cliente</h2>
+            <h2>1. Datos de la Matrícula</h2>
+            <div class="form-grid">
             <div class="form-group">
                 <label for="buscar-cliente">Buscar Cliente (por nombre, apellidos o documento):</label>
                 <input type="text" id="buscar-cliente" placeholder="Escriba para buscar..." autocomplete="off" value="<?php echo htmlspecialchars($cliente_principal ? trim($cliente_principal['nombres'] . ' ' . $cliente_principal['apellidos']) : '', ENT_QUOTES, 'UTF-8'); ?>">
@@ -60,6 +61,11 @@ require_once 'views/partials/header.php';
                 <input type="hidden" id="id_cliente" name="id_cliente" value="<?php echo (int)($form_data['id_cliente'] ?? 0) ?: ''; ?>" required>
                 <div id="cliente-seleccionado-info" style="margin-top:10px; font-weight:bold;"></div>
                 <button type="button" id="btn-nuevo-cliente" class="btn btn-success" style="display: none; margin-top: 10px;">Nuevo Cliente</button>
+            </div>
+            <div class="form-group">
+                <label for="fecha_matricula">Fecha de Matrícula:</label>
+                <input type="date" id="fecha_matricula" name="fecha_matricula" value="<?php echo htmlspecialchars((string)($form_data['fecha_matricula'] ?? date('Y-m-d')), ENT_QUOTES, 'UTF-8'); ?>" required>
+            </div>
             </div>
         </div>
 
@@ -99,6 +105,8 @@ require_once 'views/partials/header.php';
                             <th>Ubicación</th>
                             <th>Profesor</th>
                             <th>Horario y Horas</th>
+                            <th>Fecha Inicial de Clases</th>
+                            <th>Fecha Final de Clases</th>
                             <th>Precio Pactado</th>
                             <th>Descuento</th>
                             <th>Precio Final</th>
@@ -108,7 +116,7 @@ require_once 'views/partials/header.php';
                     <tbody></tbody>
                     <tfoot>
                         <tr>
-                            <td colspan="7" class="total-row">TOTAL:</td>
+                            <td colspan="9" class="total-row">TOTAL:</td>
                             <td id="total-matricula" class="total-row">S/ 0.00</td>
                             <td></td>
                         </tr>
@@ -121,8 +129,6 @@ require_once 'views/partials/header.php';
         <div class="section">
             <h2>3. Datos del Pago</h2>
             <div class="form-grid">
-                <input type="hidden" id="fecha_inicio_matricula" name="fecha_inicio_matricula" value="<?php echo htmlspecialchars($form_data['fecha_inicio_matricula'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
-                <input type="hidden" id="fecha_fin_matricula" name="fecha_fin_matricula" value="<?php echo htmlspecialchars($form_data['fecha_fin_matricula'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                 <div class="form-group">
                     <label for="id_forma_pago">Forma de Pago:</label>
                     <select id="id_forma_pago" name="id_forma_pago">

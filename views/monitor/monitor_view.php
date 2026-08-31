@@ -14,22 +14,45 @@
             <p>No hay cursos con vacantes disponibles en este momento.</p>
         </div>
     <?php else: ?>
+        <?php $cursos_por_horario = []; ?>
         <?php foreach ($cursos_disponibles as $curso): ?>
-            <div class="card" style="background-color: #fff; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); width: 320px; padding: 15px; margin-bottom: 20px;">
-                <h3 style="margin-top: 0; color: #0056b3;"><?php echo htmlspecialchars($curso['nombre_curso']); ?></h3>
-                <p><strong>Profesor:</strong> <?php echo htmlspecialchars($curso['nombre_profesor']); ?></p>
-                <p><strong>Periodo:</strong> <?php echo date('d/m/Y', strtotime($curso['fecha_inicio'])); ?> - <?php echo date('d/m/Y', strtotime($curso['fecha_fin'])); ?></p>
-                <p><strong>Horario:</strong> <?php echo htmlspecialchars($curso['horario_dias']); ?> (<?php echo date('H:i', strtotime($curso['hora_inicio'])); ?> - <?php echo date('H:i', strtotime($curso['hora_fin'])); ?>)</p>
-                <p><strong>Ubicación:</strong> <?php echo htmlspecialchars($curso['area'] . ' - ' . $curso['sub_area'] . ' ' . $curso['numero_sub_area']); ?></p>
-                <p><strong>Vacantes:</strong> <?php echo htmlspecialchars($curso['vacantes_disponibles']); ?></p>
-                <p><strong>Precio:</strong> S/ <?php echo number_format($curso['precio_actual'], 2); ?></p>
-            </div>
+            <?php $cursos_por_horario[$curso['horario_dias'] ?: 'Sin horario'] [] = $curso; ?>
+        <?php endforeach; ?>
+        <?php foreach ($cursos_por_horario as $horario => $cursos): ?>
+            <section class="monitor-schedule-group">
+                <h2><?php echo htmlspecialchars($horario); ?></h2>
+                <div class="monitor-schedule-cards">
+                    <?php foreach ($cursos as $curso): ?>
+                        <div class="card monitor-course-card">
+                            <h3><?php echo htmlspecialchars($curso['nombre_curso']); ?></h3>
+                            <p><strong>Profesor:</strong> <?php echo htmlspecialchars($curso['nombre_profesor']); ?></p>
+                            <p><strong>Periodo:</strong> <?php echo date('d/m/Y', strtotime($curso['fecha_inicio'])); ?> - <?php echo date('d/m/Y', strtotime($curso['fecha_fin'])); ?></p>
+                            <p><strong>Horario:</strong> <?php echo htmlspecialchars($curso['horario_dias']); ?> (<?php echo date('H:i', strtotime($curso['hora_inicio'])); ?> - <?php echo date('H:i', strtotime($curso['hora_fin'])); ?>)</p>
+                            <p><strong>Ubicación:</strong> <?php echo htmlspecialchars($curso['area'] . ' - ' . $curso['sub_area'] . ' ' . $curso['numero_sub_area']); ?></p>
+                            <p><strong>Vacantes:</strong> <?php echo htmlspecialchars($curso['vacantes_disponibles']); ?></p>
+                            <p><strong>Precio:</strong> S/ <?php echo number_format($curso['precio_actual'], 2); ?></p>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </section>
         <?php endforeach; ?>
     <?php endif; ?>
 </div>
 
 <style>
 .cards-container {
+    display: grid;
+    gap: 24px;
+}
+.monitor-schedule-group {
+    width: 100%;
+}
+.monitor-schedule-group h2 {
+    margin: 0 0 12px;
+    color: #253858;
+    font-size: 1.05rem;
+}
+.monitor-schedule-cards {
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
@@ -106,7 +129,15 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        monitorCards.innerHTML = cursos.map(function(curso) {
+        const cursosPorHorario = cursos.reduce(function(grupos, curso) {
+            const horario = curso.horario_dias || 'Sin horario';
+            if (!grupos[horario]) grupos[horario] = [];
+            grupos[horario].push(curso);
+            return grupos;
+        }, {});
+
+        monitorCards.innerHTML = Object.entries(cursosPorHorario).map(function([horario, cursosHorario]) {
+            const cards = cursosHorario.map(function(curso) {
             const ubicacion = `${curso.area} - ${curso.sub_area} ${curso.numero_sub_area}`;
             return `<div class="card monitor-course-card">
                 <h3>${escapeHtml(curso.nombre_curso)}</h3>
@@ -117,6 +148,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 <p><strong>Vacantes:</strong> ${escapeHtml(curso.vacantes_disponibles)}</p>
                 <p><strong>Precio:</strong> S/ ${Number(curso.precio_actual || 0).toFixed(2)}</p>
             </div>`;
+            }).join('');
+            return `<section class="monitor-schedule-group">
+                <h2>${escapeHtml(horario)}</h2>
+                <div class="monitor-schedule-cards">${cards}</div>
+            </section>`;
         }).join('');
     }
 

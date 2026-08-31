@@ -42,7 +42,7 @@ $base_url = defined('SITE_URL') ? SITE_URL : '';
             <li class="nav-dropdown" data-menu="configuracion">
                 <a href="#"><i class="bi bi-sliders nav-icon" aria-hidden="true"></i>Configuración</a>
                 <ul class="dropdown-content">
-                    <li><a href="<?php echo $base_url; ?>index.php?view=clientes"><i class="bi bi-people nav-icon" aria-hidden="true"></i>Clientes</a></li>
+                    <li><a href="<?php echo $base_url; ?>index.php?view=clientes"><i class="bi bi-people nav-icon" aria-hidden="true"></i>Alumnos</a></li>
                     <li><a href="<?php echo $base_url; ?>index.php?view=profesores"><i class="bi bi-person-workspace nav-icon" aria-hidden="true"></i>Profesores</a></li>
                     <li><a href="<?php echo $base_url; ?>index.php?view=cursos"><i class="bi bi-journal-bookmark nav-icon" aria-hidden="true"></i>Cursos</a></li>
                     <li><a href="<?php echo $base_url; ?>index.php?view=areas"><i class="bi bi-building nav-icon" aria-hidden="true"></i>Areas</a></li>
@@ -79,7 +79,7 @@ $base_url = defined('SITE_URL') ? SITE_URL : '';
                 <a href="#"><i class="bi bi-bookmark-check nav-icon" aria-hidden="true"></i>Asistencia</a>
                 <ul class="dropdown-content">
                     <li><a href="<?php echo $base_url; ?>index.php?view=asistencia_profesores"><i class="bi bi-person-check nav-icon" aria-hidden="true"></i>Asistencia Profesores</a></li>
-                    <li><a href="<?php echo $base_url; ?>index.php?view=asistencia_clientes"><i class="bi bi-people-fill nav-icon" aria-hidden="true"></i>Asistencia Clientes</a></li>
+                    <li><a href="<?php echo $base_url; ?>index.php?view=asistencia_clientes"><i class="bi bi-people-fill nav-icon" aria-hidden="true"></i>Asistencia Alumnos</a></li>
                 </ul>
             </li>
 
