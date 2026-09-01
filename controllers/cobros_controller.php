@@ -184,9 +184,11 @@ try {
                     header('Location: index.php?view=cobros');
                     exit;
                 }
+                $cobro_actual['saldo_pendiente'] = $cobroModel->obtenerSaldoMatricula($cobro_actual['id_matricula']);
                 $selected_matricula = [
                     'id_matricula' => $cobro_actual['id_matricula'],
                     'nombre_cliente' => $cobro_actual['nombre_cliente'],
+                    'alumnos_cursos' => $cobro_actual['alumnos_cursos'] ?? '',
                     'monto_final' => $cobro_actual['monto_final'],
                     'saldo_pendiente' => $cobro_actual['saldo_pendiente'],
                 ];
@@ -208,9 +210,11 @@ try {
                     header('Location: index.php?view=cobros');
                     exit;
                 }
+                $cobro_actual['saldo_pendiente'] = $cobroModel->obtenerSaldoMatricula($cobro_actual['id_matricula']);
                 $selected_matricula = [
                     'id_matricula' => $cobro_actual['id_matricula'],
                     'nombre_cliente' => $cobro_actual['nombre_cliente'],
+                    'alumnos_cursos' => $cobro_actual['alumnos_cursos'] ?? '',
                     'monto_final' => $cobro_actual['monto_final'],
                     'saldo_pendiente' => $cobro_actual['saldo_pendiente'],
                 ];

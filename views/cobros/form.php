@@ -52,9 +52,9 @@ require_once 'views/partials/header.php';
                 <div>
                     <strong>Matrícula:</strong> <span id="selected-id-matricula"><?php echo (int)($selected_matricula['id_matricula'] ?? 0); ?></span>
                 </div>
-                <div>
+                <!-- <div>
                     <strong>Cliente:</strong> <span id="selected-nombre-cliente"><?php echo htmlspecialchars($selected_matricula['nombre_cliente'] ?? ''); ?></span>
-                </div>
+                </div> -->
                 <div class="summary-detail-full">
                     <strong>Detalle de la matrícula:</strong>
                     <span id="selected-alumnos-cursos"><?php echo nl2br(htmlspecialchars($selected_matricula['alumnos_cursos'] ?? '', ENT_QUOTES, 'UTF-8')); ?></span>
@@ -206,7 +206,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const seleccionarMatricula = function (button) {
         const id = button.dataset.id;
-        const cliente = button.dataset.cliente;
         const resumen = button.dataset.resumen || '';
         const total = Number(button.dataset.total || 0).toFixed(2);
         const saldo = Number(button.dataset.saldo || 0).toFixed(2);
@@ -214,7 +213,6 @@ document.addEventListener('DOMContentLoaded', function () {
         saldoInput.value = id;
         matriculaSelected.style.display = 'block';
         document.getElementById('selected-id-matricula').textContent = id;
-        document.getElementById('selected-nombre-cliente').textContent = cliente;
         document.getElementById('selected-alumnos-cursos').textContent = resumen;
         document.getElementById('selected-monto-final').textContent = total;
         document.getElementById('selected-saldo-pendiente').textContent = saldo;
